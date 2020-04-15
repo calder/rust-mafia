@@ -20,7 +20,7 @@ TODO
 
 ## Contributing
 
-Contributions are very welcome!
+Contributions are very welcome! See the [issue tracker](https://github.com/calder/mafia/issues) if you're looking to get involved.
 
 ### Setup
 
