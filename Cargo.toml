@@ -1,0 +1,20 @@
+[package]
+name = "mafia"
+version = "0.1.0"
+edition = "2018"
+description = "Rust implementation of the classic party game Mafia"
+keywords = ["mafia", "game"]
+documentation = "https://docs.rs/mafia"
+repository = "https://github.com/calder/mafia"
+readme = "README.md"
+license = "MIT"
+license-file = "LICENSE"
+authors = ["Calder Coalson <caldercoalson@gmail.com>"]
+
+exclude = [
+  "/.travis.yml",
+  "/scripts",
+]
+
+[dependencies]
+goldenfile = "1"
