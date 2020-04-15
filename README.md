@@ -29,7 +29,7 @@ Contributions are very welcome!
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Install pre-commit hooks.
-scripts/install-git-hooks
+scripts/install_git_hooks.sh
 ```
 
 ### Running tests
@@ -40,10 +40,10 @@ To run all tests:
 bazel test //...
 ```
 
-To run a specific test:
+To debug a specific test:
 
 ```sh
-bazel test --test_output=streamed //path/to:test
+bazel test  --test_env=RUST_BACKTRACE=1 --test_output=streamed //src:lib_test
 ```
 
 ### Adding a new dependency
