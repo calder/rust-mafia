@@ -18,3 +18,10 @@ exclude = [
 
 [dependencies]
 goldenfile = "1"
+
+[raze]
+genmode = "Remote"
+workspace_path = "//cargo"
+
+[lib]
+path = "src/lib.rs"

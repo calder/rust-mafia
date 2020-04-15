@@ -25,7 +25,40 @@ Contributions are very welcome!
 ### Setup
 
 ```sh
+# Install Rust.
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Install pre-commit hooks.
 scripts/install-git-hooks
+```
+
+### Running tests
+
+To run all tests:
+
+```sh
+bazel test //...
+```
+
+To run a specific test:
+
+```sh
+bazel test --test_output=streamed //path/to:test
+```
+
+### Adding a new dependency
+
+First, install [`cargo raze`](https://github.com/google/cargo-raze):
+
+```sh
+sudo apt install libssl-dev
+cargo install cargo-raze
+```
+
+Then, add the dependency to `Cargo.tml` and run:
+```sh
+cd cargo
+cargo raze
 ```
 
 ### Code of conduct
