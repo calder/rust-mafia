@@ -26,21 +26,29 @@ impl App {
         self.terminal.clear()?;
 
         self.terminal.draw(|mut f| {
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .constraints(
-                    [
-                        Constraint::Percentage(10),
-                        Constraint::Percentage(80),
-                        Constraint::Percentage(10),
-                    ]
-                    .as_ref(),
-                )
+            // Split the screen into 2 columns.
+            let view = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
                 .split(f.size());
-            let block = Block::default().title("Block").borders(Borders::ALL);
-            f.render_widget(block, chunks[0]);
-            let block = Block::default().title("Block 2").borders(Borders::ALL);
-            f.render_widget(block, chunks[1]);
+
+            // Split the left column into 2 rows.
+            let left = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
+                .split(view[0]);
+
+            // Player list.
+            let block = Block::default().title("Players").borders(Borders::ALL);
+            f.render_widget(block, view[1]);
+
+            // Action picker.
+            let block = Block::default().title("Actions").borders(Borders::ALL);
+            f.render_widget(block, left[0]);
+
+            // Event log.
+            let block = Block::default().title("Events").borders(Borders::ALL);
+            f.render_widget(block, left[1]);
         })
     }
 
