@@ -20,7 +20,7 @@ TODO
 
 ## ❤️ Contributing
 
-Contributions are very welcome! See the [issue tracker](https://github.com/calder/mafia/issues) if you're looking to get involved but don't know where to start.
+Contributions are very welcome! See the [issue tracker](https://github.com/calder/rust-mafia/issues) if you're looking to get involved but don't know where to start.
 
 ### Setup
 
