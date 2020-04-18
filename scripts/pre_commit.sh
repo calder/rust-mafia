@@ -1,8 +1,8 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 cd "$(dirname "$0")/.."
 
-# Colors
+# Colors.
 RED="$(tput setaf 1)"
 GREEN="$(tput setaf 2)"
 RESET="$(tput sgr0)"
@@ -14,5 +14,9 @@ cargo fmt -- --check \
 # Make sure tests pass under both Bazel and Cargo.
 bazel test //...
 cargo test
+
+# Make sure binary runs under both Bazel and Cargo.
+bazel run //:mafia_bin
+cargo run
 
 printf "\nPresubmits ${GREEN}PASSED${RESET}.\n"

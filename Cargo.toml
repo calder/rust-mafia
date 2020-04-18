@@ -8,7 +8,6 @@ documentation = "https://docs.rs/mafia"
 repository = "https://github.com/calder/mafia"
 readme = "README.md"
 license = "MIT"
-license-file = "LICENSE"
 authors = ["Calder Coalson <caldercoalson@gmail.com>"]
 
 exclude = [
@@ -25,3 +24,7 @@ workspace_path = "//cargo"
 
 [lib]
 path = "src/lib.rs"
+
+[[bin]]
+name = "mafia"
+path = "src/bin.rs"
