@@ -1,3 +1,5 @@
+use mafia::tui;
+
 fn main() {
-    println!("Hello world!");
+    tui::main().unwrap();
 }

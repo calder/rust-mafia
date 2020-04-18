@@ -17,6 +17,8 @@ exclude = [
 
 [dependencies]
 goldenfile = "1"
+termion = "1.5"
+tui = "0.9"
 
 [raze]
 genmode = "Remote"
@@ -25,6 +27,6 @@ workspace_path = "//cargo"
 [lib]
 path = "src/lib.rs"
 
-[[bin]]
-name = "mafia"
-path = "src/bin.rs"
+# [[bin]]
+# name = "mafia"
+# path = "src/bin.rs"

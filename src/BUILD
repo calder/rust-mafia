@@ -1,13 +1,21 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@io_bazel_rules_rust//rust:rust.bzl", "rust_test")
+load("@io_bazel_rules_rust//rust:rust.bzl", "rust_library", "rust_test")
 
 filegroup(
-    name = "source",
-    srcs = glob(["*.rs"]),
+    name = "all",
+    srcs = glob([
+        "**/*.rs",
+        "*.rs",
+    ]),
+)
+
+rust_library(
+    name = "game",
+    srcs = ["game.rs"],
 )
 
 rust_test(
-    name = "lib_test",
-    srcs = ["lib.rs"],
+    name = "game_test",
+    crate = ":game",
 )

@@ -2,10 +2,6 @@
 
 #![deny(missing_docs)]
 
-#[cfg(test)]
-mod test {
-    #[test]
-    fn placeholder() {
-        assert!(true);
-    }
-}
+// pub mod tui;
+
+mod game;

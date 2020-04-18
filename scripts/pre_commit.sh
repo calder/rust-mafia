@@ -12,11 +12,12 @@ cargo fmt -- --check \
     || { printf "\n${RED}ERROR${RESET}: Run \`cargo fmt\` before committing.\n"; exit 1; }
 
 # Make sure tests pass under both Bazel and Cargo.
+bazel build //...
 bazel test //...
 cargo test
 
 # Make sure binary runs under both Bazel and Cargo.
-bazel run //:mafia_bin
-cargo run
+# bazel run //:mafia_bin
+# cargo run
 
 printf "\nPresubmits ${GREEN}PASSED${RESET}.\n"
