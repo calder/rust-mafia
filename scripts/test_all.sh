@@ -16,6 +16,20 @@ function check_cargo_fmt {
     fi
 }
 
+# Check version numbers are in sync.
+function get_version {
+    sed -nr 's/version = "(.*)"/\1/p' "$1/Cargo.toml" | head -n1
+}
+function check_versions_match {
+    VERSION1="$(get_version $1)"
+    VERSION2="$(get_version $2)"
+    if [[ "$VERSION1" != "$VERSION2" ]]; then
+        echo "${RED}ERROR:${RESET} $1 version ($VERSION1) and $2 version ($VERSION2) don't match!\n"
+        exit 1
+    fi
+}
+check_versions_match mafia mafia-bin
+
 # Test mafia.
 (
     cd mafia
@@ -27,7 +41,7 @@ function check_cargo_fmt {
 (
     cd mafia-bin
     check_cargo_fmt
-    cargo run
+    cargo run -- version
 )
 
 printf "\nTests ${GREEN}PASSED${RESET}.\n"
