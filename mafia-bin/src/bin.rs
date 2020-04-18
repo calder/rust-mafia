@@ -1,8 +1,7 @@
 use structopt::StructOpt;
-use tokio::net::TcpListener;
-use tokio::prelude::*;
 
-use mafia_bin::ui;
+use mafia_bin::client::Client;
+use mafia_bin::server::Server;
 
 /// Rust implementation of the classic party game Mafia.
 #[derive(StructOpt)]
@@ -39,7 +38,7 @@ async fn main() {
 
     match opt.cmd {
         Command::Join { smoketest } => {
-            let mut app = ui::Client::new().unwrap();
+            let mut app = Client::new().unwrap();
 
             if smoketest {
                 app.draw().unwrap();
@@ -49,31 +48,10 @@ async fn main() {
         }
 
         Command::Host { smoketest } => {
-            let mut listener = TcpListener::bind("127.0.0.1:8080").await.unwrap();
+            let mut server = Server::new().await.unwrap();
 
-            if smoketest {
-                return;
-            }
-
-            loop {
-                let (mut socket, _) = listener.accept().await.unwrap();
-
-                tokio::spawn(async move {
-                    let mut buf = [0; 1024];
-
-                    loop {
-                        match socket.read(&mut buf).await {
-                            Ok(0) => return,
-                            Ok(n) => {
-                                eprintln!("{:?}", std::str::from_utf8(&buf[0..n]));
-                            }
-                            Err(e) => {
-                                eprintln!("Error reading from socket: {:?}", e);
-                                return;
-                            }
-                        };
-                    }
-                });
+            if !smoketest {
+                server.run().await.unwrap();
             }
         }
 
