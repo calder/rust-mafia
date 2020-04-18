@@ -18,9 +18,9 @@ TODO
 
 
 
-## Contributing
+## ❤️ Contributing
 
-Contributions are very welcome! See the [issue tracker](https://github.com/calder/mafia/issues) if you're looking to get involved.
+Contributions are very welcome! See the [issue tracker](https://github.com/calder/mafia/issues) if you're looking to get involved but don't know where to start.
 
 ### Setup
 
@@ -28,8 +28,8 @@ Contributions are very welcome! See the [issue tracker](https://github.com/calde
 # Install Rust.
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Install pre-commit hooks.
-scripts/install_git_hooks.sh
+# Set up pre-commit hooks.
+scripts/setup_git_hooks.sh
 ```
 
 ### Running tests
@@ -37,28 +37,14 @@ scripts/install_git_hooks.sh
 To run all tests:
 
 ```sh
-bazel test //...
+scripts/test_all.sh
 ```
 
-To debug a specific test:
+To run a specific test:
 
 ```sh
-bazel test  --test_env=RUST_BACKTRACE=1 --test_output=streamed //src:lib_test
-```
-
-### Adding a new dependency
-
-First, install [`cargo raze`](https://github.com/google/cargo-raze):
-
-```sh
-sudo apt install libssl-dev
-cargo install cargo-raze
-```
-
-Then, add the dependency to `Cargo.tml` and run:
-```sh
-cd cargo
-cargo raze
+cd mafia
+cargo test player
 ```
 
 ### Code of conduct

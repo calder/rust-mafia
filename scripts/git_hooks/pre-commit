@@ -4,4 +4,4 @@ pwd
 cd "$(dirname "$0")/../.."
 pwd
 
-scripts/pre_commit.sh
+scripts/test_all.sh

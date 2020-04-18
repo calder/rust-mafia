@@ -30,4 +30,4 @@ function check_cargo_fmt {
     cargo run
 )
 
-printf "\nPresubmits ${GREEN}PASSED${RESET}.\n"
+printf "\nTests ${GREEN}PASSED${RESET}.\n"

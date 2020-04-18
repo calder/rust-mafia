@@ -6,7 +6,7 @@ description = "Rust implementation of the classic party game Mafia"
 keywords = ["mafia", "game"]
 documentation = "https://docs.rs/mafia"
 repository = "https://github.com/calder/mafia"
-readme = "README.md"
+readme = "../README.md"
 license = "MIT"
 authors = [
   "Calder Coalson <caldercoalson@gmail.com>",
