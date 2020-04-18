@@ -26,7 +26,7 @@ function check_versions_match {
     VERSION1="$(get_version $1)"
     VERSION2="$(get_version $2)"
     if [[ "$VERSION1" != "$VERSION2" ]]; then
-        echo "${RED}ERROR:${RESET} $1 version ($VERSION1) and $2 version ($VERSION2) don't match!\n"
+        echo "${RED}ERROR:${RESET} $1 version ($VERSION1) != $2 version ($VERSION2)"
         exit 1
     fi
 }
