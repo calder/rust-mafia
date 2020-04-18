@@ -9,17 +9,17 @@ use tui::layout::{Constraint, Direction, Layout};
 use tui::widgets::{Block, Borders};
 use tui::Terminal;
 
-pub struct App {
+pub struct Client {
     terminal: Terminal<tui::backend::TermionBackend<termion::raw::RawTerminal<io::Stdout>>>,
 }
 
-impl App {
-    pub fn new() -> Result<App, io::Error> {
+impl Client {
+    pub fn new() -> Result<Client, io::Error> {
         let stdout = io::stdout().into_raw_mode()?;
         let backend = TermionBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
 
-        Ok(App { terminal: terminal })
+        Ok(Client { terminal: terminal })
     }
 
     pub fn draw(self: &mut Self) -> Result<(), io::Error> {
