@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-pwd
 cd "$(dirname "$0")/../.."
-pwd
 
 scripts/test_all.sh
