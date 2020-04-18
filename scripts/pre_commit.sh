@@ -11,8 +11,7 @@ RESET="$(tput sgr0)"
 # Check formatting.
 function check_cargo_fmt {
     if ! cargo fmt -- --check; then
-        CD_COMMAND="cd $PWD"
-        printf "${YELLOW}HINT:${RESET} Run\n\n    ${CD_COMMAND} && cargo fmt\n\nbefore committing.\n"
+        printf "${YELLOW}HINT:${RESET} Run\n\n    scripts/format_all.sh\n\nbefore committing.\n"
         exit 1
     fi
 }
