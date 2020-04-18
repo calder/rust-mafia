@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/.."
 
 # Colors.
 GREEN="$(tput setaf 2)"

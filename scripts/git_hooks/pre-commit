@@ -1,1 +1,7 @@
-../pre_commit.sh
+#!/bin/bash -ex
+
+pwd
+cd "$(dirname "$0")/../.."
+pwd
+
+scripts/pre_commit.sh
