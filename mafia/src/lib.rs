@@ -2,6 +2,4 @@
 
 #![deny(missing_docs)]
 
-// pub mod tui;
-
 mod game;

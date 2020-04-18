@@ -1,0 +1,19 @@
+[package]
+name = "mafia"
+version = "0.1.0"
+edition = "2018"
+description = "Rust backend for the classic party game Mafia"
+keywords = ["mafia", "game", "library"]
+documentation = "https://docs.rs/mafia"
+repository = "https://github.com/calder/mafia"
+readme = "README.md"
+license = "MIT"
+authors = [
+  "Calder Coalson <caldercoalson@gmail.com>",
+]
+
+[dev-dependencies]
+goldenfile = "1"
+
+[lib]
+path = "src/lib.rs"

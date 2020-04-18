@@ -1,5 +1,4 @@
 *.bk
 *.sublime-workspace
-
-/Cargo.lock
-/target
+Cargo.lock
+target/

@@ -1,23 +1,34 @@
 #!/bin/bash -e
 
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
 # Colors.
-RED="$(tput setaf 1)"
 GREEN="$(tput setaf 2)"
+YELLOW="$(tput setaf 3)"
+RED="$(tput setaf 1)"
 RESET="$(tput sgr0)"
 
 # Check formatting.
-cargo fmt -- --check \
-    || { printf "\n${RED}ERROR${RESET}: Run \`cargo fmt\` before committing.\n"; exit 1; }
+function check_cargo_fmt {
+    if ! cargo fmt -- --check; then
+        CD_COMMAND="cd $PWD"
+        printf "${YELLOW}HINT:${RESET} Run\n\n    ${CD_COMMAND} && cargo fmt\n\nbefore committing.\n"
+        exit 1
+    fi
+}
 
-# Make sure tests pass under both Bazel and Cargo.
-bazel build //...
-bazel test //...
-cargo test
+# Test mafia.
+(
+    cd mafia
+    check_cargo_fmt
+    cargo test
+)
 
-# Make sure binary runs under both Bazel and Cargo.
-# bazel run //:mafia_bin
-# cargo run
+# Test mafia-bin.
+(
+    cd mafia-bin
+    check_cargo_fmt
+    cargo run
+)
 
 printf "\nPresubmits ${GREEN}PASSED${RESET}.\n"
