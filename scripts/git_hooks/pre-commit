@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 pwd
 cd "$(dirname "$0")/../.."
