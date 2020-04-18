@@ -16,10 +16,12 @@ function check_cargo_fmt {
     fi
 }
 
-# Check version numbers are in sync.
+# Get the version of a subpackage.
 function get_version {
     sed -nr 's/version = "(.*)"/\1/p' "$1/Cargo.toml" | head -n1
 }
+
+# Check that 2 subpackages versions are in sync.
 function check_versions_match {
     VERSION1="$(get_version $1)"
     VERSION2="$(get_version $2)"
@@ -28,6 +30,8 @@ function check_versions_match {
         exit 1
     fi
 }
+
+# Check versions.
 check_versions_match mafia mafia-bin
 
 # Test mafia.
