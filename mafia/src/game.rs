@@ -14,7 +14,7 @@ pub struct Game {
 }
 
 impl Game {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Game {
             players: Set::new(),
             start: State::new(),
@@ -31,7 +31,7 @@ pub struct State {
 }
 
 impl State {
-    fn new() -> Self {
+    pub fn new() -> Self {
         State {
             players: Map::new(),
             phase: Phase::Night(0),
@@ -77,7 +77,7 @@ pub struct Log {
 }
 
 impl Log {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Log { events: Vec::new() }
     }
 }

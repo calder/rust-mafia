@@ -1,0 +1,14 @@
+(
+    players: [],
+    start: (
+        players: {},
+        phase: Night(0),
+    ),
+    state: (
+        players: {},
+        phase: Night(0),
+    ),
+    log: (
+        events: [],
+    ),
+)

@@ -1,5 +1,7 @@
 //! Rust backend for the classic party game Mafia.
 
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 
 mod game;
+
+pub use game::*;
