@@ -2,4 +2,4 @@
 
 #![deny(missing_docs)]
 
-mod player;
+mod game;
