@@ -1,12 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::ability::*;
-use crate::modifier::*;
-use crate::util::*;
-
-pub type Factions = Map<Faction, FactionState>;
-pub type Players = Map<Player, PlayerState>;
-pub type PlayerState = Vec<Modifier>;
+use crate::faction::*;
+use crate::player::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct State {
@@ -21,26 +16,4 @@ impl State {
             players: Players::new(),
         }
     }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct FactionState {
-    #[serde(default, skip_serializing_if = "IsDefault::is_default")]
-    abilities: Vec<Ability>,
-
-    membership: Membership,
-
-    objective: Objective,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum Membership {
-    Hidden,
-    Visible,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum Objective {
-    EliminateMafia,
-    AchieveMajority,
 }

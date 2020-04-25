@@ -56,6 +56,10 @@ impl Game {
     }
 
     fn get_fate(self: &Self, faction: &Faction) -> Fate {
-        Fate::Won
+        let state = &self.state.factions[faction];
+
+        match state.objective {
+            _ => Fate::Undecided,
+        }
     }
 }
