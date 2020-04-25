@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 type Map<K, V> = std::collections::BTreeMap<K, V>;
 type Set<T> = std::collections::BTreeSet<T>;
 
+type Log = Vec<Event>;
 type Player = String;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -69,17 +70,6 @@ pub enum Deadline {
 pub enum Phase {
     Day(i64),
     Night(i64),
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Log {
-    events: Vec<Event>,
-}
-
-impl Log {
-    pub fn new() -> Self {
-        Log { events: Vec::new() }
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
