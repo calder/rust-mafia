@@ -1,11 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::phase::*;
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Ability {
     kind: AbilityKind,
-    phase: PhaseKind,
+    phase: AbilityPhase,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -13,4 +11,10 @@ pub enum AbilityKind {
     Investigate,
     Kill,
     Protect,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum AbilityPhase {
+    Day,
+    Night,
 }
