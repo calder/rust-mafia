@@ -1,8 +1,26 @@
-{
-    "Alice": [
-        (
-            effect: BelongsTo("Mafia"),
-            expires: Never,
+(
+    factions: {
+        "Mafia": (
+            abilities: [Kill],
+            membership: Visible,
+            objective: AchieveMajority,
         ),
-    ],
-}
+        "Town": (
+            abilities: [],
+            membership: Hidden,
+            objective: AchieveMajority,
+        ),
+    },
+    players: {
+        "Alice": [
+            (
+                effect: BelongsTo("Mafia"),
+                expires: Never,
+            ),
+            (
+                effect: Has(Kill),
+                expires: Never,
+            ),
+        ],
+    },
+)
