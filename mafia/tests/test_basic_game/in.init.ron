@@ -8,39 +8,14 @@
         "Town": (
             abilities: [],
             membership: Hidden,
-            objective: AchieveMajority,
+            objective: EliminateMafia,
         ),
     },
     players: {
-        "Alice": [
-            (
-                effect: BelongsTo("Town"),
-                expires: Never,
-            ),
-        ],
-        "Bob": [
-            (
-                effect: BelongsTo("Town"),
-                expires: Never,
-            ),
-        ],
-        "Charlie": [
-            (
-                effect: BelongsTo("Town"),
-                expires: Never,
-            ),
-        ],
-        "Eve": [
-            (
-                effect: BelongsTo("Mafia"),
-                expires: Never,
-            ),
-        ],
-        "Malory": [
-            (
-                effect: BelongsTo("Mafia"),
-                expires: Never,
-            ),
-        ],
+        "Alice": [(effect: BelongsTo("Town"))],
+        "Bob": [(effect: BelongsTo("Town"))],
+        "Charlie": [(effect: BelongsTo("Town"))],
+        "Eve": [(effect: BelongsTo("Mafia"))],
+        "Malory": [(effect: BelongsTo("Mafia"))],
     },
 )

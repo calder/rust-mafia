@@ -6,3 +6,9 @@ pub enum Deadline {
     Days(i64),
     Nights(i64),
 }
+
+impl Default for Deadline {
+    fn default() -> Self {
+        Deadline::Never
+    }
+}
