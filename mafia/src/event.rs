@@ -5,7 +5,7 @@ use crate::input::*;
 use crate::phase::*;
 use crate::util::*;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Event {
     Died(Player),
     Input(Input),

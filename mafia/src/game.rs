@@ -6,7 +6,7 @@ use crate::log::*;
 use crate::phase::*;
 use crate::state::*;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Game {
     pub start: State,
     pub state: State,

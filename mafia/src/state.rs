@@ -8,7 +8,7 @@ pub type Factions = Map<Faction, FactionState>;
 pub type Players = Map<Player, PlayerState>;
 pub type PlayerState = Vec<Modifier>;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct State {
     factions: Factions,
     players: Players,
@@ -23,20 +23,20 @@ impl State {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct FactionState {
     abilities: Vec<Ability>,
     membership: Membership,
     objective: Objective,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Membership {
     Hidden,
     Visible,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Objective {
     EliminateMafia,
     AchieveMajority,

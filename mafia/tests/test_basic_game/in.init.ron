@@ -1,10 +1,7 @@
 (
     factions: {
         "Mafia": (
-            abilities: [(
-                kind: Kill,
-                phase: Night,
-            )],
+            abilities: [(kind: Kill)],
             membership: Visible,
             objective: AchieveMajority,
         ),
