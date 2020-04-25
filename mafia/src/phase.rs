@@ -21,17 +21,17 @@ impl Phase {
         }
     }
 
-    pub fn seq(self: &Self) -> i64 {
+    pub fn num(self: &Self) -> i64 {
         match self {
-            Self::Day(n) => 2 * n - 1,
-            Self::Night(n) => 2 * n,
+            Self::Day(n) => *n,
+            Self::Night(n) => *n,
         }
     }
 
-    pub fn id(self: &Self) -> String {
+    pub fn type_str(self: &Self) -> &str {
         match self {
-            Self::Day(n) => format!("day{}", n),
-            Self::Night(n) => format!("night{}", n),
+            Self::Day(_) => "day",
+            Self::Night(_) => "night",
         }
     }
 }

@@ -40,28 +40,23 @@ impl TestHelper {
 pub fn run_test<P: AsRef<std::path::Path>>(path: P) {
     let mut t = TestHelper::new(path);
 
-    let mut game = mafia::Game::new_from_state(t.load("in.setup.ron"));
+    let mut game = mafia::Game::new_from_state(t.load("in.init.ron"));
     let inputs: mafia::Inputs = t.load("in.input.ron");
 
     for input in inputs {
         game.apply(&input);
         match input {
             mafia::Input::AdvancePhase => {
-                println!(
-                    "out.{:03}.{}_log.ron",
-                    game.phase.prev().seq(),
-                    game.phase.prev().id()
-                );
                 t.save(
                     format!(
-                        "out.{:03}.{}_log.ron",
-                        game.phase.prev().seq(),
-                        game.phase.prev().id()
+                        "out.{}.{}_log.ron",
+                        game.phase.prev().num(),
+                        game.phase.prev().type_str(),
                     ),
                     &game.log,
                 );
                 t.save(
-                    format!("out.{:03}.{}.ron", game.phase.seq(), game.phase.id()),
+                    format!("out.{}.{}.ron", game.phase.num(), game.phase.type_str(),),
                     &game.state,
                 );
             }
