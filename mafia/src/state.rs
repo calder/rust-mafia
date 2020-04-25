@@ -25,8 +25,11 @@ impl State {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct FactionState {
+    #[serde(default, skip_serializing_if = "IsDefault::is_default")]
     abilities: Vec<Ability>,
+
     membership: Membership,
+
     objective: Objective,
 }
 

@@ -10,7 +10,6 @@
             objective: AchieveMajority,
         ),
         "Town": (
-            abilities: [],
             membership: Hidden,
             objective: EliminateMafia,
         ),
