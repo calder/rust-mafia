@@ -18,6 +18,30 @@
     players: {
         "Alice": [
             (
+                effect: BelongsTo("Town"),
+                expires: Never,
+            ),
+        ],
+        "Bob": [
+            (
+                effect: BelongsTo("Town"),
+                expires: Never,
+            ),
+        ],
+        "Charlie": [
+            (
+                effect: BelongsTo("Town"),
+                expires: Never,
+            ),
+        ],
+        "Eve": [
+            (
+                effect: BelongsTo("Mafia"),
+                expires: Never,
+            ),
+        ],
+        "Malory": [
+            (
                 effect: BelongsTo("Mafia"),
                 expires: Never,
             ),
