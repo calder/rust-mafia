@@ -1,9 +1,12 @@
 use serde::{Deserialize, Serialize};
 
+use crate::alignment::*;
+use crate::effect::*;
 use crate::event::*;
 use crate::fate::*;
 use crate::input::*;
 use crate::log::*;
+use crate::objective::*;
 use crate::phase::*;
 use crate::state::*;
 use crate::util::*;
@@ -55,11 +58,71 @@ impl Game {
         self.phase = self.phase.next();
     }
 
+    fn any_evil_players_remaining(self: &Self) -> bool {
+        for (player, _) in &self.state.players {
+            if self.is_alive(player) && self.get_player_alignment(player) == Alignment::Evil {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn any_members_remaining(self: &Self, faction: &Faction) -> bool {
+        for (player, _) in &self.state.players {
+            if self.is_alive(player) && self.get_faction(player) == *faction {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn get_faction(self: &Self, player: &Player) -> Faction {
+        for modifier in self.state.players[player].iter().rev() {
+            match &modifier.effect {
+                Effect::BelongsTo(faction) => return faction.clone(),
+                _ => {}
+            }
+        }
+        "None".to_string()
+    }
+
+    fn get_player_alignment(self: &Self, player: &Player) -> Alignment {
+        self.get_faction_alignment(&self.get_faction(player))
+    }
+
+    fn get_faction_alignment(self: &Self, faction: &Faction) -> Alignment {
+        self.state.factions[faction].alignment.clone()
+    }
+
     fn get_fate(self: &Self, faction: &Faction) -> Fate {
         let state = &self.state.factions[faction];
 
         match state.objective {
-            _ => Fate::Undecided,
+            Objective::Survive => {
+                if self.any_members_remaining(faction) {
+                    Fate::Winning
+                } else {
+                    Fate::Lost
+                }
+            }
+            Objective::EliminateEvil => {
+                if self.any_evil_players_remaining() {
+                    Fate::Losing
+                } else {
+                    Fate::Won
+                }
+            }
+            _ => Fate::Losing,
         }
+    }
+
+    fn is_alive(self: &Self, player: &Player) -> bool {
+        for modifier in self.state.players[player].iter().rev() {
+            match modifier.effect {
+                Effect::Dead => return true,
+                _ => {}
+            }
+        }
+        true
     }
 }

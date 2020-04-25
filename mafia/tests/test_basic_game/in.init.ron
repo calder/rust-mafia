@@ -2,12 +2,14 @@
     factions: {
         "Mafia": (
             abilities: [(kind: Kill)],
+            alignment: Evil,
             membership: Visible,
             objective: AchieveMajority,
         ),
         "Town": (
+            alignment: Good,
             membership: Hidden,
-            objective: EliminateMafia,
+            objective: EliminateEvil,
         ),
     },
     players: {
