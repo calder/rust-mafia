@@ -6,5 +6,5 @@ use crate::effect::*;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Modifier {
     effect: Effect,
-    expiration: Deadline,
+    expires: Deadline,
 }
