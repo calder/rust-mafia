@@ -10,8 +10,8 @@ pub type PlayerState = Vec<Modifier>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct State {
-    factions: Factions,
-    players: Players,
+    pub factions: Factions,
+    pub players: Players,
 }
 
 impl State {

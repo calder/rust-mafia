@@ -12,4 +12,5 @@ pub enum Event {
     Planned(Player, Action),
     PhaseEnded(Phase),
     Used(Player, Action),
+    Won(Faction),
 }

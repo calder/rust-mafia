@@ -1,4 +1,6 @@
 [
     Input(AdvancePhase),
+    Won("Mafia"),
+    Won("Town"),
     PhaseEnded(Night(0)),
 ]

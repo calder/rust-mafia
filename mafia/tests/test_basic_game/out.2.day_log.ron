@@ -1,10 +1,18 @@
 [
     Input(AdvancePhase),
+    Won("Mafia"),
+    Won("Town"),
     PhaseEnded(Night(0)),
     Input(AdvancePhase),
+    Won("Mafia"),
+    Won("Town"),
     PhaseEnded(Day(1)),
     Input(AdvancePhase),
+    Won("Mafia"),
+    Won("Town"),
     PhaseEnded(Night(1)),
     Input(AdvancePhase),
+    Won("Mafia"),
+    Won("Town"),
     PhaseEnded(Day(2)),
 ]
