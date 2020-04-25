@@ -1,0 +1,6 @@
+[
+    Input(AdvancePhase),
+    PhaseEnded(Night(0)),
+    Input(AdvancePhase),
+    PhaseEnded(Day(1)),
+]
