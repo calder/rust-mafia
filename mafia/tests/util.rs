@@ -51,12 +51,12 @@ pub fn run_test<P: AsRef<std::path::Path>>(path: P) {
                     format!(
                         "out.{}.{}_log.ron",
                         game.phase.prev().num(),
-                        game.phase.prev().type_str(),
+                        game.phase.prev().kind_str(),
                     ),
                     &game.log,
                 );
                 t.save(
-                    format!("out.{}.{}.ron", game.phase.num(), game.phase.type_str(),),
+                    format!("out.{}.{}.ron", game.phase.num(), game.phase.kind_str(),),
                     &game.state,
                 );
             }

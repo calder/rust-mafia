@@ -6,6 +6,12 @@ pub enum Phase {
     Night(i64),
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum PhaseKind {
+    Day,
+    Night,
+}
+
 impl Phase {
     pub fn prev(self: &Self) -> Self {
         match self {
@@ -28,7 +34,7 @@ impl Phase {
         }
     }
 
-    pub fn type_str(self: &Self) -> &str {
+    pub fn kind_str(self: &Self) -> &str {
         match self {
             Self::Day(_) => "day",
             Self::Night(_) => "night",

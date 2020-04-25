@@ -2,7 +2,10 @@
     factions: {
         "Mafia": (
             abilities: [
-                Kill,
+                (
+                    kind: Kill,
+                    phase: Night,
+                ),
             ],
             membership: Visible,
             objective: AchieveMajority,
@@ -17,10 +20,6 @@
         "Alice": [
             (
                 effect: BelongsTo("Mafia"),
-                expires: Never,
-            ),
-            (
-                effect: Has(Kill),
                 expires: Never,
             ),
         ],

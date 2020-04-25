@@ -37,11 +37,13 @@ impl Game {
         self.log.push(Event::Input(input.clone()));
 
         match input {
-            Input::AdvancePhase => {
-                self.log.push(Event::PhaseEnded(self.phase.clone()));
-                self.phase = self.phase.next();
-            }
+            Input::AdvancePhase => self.resolve(),
             Input::Use(_, _) => {}
         }
+    }
+
+    fn resolve(self: &mut Self) {
+        self.log.push(Event::PhaseEnded(self.phase.clone()));
+        self.phase = self.phase.next();
     }
 }
