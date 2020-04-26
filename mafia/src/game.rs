@@ -58,24 +58,6 @@ impl Game {
         self.phase = self.phase.next();
     }
 
-    fn any_evil_players_remaining(self: &Self) -> bool {
-        for (player, _) in &self.state.players {
-            if self.is_alive(player) && self.get_player_alignment(player) == Alignment::Evil {
-                return true;
-            }
-        }
-        false
-    }
-
-    fn any_members_remaining(self: &Self, faction: &Faction) -> bool {
-        for (player, _) in &self.state.players {
-            if self.is_alive(player) && self.get_faction(player) == *faction {
-                return true;
-            }
-        }
-        false
-    }
-
     fn get_faction(self: &Self, player: &Player) -> Faction {
         for modifier in self.state.players[player].iter().rev() {
             match &modifier.effect {
@@ -97,22 +79,28 @@ impl Game {
     fn get_fate(self: &Self, faction: &Faction) -> Fate {
         let state = &self.state.factions[faction];
 
-        match state.objective {
-            Objective::Survive => {
-                if self.any_members_remaining(faction) {
-                    Fate::Winning
-                } else {
-                    Fate::Lost
-                }
-            }
-            Objective::EliminateEvil => {
-                if self.any_evil_players_remaining() {
+        match &state.objective {
+            Objective::Eliminate(alignment) => {
+                if self.num_alignment_remaining(alignment) > 0 {
                     Fate::Losing
                 } else {
                     Fate::Won
                 }
             }
-            _ => Fate::Losing,
+            Objective::Majority => {
+                if 2 * self.num_members_remaining(faction) > self.num_players_remaining() {
+                    Fate::Won
+                } else {
+                    Fate::Losing
+                }
+            }
+            Objective::Survive => {
+                if self.num_members_remaining(faction) > 0 {
+                    Fate::Winning
+                } else {
+                    Fate::Lost
+                }
+            }
         }
     }
 
@@ -124,5 +112,35 @@ impl Game {
             }
         }
         true
+    }
+
+    fn num_alignment_remaining(self: &Self, alignment: &Alignment) -> i64 {
+        let mut result = 0;
+        for (player, _) in &self.state.players {
+            if self.is_alive(player) && self.get_player_alignment(player) == *alignment {
+                result += 1
+            }
+        }
+        result
+    }
+
+    fn num_members_remaining(self: &Self, faction: &Faction) -> i64 {
+        let mut result = 0;
+        for (player, _) in &self.state.players {
+            if self.is_alive(player) && self.get_faction(player) == *faction {
+                result += 1
+            }
+        }
+        result
+    }
+
+    fn num_players_remaining(self: &Self) -> i64 {
+        let mut result = 0;
+        for (player, _) in &self.state.players {
+            if self.is_alive(player) {
+                result += 1
+            }
+        }
+        result
     }
 }

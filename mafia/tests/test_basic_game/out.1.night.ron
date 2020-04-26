@@ -8,12 +8,12 @@
             ],
             alignment: Evil,
             membership: Visible,
-            objective: AchieveMajority,
+            objective: Majority,
         ),
         "Town": (
             alignment: Good,
             membership: Hidden,
-            objective: EliminateEvil,
+            objective: Eliminate(Evil),
         ),
     },
     players: {
