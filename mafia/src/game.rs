@@ -81,17 +81,17 @@ impl Game {
 
         match &state.objective {
             Objective::Eliminate(alignment) => {
-                if self.num_alignment_remaining(alignment) > 0 {
-                    Fate::Losing
-                } else {
+                if self.num_alignment_remaining(alignment) == 0 {
                     Fate::Won
+                } else {
+                    Fate::Losing
                 }
             }
             Objective::EliminateFaction(faction) => {
-                if self.num_members_remaining(faction) > 0 {
-                    Fate::Losing
-                } else {
+                if self.num_members_remaining(faction) == 0 {
                     Fate::Won
+                } else {
+                    Fate::Losing
                 }
             }
             Objective::Majority => {
@@ -102,10 +102,10 @@ impl Game {
                 }
             }
             Objective::Survive => {
-                if self.num_members_remaining(faction) > 0 {
-                    Fate::Winning
-                } else {
+                if self.num_members_remaining(faction) == 0 {
                     Fate::Lost
+                } else {
+                    Fate::Winning
                 }
             }
         }
