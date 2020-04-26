@@ -1,0 +1,19 @@
+(
+    factions: {
+        "Mafia": (
+            alignment: Evil,
+            membership: Visible,
+            objective: Majority,
+        ),
+        "Town": (
+            alignment: Good,
+            membership: Hidden,
+            objective: Eliminate(Evil),
+        ),
+    },
+    players: {
+        "Alice": [(effect: BelongsTo("Mafia"))],
+        "Bob": [(effect: BelongsTo("Mafia"))],
+        "Charlie": [(effect: BelongsTo("Town"))],
+    },
+)
