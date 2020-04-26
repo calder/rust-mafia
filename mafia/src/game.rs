@@ -87,6 +87,13 @@ impl Game {
                     Fate::Won
                 }
             }
+            Objective::EliminateFaction(faction) => {
+                if self.num_members_remaining(faction) > 0 {
+                    Fate::Losing
+                } else {
+                    Fate::Won
+                }
+            }
             Objective::Majority => {
                 if 2 * self.num_members_remaining(faction) > self.num_players_remaining() {
                     Fate::Won
