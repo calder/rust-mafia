@@ -1,0 +1,19 @@
+(
+    factions: {
+        "Survivors": (
+            alignment: Neutral,
+            membership: Hidden,
+            objective: Survive,
+        ),
+        "Town": (
+            alignment: Good,
+            membership: Hidden,
+            objective: Eliminate(Evil),
+        ),
+    },
+    players: {
+        "Alice": [(effect: BelongsTo("Town"))],
+        "Bob": [(effect: BelongsTo("Town"))],
+        "Charlie": [(effect: BelongsTo("Survivors"))],
+    },
+)
