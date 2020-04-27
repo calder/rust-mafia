@@ -1,4 +1,6 @@
 [
+    Input(Plan("Eve", Faction(Kill("Alice")))),
     Input(AdvancePhase),
+    Died("Alice"),
     PhaseEnded(Night(0)),
 ]

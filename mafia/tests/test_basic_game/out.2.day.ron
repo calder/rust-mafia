@@ -21,6 +21,9 @@
             (
                 effect: BelongsTo("Town"),
             ),
+            (
+                effect: Dead,
+            ),
         ],
         "Bob": [
             (

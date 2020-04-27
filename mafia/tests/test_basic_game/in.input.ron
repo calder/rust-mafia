@@ -1,4 +1,5 @@
 [
+    Plan("Eve", Faction(Kill("Alice"))),
     AdvancePhase,
     AdvancePhase,
     AdvancePhase,

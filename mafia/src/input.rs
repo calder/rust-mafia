@@ -6,6 +6,7 @@ use crate::util::*;
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Input {
     AdvancePhase,
+    Plan(Player, Action),
     Use(Player, Action),
 }
 

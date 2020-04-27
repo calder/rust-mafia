@@ -1,21 +1,26 @@
 use serde::{Deserialize, Serialize};
 
+use crate::action::*;
 use crate::alignment::*;
 use crate::effect::*;
 use crate::event::*;
 use crate::fate::*;
 use crate::input::*;
 use crate::log::*;
+use crate::modifier::*;
 use crate::objective::*;
 use crate::phase::*;
 use crate::state::*;
 use crate::util::*;
+
+type Plan = Map<Player, Action>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Game {
     pub start: State,
     pub state: State,
     pub phase: Phase,
+    pub plan: Plan,
     pub log: Log,
 }
 
@@ -25,17 +30,18 @@ impl Game {
             start: State::new(),
             state: State::new(),
             phase: Phase::Night(0),
+            plan: Plan::new(),
             log: Log::new(),
         }
     }
 
     pub fn new_from_state(state: State) -> Self {
-        Game {
-            start: state.clone(),
-            state: state,
-            phase: Phase::Night(0),
-            log: Log::new(),
-        }
+        let mut game = Game::new();
+
+        game.start = state.clone();
+        game.state = state;
+
+        game
     }
 
     pub fn apply(self: &mut Self, input: &Input) {
@@ -43,19 +49,11 @@ impl Game {
 
         match input {
             Input::AdvancePhase => self.resolve(),
-            Input::Use(_, _) => {}
-        }
-    }
-
-    fn resolve(self: &mut Self) {
-        for (faction, _) in &self.state.factions {
-            if self.get_fate(faction) == Fate::Won {
-                self.log.push(Event::Won(faction.clone()));
+            Input::Plan(player, action) => {
+                self.plan.insert(player.clone(), action.clone());
             }
+            Input::Use(player, action) => {}
         }
-
-        self.log.push(Event::PhaseEnded(self.phase.clone()));
-        self.phase = self.phase.next();
     }
 
     fn get_faction(self: &Self, player: &Player) -> Faction {
@@ -149,5 +147,40 @@ impl Game {
             }
         }
         result
+    }
+
+    fn resolve(self: &mut Self) {
+        // Resolve actions.
+        let mut plan = Plan::new();
+        std::mem::swap(&mut plan, &mut self.plan);
+        for (player, action) in &plan {
+            self.resolve_action(player, action)
+        }
+
+        // Evaluate win conditions.
+        for (faction, _) in &self.state.factions {
+            if self.get_fate(faction) == Fate::Won {
+                self.log.push(Event::Won(faction.clone()));
+            }
+        }
+
+        // Advance phase.
+        self.log.push(Event::PhaseEnded(self.phase.clone()));
+        self.phase = self.phase.next();
+    }
+
+    fn resolve_action(self: &mut Self, player: &Player, action: &Action) {
+        match action {
+            Action::Faction(faction_action) => self.resolve_action(player, faction_action),
+            Action::Kill(target) => {
+                self.state
+                    .players
+                    .get_mut(target)
+                    .unwrap()
+                    .push(Modifier::new(Effect::Dead));
+                self.log.push(Event::Died(target.clone()));
+            }
+            _ => {}
+        }
     }
 }
