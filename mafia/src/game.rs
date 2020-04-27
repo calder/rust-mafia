@@ -13,7 +13,7 @@ use crate::phase::*;
 use crate::state::*;
 use crate::util::*;
 
-type Plan = Vec<Action>;
+type Plan = Vec<(Player, Action)>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Game {
@@ -47,8 +47,8 @@ impl Game {
 
         match input {
             Input::AdvancePhase => self.resolve(),
-            Input::Plan(_) => { /* Do nothing until phase end. */ }
-            Input::Use(_) => { /* PLACEHOLDER */ }
+            Input::Plan(_, _) => { /* Do nothing until phase end. */ }
+            Input::Use(_, _) => { /* PLACEHOLDER */ }
         }
     }
 
@@ -113,11 +113,11 @@ impl Game {
                 Event::PhaseEnded(_) => {
                     break;
                 }
-                Event::Input(Input::Plan(action)) => {
-                    if !acted.contains(action.player()) {
+                Event::Input(Input::Plan(player, action)) => {
+                    if !acted.contains(player) {
                         // TODO: Check action validity.
-                        plan.push(action.clone());
-                        acted.insert(action.player());
+                        plan.push((player.clone(), action.clone()));
+                        acted.insert(player);
                     }
                 }
                 _ => {}
@@ -169,8 +169,8 @@ impl Game {
 
     fn resolve(self: &mut Self) {
         // Resolve actions.
-        for action in &self.get_plan() {
-            self.resolve_action(action);
+        for (player, action) in &self.get_plan() {
+            self.resolve_action(player, action);
         }
 
         // Evaluate win conditions.
@@ -185,10 +185,10 @@ impl Game {
         self.phase = self.phase.next();
     }
 
-    fn resolve_action(self: &mut Self, action: &Action) {
+    fn resolve_action(self: &mut Self, _player: &Player, action: &Action) {
         match action {
-            Action::Order(_player, faction_action) => self.resolve_action(faction_action),
-            Action::Kill(_player, target) => {
+            Action::Order(player, faction_action) => self.resolve_action(player, faction_action),
+            Action::Kill(target) => {
                 if self.is_alive(target) {
                     self.state
                         .players

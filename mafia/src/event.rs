@@ -10,6 +10,6 @@ pub enum Event {
     Died(Player),
     Input(Input),
     PhaseEnded(Phase),
-    Used(Action),
+    Used(Player, Action),
     Won(Faction),
 }

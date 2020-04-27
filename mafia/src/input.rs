@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::action::*;
+use crate::util::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Input {
@@ -8,10 +9,10 @@ pub enum Input {
     AdvancePhase,
 
     // Plan normal action.
-    Plan(Action),
+    Plan(Player, Action),
 
     // Use instantaneous action.
-    Use(Action),
+    Use(Player, Action),
 }
 
 pub type Inputs = Vec<Input>;
