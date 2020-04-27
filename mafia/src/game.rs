@@ -13,14 +13,13 @@ use crate::phase::*;
 use crate::state::*;
 use crate::util::*;
 
-type Plan = Map<Player, Action>;
+type Plan = Vec<Action>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Game {
     pub start: State,
     pub state: State,
     pub phase: Phase,
-    pub plan: Plan,
     pub log: Log,
 }
 
@@ -30,7 +29,6 @@ impl Game {
             start: State::new(),
             state: State::new(),
             phase: Phase::Night(0),
-            plan: Plan::new(),
             log: Log::new(),
         }
     }
@@ -49,10 +47,8 @@ impl Game {
 
         match input {
             Input::AdvancePhase => self.resolve(),
-            Input::Plan(player, action) => {
-                self.plan.insert(player.clone(), action.clone());
-            }
-            Input::Use(player, action) => {}
+            Input::Plan(_) => { /* Do nothing until phase end. */ }
+            Input::Use(_) => { /* PLACEHOLDER */ }
         }
     }
 
@@ -109,6 +105,24 @@ impl Game {
         }
     }
 
+    fn get_plan(self: &Self) -> Plan {
+        let mut plan = Plan::new();
+        for event in self.log.iter().rev() {
+            match event {
+                Event::PhaseEnded(_) => {
+                    break;
+                }
+                Event::Input(Input::Plan(action)) => {
+                    // TODO: Any sort of deduplication / validity checking.
+                    plan.push(action.clone());
+                }
+                _ => {}
+            }
+        }
+        plan.reverse();
+        plan
+    }
+
     fn is_alive(self: &Self, player: &Player) -> bool {
         for modifier in self.state.players[player].iter().rev() {
             match modifier.effect {
@@ -151,10 +165,8 @@ impl Game {
 
     fn resolve(self: &mut Self) {
         // Resolve actions.
-        let mut plan = Plan::new();
-        std::mem::swap(&mut plan, &mut self.plan);
-        for (player, action) in &plan {
-            self.resolve_action(player, action)
+        for action in &self.get_plan() {
+            self.resolve_action(action);
         }
 
         // Evaluate win conditions.
@@ -169,10 +181,10 @@ impl Game {
         self.phase = self.phase.next();
     }
 
-    fn resolve_action(self: &mut Self, player: &Player, action: &Action) {
+    fn resolve_action(self: &mut Self, action: &Action) {
         match action {
-            Action::Faction(faction_action) => self.resolve_action(player, faction_action),
-            Action::Kill(target) => {
+            Action::Order(_player, faction_action) => self.resolve_action(faction_action),
+            Action::Kill(_player, target) => {
                 if self.is_alive(target) {
                     self.state
                         .players

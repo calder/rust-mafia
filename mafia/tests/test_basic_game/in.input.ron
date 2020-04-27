@@ -1,5 +1,5 @@
 [
-    Plan("Eve", Faction(Kill("Alice"))),
+    Plan(Order("Eve", Kill("Malory", "Alice"))),
     AdvancePhase,
     AdvancePhase,
     AdvancePhase,

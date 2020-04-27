@@ -9,8 +9,7 @@ use crate::util::*;
 pub enum Event {
     Died(Player),
     Input(Input),
-    Planned(Player, Action),
     PhaseEnded(Phase),
-    Used(Player, Action),
+    Used(Action),
     Won(Faction),
 }

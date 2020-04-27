@@ -3,6 +3,7 @@ pub type Set<T> = std::collections::BTreeSet<T>;
 
 pub type Faction = String;
 pub type Player = String;
+pub type PlayerOrFaction = String;
 
 pub trait IsDefault {
     fn is_default(&self) -> bool;

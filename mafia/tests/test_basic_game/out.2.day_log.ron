@@ -1,5 +1,5 @@
 [
-    Input(Plan("Eve", Faction(Kill("Alice")))),
+    Input(Plan(Order("Eve", Kill("Malory", "Alice")))),
     Input(AdvancePhase),
     Died("Alice"),
     PhaseEnded(Night(0)),
