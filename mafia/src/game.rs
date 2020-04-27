@@ -70,28 +70,28 @@ impl Game {
 
         match &state.objective {
             Objective::Eliminate(alignment) => {
-                if self.num_alignment_remaining(alignment) == 0 {
+                if self.num_living_alignment(alignment) == 0 {
                     Fate::Won
                 } else {
                     Fate::Losing
                 }
             }
             Objective::EliminateFaction(faction) => {
-                if self.num_members_remaining(faction) == 0 {
+                if self.num_living_members(faction) == 0 {
                     Fate::Won
                 } else {
                     Fate::Losing
                 }
             }
             Objective::Majority => {
-                if 2 * self.num_members_remaining(faction) > self.num_players_remaining() {
+                if 2 * self.num_living_members(faction) > self.num_living_players() {
                     Fate::Won
                 } else {
                     Fate::Losing
                 }
             }
             Objective::Survive => {
-                if self.num_members_remaining(faction) == 0 {
+                if self.num_living_members(faction) == 0 {
                     Fate::Lost
                 } else {
                     Fate::Winning
@@ -122,6 +122,14 @@ impl Game {
         plan
     }
 
+    fn get_living_players(self: &Self) -> Vec<&Player> {
+        self.state
+            .players
+            .keys()
+            .filter(|p| self.is_alive(p))
+            .collect()
+    }
+
     fn is_alive(self: &Self, player: &Player) -> bool {
         for modifier in self.state.players[player].iter().rev() {
             match modifier.effect {
@@ -132,34 +140,22 @@ impl Game {
         true
     }
 
-    fn num_alignment_remaining(self: &Self, alignment: &Alignment) -> i64 {
-        let mut result = 0;
-        for (player, _) in &self.state.players {
-            if self.is_alive(player) && self.get_player_alignment(player) == *alignment {
-                result += 1
-            }
-        }
-        result
+    fn num_living_alignment(self: &Self, alignment: &Alignment) -> usize {
+        self.get_living_players()
+            .iter()
+            .filter(|p| self.get_player_alignment(p) == *alignment)
+            .count()
     }
 
-    fn num_members_remaining(self: &Self, faction: &Faction) -> i64 {
-        let mut result = 0;
-        for (player, _) in &self.state.players {
-            if self.is_alive(player) && self.get_faction(player) == *faction {
-                result += 1
-            }
-        }
-        result
+    fn num_living_members(self: &Self, faction: &Faction) -> usize {
+        self.get_living_players()
+            .iter()
+            .filter(|p| self.get_faction(p) == *faction)
+            .count()
     }
 
-    fn num_players_remaining(self: &Self) -> i64 {
-        let mut result = 0;
-        for (player, _) in &self.state.players {
-            if self.is_alive(player) {
-                result += 1
-            }
-        }
-        result
+    fn num_living_players(self: &Self) -> usize {
+        self.get_living_players().len()
     }
 
     fn resolve(self: &mut Self) {
