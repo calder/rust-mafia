@@ -1,7 +1,10 @@
 [
+    // Test amending actions.
+    Plan(Order("Eve", Kill("Eve", "Bob"))),
+
+    // Test faction actions and kills.
     Plan(Order("Eve", Kill("Malory", "Alice"))),
-    AdvancePhase,
-    AdvancePhase,
-    AdvancePhase,
+
+    // Resolve Night 0.
     AdvancePhase,
 ]

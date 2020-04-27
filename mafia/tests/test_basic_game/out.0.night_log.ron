@@ -1,4 +1,5 @@
 [
+    Input(Plan(Order("Eve", Kill("Eve", "Bob")))),
     Input(Plan(Order("Eve", Kill("Malory", "Alice")))),
     Input(AdvancePhase),
     Died("Alice"),

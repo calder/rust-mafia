@@ -16,3 +16,14 @@ pub enum Action {
     // Protect a player from kills.
     Protect(Player, Player),
 }
+
+impl Action {
+    pub fn player(self: &Self) -> &Player {
+        match self {
+            Self::Investigate(player, _target) => player,
+            Self::Kill(player, _target) => player,
+            Self::Order(player, _action) => player,
+            Self::Protect(player, _target) => player,
+        }
+    }
+}

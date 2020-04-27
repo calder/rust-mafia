@@ -106,6 +106,7 @@ impl Game {
     }
 
     fn get_plan(self: &Self) -> Plan {
+        let mut acted = Set::new();
         let mut plan = Plan::new();
         for event in self.log.iter().rev() {
             match event {
@@ -113,8 +114,11 @@ impl Game {
                     break;
                 }
                 Event::Input(Input::Plan(action)) => {
-                    // TODO: Any sort of deduplication / validity checking.
-                    plan.push(action.clone());
+                    if !acted.contains(action.player()) {
+                        // TODO: Check action validity.
+                        plan.push(action.clone());
+                        acted.insert(action.player());
+                    }
                 }
                 _ => {}
             }
