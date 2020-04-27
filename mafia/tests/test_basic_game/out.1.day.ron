@@ -21,13 +21,13 @@
             (
                 effect: BelongsTo("Town"),
             ),
-            (
-                effect: Dead,
-            ),
         ],
         "Bob": [
             (
                 effect: BelongsTo("Town"),
+            ),
+            (
+                effect: Dead,
             ),
         ],
         "Charlie": [

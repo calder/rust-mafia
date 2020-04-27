@@ -25,21 +25,16 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Self {
-        Game {
-            start: State::new(),
-            state: State::new(),
-            phase: Phase::Night(0),
-            log: Log::new(),
-        }
+        Self::new_from_state(State::new())
     }
 
     pub fn new_from_state(state: State) -> Self {
-        let mut game = Game::new();
-
-        game.start = state.clone();
-        game.state = state;
-
-        game
+        Game {
+            start: state.clone(),
+            state: state,
+            phase: Phase::Night(0),
+            log: Log::new(),
+        }
     }
 
     pub fn apply(self: &mut Self, input: &Input) {
@@ -130,7 +125,7 @@ impl Game {
     fn is_alive(self: &Self, player: &Player) -> bool {
         for modifier in self.state.players[player].iter().rev() {
             match modifier.effect {
-                Effect::Dead => return true,
+                Effect::Dead => return false,
                 _ => {}
             }
         }

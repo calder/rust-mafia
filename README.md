@@ -25,12 +25,15 @@ TODO
     [X] Advance phases
     [X] Objectives
     [X] Town
-    [ ] Faction actions
-    [ ] Mafia
+    [X] Faction actions
+    [X] Mafia
     [ ] Individual actions
     [ ] Cop
     [ ] Doctor
-[ ] Server basic gameplay
+    [ ] Day
+    [X] Action amending
+    [ ] Action validity checking
+[ ] Basic server
 
 
 

@@ -1,10 +1,19 @@
 [
     // Test amending actions.
-    Plan("Eve", Order("Eve", Kill("Bob"))),
+    Plan("Eve", Order("Eve", Kill("Alice"))),
 
     // Test faction actions and kills.
-    Plan("Eve", Order("Malory", Kill("Alice"))),
+    Plan("Eve", Order("Malory", Kill("Bob"))),
 
     // Resolve Night 0.
+    AdvancePhase,
+
+    // Resolve Day 1.
+    AdvancePhase,
+
+    // Test mafia win.
+    Plan("Eve", Order("Eve", Kill("Charlie"))),
+
+    // Resolve Night 1.
     AdvancePhase,
 ]
