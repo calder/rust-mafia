@@ -23,7 +23,11 @@ TODO
 [ ] Basic gameplay
     [X] Test infrastructure
     [X] Advance phases
-    [ ] Mafia + town
+    [X] Objectives
+    [X] Town
+    [ ] Faction actions
+    [ ] Mafia
+    [ ] Individual actions
     [ ] Cop
     [ ] Doctor
 [ ] Server basic gameplay

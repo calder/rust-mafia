@@ -173,12 +173,14 @@ impl Game {
         match action {
             Action::Faction(faction_action) => self.resolve_action(player, faction_action),
             Action::Kill(target) => {
-                self.state
-                    .players
-                    .get_mut(target)
-                    .unwrap()
-                    .push(Modifier::new(Effect::Dead));
-                self.log.push(Event::Died(target.clone()));
+                if self.is_alive(target) {
+                    self.state
+                        .players
+                        .get_mut(target)
+                        .unwrap()
+                        .push(Modifier::new(Effect::Dead));
+                    self.log.push(Event::Died(target.clone()));
+                }
             }
             _ => {}
         }
