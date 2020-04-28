@@ -40,8 +40,8 @@ impl TestHelper {
 pub fn run_test<P: AsRef<std::path::Path>>(path: P) {
     let mut t = TestHelper::new(path);
 
-    let mut game = mafia::Game::new_from_state(t.load("in.init.ron"));
-    let inputs: mafia::Inputs = t.load("in.input.ron");
+    let mut game = mafia::Game::new_from_state(t.load("in.setup.ron"));
+    let inputs: mafia::Inputs = t.load("in.actions.ron");
 
     for input in inputs {
         game.apply(&input);

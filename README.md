@@ -104,27 +104,6 @@ cd mafia
 cargo test basic_game
 ```
 
-Add a new test:
-
-```sh
-cd mafia
-cp -r test_basic_game test_foo
-rm test_foo/out.*
-
-# Edit these files to your heart's content:
-#   test_foo/in.init.ron:  Initial game setup.
-#   test_foo/in.input.ron: Player actions throughout the game.
-
-# Generate expected outputs.
-env REGENERATE_GOLDENFILES=1 cargo test foo
-
-# Inspect outputs:
-#   test_foo/out.*.*.ron:     Game state at the beginning of each phase.
-#   test_foo/out.*.*_log.ron: Events up through the end of each phase.
-
-# If you're satisfied, commit your changes and send out a pull request!
-```
-
 
 
 ### Running games
@@ -135,6 +114,35 @@ Run the `mafia` binary:
 cd mafia-bin
 cargo run -- help
 ```
+
+
+
+### Adding features
+
+1. Implement feature.
+
+2. Add a test:
+
+```sh
+cd mafia
+cp -r test_basic_game test_foo
+rm test_foo/out.*
+
+# Edit these files to your heart's content:
+#   test_foo/in.actions.ron: Player actions throughout the game.
+#   test_foo/in.setup.ron:   Initial game setup.
+
+# Generate expected outputs.
+env REGENERATE_GOLDENFILES=1 cargo test foo
+
+# Inspect outputs:
+#   test_foo/out.*.*.ron:     Game state at the beginning of each phase.
+#   test_foo/out.*.*_log.ron: Events up through the end of each phase.
+```
+
+3. If you're satisfied, commit your changes and send out a pull request!
+
+
 
 ### Code of conduct
 
