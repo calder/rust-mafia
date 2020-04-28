@@ -46,7 +46,7 @@ impl Attr {
                 Some(d) => Some(Self::Temporarily(a.clone(), d)),
                 None => None,
             },
-            _ => Some(self.clone()),
+            a => Some(a.clone()),
         }
     }
 
