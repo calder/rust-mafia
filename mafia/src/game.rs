@@ -150,13 +150,8 @@ impl Game {
         self.state
             .players
             .keys()
-            .filter_map(|p| {
-                if self.is_alive(p) {
-                    Some(p.clone())
-                } else {
-                    None
-                }
-            })
+            .filter(|p| self.is_alive(p))
+            .map(|p| p.clone())
             .collect()
     }
 
