@@ -2,7 +2,7 @@
 
 [![Documentation](https://docs.rs/mafia/badge.svg)](https://docs.rs/mafia) [![Latest Version](https://img.shields.io/crates/v/mafia.svg)](https://crates.io/crates/mafia) [![Build Status](https://travis-ci.org/calder/mafia.svg?branch=master)](https://travis-ci.org/calder/mafia) [![Coverage Status](https://coveralls.io/repos/github/calder/mafia/badge.svg?branch=master)](https://coveralls.io/github/calder/mafia?branch=master)
 
-**Rust implementation of the classic party game [Mafia](https://en.wikipedia.org/wiki/Mafia_(party_game)).**
+**Rust implementation of the classic party game [Mafia](https://en.wikipedia.org/wiki/Mafia_(party_game))**
 
 
 
@@ -119,28 +119,28 @@ cargo run -- help
 
 ### Adding features
 
-1. Implement feature.
+1.  Implement feature.
 
-2. Add a test:
+2.  Add a test:
 
-```sh
-cd mafia
-cp -r test_basic_game test_foo
-rm test_foo/out.*
+    ```sh
+    cd mafia
+    cp -r test_basic_game test_foo
+    rm test_foo/out.*
 
-# Edit these files to your heart's content:
-#   test_foo/in.actions.ron: Player actions throughout the game.
-#   test_foo/in.setup.ron:   Initial game setup.
+    # Edit these files to your heart's content:
+    #   test_foo/in.actions.ron: Player actions throughout the game.
+    #   test_foo/in.setup.ron:   Initial game setup.
 
-# Generate expected outputs.
-env REGENERATE_GOLDENFILES=1 cargo test foo
+    # Generate expected outputs.
+    env REGENERATE_GOLDENFILES=1 cargo test foo
 
-# Inspect outputs:
-#   test_foo/out.*.*.ron:     Game state at the beginning of each phase.
-#   test_foo/out.*.*_log.ron: Events up through the end of each phase.
-```
+    # Inspect outputs:
+    #   test_foo/out.*.*.ron:     Game state at the beginning of each phase.
+    #   test_foo/out.*.*_log.ron: Events up through the end of each phase.
+    ```
 
-3. If you're satisfied, commit your changes and send out a pull request!
+3.  If you're satisfied, commit your changes and send out a pull request!
 
 
 
