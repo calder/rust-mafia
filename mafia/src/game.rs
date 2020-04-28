@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::action::*;
 use crate::alignment::*;
+use crate::deadline::*;
 use crate::effect::*;
 use crate::event::*;
 use crate::fate::*;
@@ -119,6 +120,7 @@ impl Game {
             }
         }
         plan.reverse();
+        plan.sort_by_key(|(_, a)| a.order());
         plan
     }
 
@@ -138,6 +140,16 @@ impl Game {
             }
         }
         true
+    }
+
+    fn is_protected(self: &Self, player: &Player) -> bool {
+        for modifier in self.state.players[player].iter().rev() {
+            match modifier.effect {
+                Effect::Protected => return true,
+                _ => {}
+            }
+        }
+        false
     }
 
     fn num_living_alignment(self: &Self, alignment: &Alignment) -> usize {
@@ -171,15 +183,17 @@ impl Game {
             }
         }
 
+        // TODO: Expire effects.
+
         // Advance phase.
         self.log.push(Event::PhaseEnded(self.phase.clone()));
         self.phase = self.phase.next();
     }
 
-    fn resolve_action(self: &mut Self, player: &Player, action: &Action) {
+    fn resolve_action(self: &mut Self, _player: &Player, action: &Action) {
         match action {
             Action::Kill(target) => {
-                if self.is_alive(target) {
+                if self.is_alive(target) && !self.is_protected(target) {
                     self.state
                         .players
                         .get_mut(target)
@@ -190,14 +204,20 @@ impl Game {
             }
             Action::Investigate(target) => {
                 let result = self.get_player_alignment(target);
-                self.log.push(Event::Investigated(
-                    player.clone(),
-                    target.clone(),
-                    result.clone(),
-                ));
+                self.log
+                    .push(Event::FoundAlignment(target.clone(), result.clone()));
             }
             Action::Order(player, faction_action) => self.resolve_action(player, faction_action),
-            _ => {}
+            Action::Protect(player) => {
+                self.state
+                    .players
+                    .get_mut(player)
+                    .unwrap()
+                    .push(Modifier::new_with_deadline(
+                        Effect::Protected,
+                        Deadline::Nights(1),
+                    ));
+            }
         }
     }
 }

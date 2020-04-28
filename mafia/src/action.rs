@@ -16,3 +16,14 @@ pub enum Action {
     // Protect a player from kills.
     Protect(Player),
 }
+
+impl Action {
+    pub fn order(self: &Self) -> usize {
+        match self {
+            Self::Investigate(_) => 0,
+            Self::Protect(_) => 1,
+            Self::Kill(_) => 1000,
+            Self::Order(_, a) => a.order(),
+        }
+    }
+}

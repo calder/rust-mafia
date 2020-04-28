@@ -27,13 +27,17 @@
             (
                 effect: BelongsTo("Town"),
             ),
-            (
-                effect: Dead,
-            ),
         ],
         "Charlie": [
             (
                 effect: BelongsTo("Town"),
+            ),
+            (
+                effect: Has(Protect),
+            ),
+            (
+                effect: Protected,
+                deadline: Nights(1),
             ),
         ],
         "Eve": [

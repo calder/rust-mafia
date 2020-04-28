@@ -9,8 +9,8 @@ use crate::util::*;
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Event {
     Died(Player),
+    FoundAlignment(Player, Alignment),
     Input(Input),
-    Investigated(Player, Player, Alignment),
     PhaseEnded(Phase),
     Used(Player, Action),
     Won(Faction),

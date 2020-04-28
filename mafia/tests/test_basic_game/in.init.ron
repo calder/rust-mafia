@@ -22,6 +22,7 @@
         ],
         "Charlie": [
             (effect: BelongsTo("Town")),
+            (effect: Has(Protect)),
         ],
         "Eve": [
             (effect: BelongsTo("Mafia")),
