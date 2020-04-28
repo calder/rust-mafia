@@ -101,8 +101,31 @@ Run a specific test:
 
 ```sh
 cd mafia
-cargo test player
+cargo test basic_game
 ```
+
+Add a new test:
+
+```sh
+cd mafia
+cp -r test_basic_game test_foo
+rm test_foo/out.*
+
+# Edit these files to your heart's content:
+#   test_foo/in.init.ron:  Initial game setup.
+#   test_foo/in.input.ron: Player actions throughout the game.
+
+# Generate expected outputs.
+env REGENERATE_GOLDENFILES=1 cargo test foo
+
+# Inspect outputs:
+#   test_foo/out.*.*.ron:     Game state at the beginning of each phase.
+#   test_foo/out.*.*_log.ron: Events up through the end of each phase.
+
+# If you're satisfied, commit your changes and send out a pull request!
+```
+
+
 
 ### Running games
 
