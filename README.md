@@ -29,7 +29,7 @@ TODO
     [X] Mafia
     [X] Individual actions
     [X] Cop
-    [ ] Doctor
+    [X] Doctor
     [ ] Day
     [X] Action amending
     [ ] Log visibility
@@ -38,6 +38,11 @@ TODO
         [ ] Target is alive
         [ ] Doctors can't protect themselves
 [ ] Basic server
+    [ ] State updates
+    [ ] Log updates
+    [ ] Auth
+    [ ] Log visibility
+    [ ] Client input
 
 
 
