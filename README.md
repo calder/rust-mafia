@@ -77,7 +77,7 @@ Instead of first class roles, players have any number of attributes. Examples:
 
 ## ❤️ Contributing
 
-Contributions are very welcome! See the [issue tracker](https://github.com/calder/rust-mafia/issues) if you're looking to get involved but don't know where to start.
+Contributions are very welcome! See the [issue tracker](https://github.com/calder/rust-mafia/issues) if you're looking for a place to start.
 
 ### Setup
 
