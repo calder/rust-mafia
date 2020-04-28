@@ -20,30 +20,30 @@ TODO
 
 ## TODO
 
-[ ] Basic gameplay
-    [X] Test infrastructure
-    [X] Advance phases
-    [X] Objectives
-    [X] Town
-    [X] Faction actions
-    [X] Mafia
-    [X] Individual actions
-    [X] Cop
-    [X] Doctor
-    [ ] Day
-    [X] Action amending
-    [ ] Log visibility
-    [ ] Action validity checking
-        [ ] Player has action
-        [ ] Target is alive
-        [ ] Doctors can't protect themselves
-        [ ] Faction action chain of command
-[ ] Basic server
-    [ ] State updates
-    [ ] Log updates
-    [ ] Auth
-    [ ] Log visibility
-    [ ] Client input
+* [ ] Basic gameplay
+    * [X] Test infrastructure
+    * [X] Advance phases
+    * [X] Objectives
+    * [X] Town
+    * [X] Faction actions
+    * [X] Mafia
+    * [X] Individual actions
+    * [X] Cop
+    * [X] Doctor
+    * [ ] Day
+    * [X] Action amending
+    * [ ] Log visibility
+    * [ ] Action validity checking
+        * [ ] Player has action
+        * [ ] Target is alive
+        * [ ] Doctors can't protect themselves
+        * [ ] Faction action chain of command
+* [ ] Basic server
+    * [ ] State updates
+    * [ ] Log updates
+    * [ ] Auth
+    * [ ] Log visibility
+    * [ ] Client input
 
 
 
