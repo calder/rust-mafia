@@ -8,13 +8,28 @@
 
 ## Installation
 
-TODO
+[Install Rust](https://rustup.rs/), then:
+
+```sh
+cargo install mafia-bin
+```
 
 
 
 ## Usage
 
-TODO
+Host a game:
+
+```sh
+mafia host
+```
+
+Join a game:
+
+```sh
+telnet <address> <port>
+Auth(<passcode>)
+```
 
 
 
@@ -76,17 +91,24 @@ scripts/setup_git_hooks.sh
 
 ### Running tests
 
-To run all tests:
+Run all tests:
 
 ```sh
 scripts/test_all.sh
 ```
 
-To run a specific test:
+Run a specific test:
 
 ```sh
 cd mafia
 cargo test player
+```
+
+Run the `mafia` binary:
+
+```sh
+cd mafia-bin
+cargo run -- help
 ```
 
 ### Code of conduct
