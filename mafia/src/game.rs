@@ -4,13 +4,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::action::*;
 use crate::alignment::*;
+use crate::attr::*;
 use crate::deadline::*;
-use crate::effect::*;
 use crate::event::*;
 use crate::fate::*;
 use crate::input::*;
 use crate::log::*;
-use crate::modifier::*;
 use crate::objective::*;
 use crate::phase::*;
 use crate::state::*;
@@ -68,19 +67,16 @@ impl Game {
         }
     }
 
-    fn apply_modifier(self: &mut Self, player: &Player, modifier: Modifier) {
-        println!("WTF {:?}", player);
-        self.state.players.get_mut(player).unwrap().push(modifier);
+    fn add_attr(self: &mut Self, player: &Player, attr: Attr) {
+        self.state.players.get_mut(player).unwrap().push(attr);
     }
 
     fn get_faction(self: &Self, player: &Player) -> Faction {
-        for modifier in self.state.players[player].iter().rev() {
-            match &modifier.effect {
-                Effect::Member(faction) => return faction.clone(),
-                _ => {}
-            }
-        }
-        "None".to_string()
+        self.state.players[player]
+            .iter()
+            .rev()
+            .find_map(|a| a.get_faction())
+            .expect(&format!("Player does not have a faction: {:?}", player))
     }
 
     fn get_player_alignment(self: &Self, player: &Player) -> Alignment {
@@ -165,37 +161,36 @@ impl Game {
     }
 
     fn get_rng(self: &mut Self) -> Rng {
-        let rng = Rng::seed_from_u64(self.state.seed);
         self.state.seed += 1;
-        rng
+        Rng::seed_from_u64(self.state.seed)
     }
 
     fn is_alive(self: &Self, player: &Player) -> bool {
-        for modifier in self.state.players[player].iter().rev() {
-            match modifier.effect {
-                Effect::Dead => return false,
-                _ => {}
-            }
-        }
-        true
+        self.state.players[player]
+            .iter()
+            .rev()
+            .find_map(|a| a.is_alive())
+            .unwrap_or(true)
     }
 
     fn is_protected(self: &Self, player: &Player) -> bool {
-        for modifier in self.state.players[player].iter().rev() {
-            match modifier.effect {
-                Effect::Protected => return true,
-                _ => {}
-            }
-        }
-        false
+        self.state.players[player]
+            .iter()
+            .rev()
+            .find_map(|a| a.is_protected())
+            .unwrap_or(true)
     }
 
+    // fn get_attr<T, F: FnOnce<T>>(self: &Self, player: &Player, f: F, default: T) {
+    //     self.state.players[player]
+    //         .iter()
+    //         .rev()
+    //         .find_map(|a| a.is_protected())
+    //         .unwrap_or(true)
+    // }
+
     fn make_dead(self: &mut Self, player: &Player) {
-        self.state
-            .players
-            .get_mut(player)
-            .unwrap()
-            .push(Modifier::new(Effect::Dead, Deadline::Never));
+        self.state.players.get_mut(player).unwrap().push(Attr::Dead);
         self.log.push(Event::Died(player.clone()));
     }
 
@@ -218,16 +213,11 @@ impl Game {
     }
 
     fn num_votes_for(self: &Self, player: &Player) -> i64 {
-        let mut votes = 0;
-        for modifier in self.state.players[player].iter().rev() {
-            match modifier.effect {
-                Effect::ReceivedVotes(n) => {
-                    votes += n;
-                }
-                _ => {}
-            }
-        }
-        votes
+        self.state.players[player]
+            .iter()
+            .rev()
+            .filter_map(|a| a.num_votes())
+            .sum()
     }
 
     fn resolve(self: &mut Self) {
@@ -258,7 +248,7 @@ impl Game {
             .map(|(player, modifiers)| {
                 (
                     player.clone(),
-                    modifiers.iter().filter_map(|m| m.next()).collect(),
+                    modifiers.iter().filter_map(|m| m.next_phase()).collect(),
                 )
             })
             .collect();
@@ -290,15 +280,15 @@ impl Game {
             }
             Action::Order(minion, faction_action) => self.resolve_action(minion, faction_action),
             Action::Protect(target) => {
-                self.apply_modifier(
+                self.add_attr(
                     target,
-                    Modifier::new(Effect::Protected, Deadline::Phases(1)),
+                    Attr::Temporarily(Box::new(Attr::Protected), Deadline::Phases(1)),
                 );
             }
             Action::Vote(target) => {
-                self.apply_modifier(
+                self.add_attr(
                     target,
-                    Modifier::new(Effect::ReceivedVotes(1), Deadline::Phases(1)),
+                    Attr::Temporarily(Box::new(Attr::ReceivedVotes(1)), Deadline::Phases(1)),
                 );
             }
         }

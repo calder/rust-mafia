@@ -20,7 +20,7 @@ TODO
 
 ## Roles
 
-Instead of first class roles, players have any number of temporary or permanent modifiers. Examples:
+Instead of first class roles, players have any number of attributes. Examples:
 
 | Role | Implementation |
 | ---- | -------------- |

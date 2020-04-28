@@ -12,9 +12,9 @@
         ),
     },
     players: {
-        "Alice": [(effect: Member("Mafia"))],
-        "Bob": [(effect: Member("Mafia"))],
-        "Charlie": [(effect: Member("Town"))],
+        "Alice": [Member("Mafia")],
+        "Bob": [Member("Mafia")],
+        "Charlie": [Member("Town")],
     },
     seed: 0,
 )

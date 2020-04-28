@@ -8,16 +8,16 @@
     },
     players: {
         "Alice": [
-            (effect: Member("Town")),
-            (effect: Can(Vote)),
+            Member("Town"),
+            Can(Vote),
         ],
         "Bob": [
-            (effect: Member("Town")),
-            (effect: Can(Vote)),
+            Member("Town"),
+            Can(Vote),
         ],
         "Charlie": [
-            (effect: Member("Town")),
-            (effect: Can(Vote)),
+            Member("Town"),
+            Can(Vote),
         ],
     },
     seed: 0,

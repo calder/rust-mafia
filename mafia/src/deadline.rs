@@ -7,7 +7,7 @@ pub enum Deadline {
 }
 
 impl Deadline {
-    pub fn next(self: &Self) -> Option<Deadline> {
+    pub fn next_phase(self: &Self) -> Option<Deadline> {
         match self {
             Self::Phases(0) => None,
             Self::Phases(1) => None,
