@@ -9,8 +9,10 @@
     Input(AdvancePhase),
     PhaseEnded(Day(1)),
     Input(Plan("Alice", Investigate("Eve"))),
+    Input(Plan("Bob", Protect("Alice"))),
     Input(Plan("Eve", Order("Eve", Kill("Charlie")))),
     Input(AdvancePhase),
     FoundAlignment("Eve", Evil),
+    Died("Charlie"),
     PhaseEnded(Night(1)),
 ]

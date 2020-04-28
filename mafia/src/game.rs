@@ -183,7 +183,21 @@ impl Game {
             }
         }
 
-        // TODO: Expire effects.
+        // Expire effects.
+        self.state.players = self
+            .state
+            .players
+            .iter()
+            .map(|(player, modifiers)| {
+                (
+                    player.clone(),
+                    modifiers
+                        .iter()
+                        .filter_map(|m| m.advance(&self.phase))
+                        .collect(),
+                )
+            })
+            .collect();
 
         // Advance phase.
         self.log.push(Event::PhaseEnded(self.phase.clone()));

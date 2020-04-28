@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::deadline::*;
 use crate::effect::*;
+use crate::phase::*;
 use crate::util::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -21,6 +22,13 @@ impl Modifier {
         Modifier {
             effect: effect,
             deadline: deadline,
+        }
+    }
+
+    pub fn advance(self: &Self, phase: &Phase) -> Option<Modifier> {
+        match self.deadline.advance(phase) {
+            Some(deadline) => Some(Modifier::new_with_deadline(self.effect.clone(), deadline)),
+            None => None,
         }
     }
 }

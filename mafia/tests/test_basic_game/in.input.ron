@@ -1,29 +1,29 @@
-// Test:
-// * Faction actions.
-// * Mafia winning by eliminating players.
-// * Killing players.
-// * Investigating good and evil players.
 [
-    // Test amending actions.
+    // Test faction actions, kills, and amending actions.
     Plan("Eve", Order("Eve", Kill("Alice"))),
-
-    // Test faction actions and kills.
     Plan("Eve", Order("Malory", Kill("Charlie"))),
 
     // Test good investigation.
     Plan("Alice", Investigate("Bob")),
 
-    // Test protection.
+    // Test protecting the right player.
     Plan("Bob", Protect("Charlie")),
 
     // Resolve Night 0.
     AdvancePhase,
 
+    //------------------------------------------------------
+
     // Resolve Day 1.
     AdvancePhase,
 
+    //------------------------------------------------------
+
     // Test evil investigation.
     Plan("Alice", Investigate("Eve")),
+
+    // Test protecting the wrong player.
+    Plan("Bob", Protect("Alice")),
 
     // Test mafia win.
     Plan("Eve", Order("Eve", Kill("Charlie"))),

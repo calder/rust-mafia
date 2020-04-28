@@ -36,8 +36,7 @@
                 effect: Has(Protect),
             ),
             (
-                effect: Protected,
-                deadline: Nights(1),
+                effect: Dead,
             ),
         ],
         "Eve": [
