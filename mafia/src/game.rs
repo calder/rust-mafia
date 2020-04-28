@@ -234,7 +234,6 @@ impl Game {
             let mut rng = self.get_rng();
             queue.shuffle(&mut rng);
             queue.sort_by_cached_key(|p| -self.num_votes_for(p));
-            println!("Queue: {:?}", queue);
             if let Some(target) = queue.first() {
                 self.make_dead(target);
             }
