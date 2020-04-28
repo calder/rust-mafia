@@ -20,7 +20,9 @@ TODO
 
 ## Roles
 
-Instead of a first class notion of roles, players have any number of temporary or permanent modifiers. Here's an example implementation of the classic mafia roles:
+Instead of first class roles, players have any number of temporary or permanent modifiers.
+
+Here are example implementations of the classic mafia roles:
 
 | Role | Implementation |
 | ---- | -------------- |
