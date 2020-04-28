@@ -104,6 +104,8 @@ cd mafia
 cargo test player
 ```
 
+### Running games
+
 Run the `mafia` binary:
 
 ```sh
