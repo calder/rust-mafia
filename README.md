@@ -30,7 +30,7 @@ TODO
     * [X] Individual actions
     * [X] Cop
     * [X] Doctor
-    * [ ] Day
+    * [X] Day
     * [X] Action amending
     * [ ] Log visibility
     * [ ] Action validity checking
