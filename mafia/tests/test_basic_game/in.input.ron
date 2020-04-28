@@ -14,11 +14,12 @@
 
     //------------------------------------------------------
 
-    // Tie vote to test RNG determinism.
-    Use("Alice", Vote("Charlie")),
-    Use("Bob", Vote("Alice")),
-    Use("Charlie", Vote("Bob")),
-    Use("Eve", Vote("Malory")),
+    // Test a close vote.
+    Use("Alice", Vote("Eve")),
+    Use("Bob", Vote("Charlie")),
+    Use("Charlie", Vote("Eve")),
+    Use("Eve", Vote("Charlie")),
+    Use("Malory", Vote("Charlie")),
 
     // Resolve Day 1.
     AdvancePhase,
