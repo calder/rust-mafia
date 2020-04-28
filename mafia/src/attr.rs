@@ -34,7 +34,7 @@ impl Attr {
 
     pub fn is_protected(self: &Self) -> Option<bool> {
         match self {
-            Self::Dead => Some(false),
+            Self::Protected => Some(true),
             Self::Temporarily(a, _) => a.is_protected(),
             _ => None,
         }

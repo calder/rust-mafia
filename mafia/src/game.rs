@@ -71,10 +71,34 @@ impl Game {
         self.state.players.get_mut(player).unwrap().push(attr);
     }
 
-    fn get_faction(self: &Self, player: &Player) -> Faction {
-        self.state.players[player]
+    fn get_attr<T, F: FnMut(&Attr) -> Option<T>>(
+        self: &Self,
+        player: &Player,
+        f: F,
+        default: T,
+    ) -> T {
+        self.get_attrs(player).find_map(f).unwrap_or(default)
+    }
+
+    fn get_attr_sum<T: std::iter::Sum, F: FnMut(&Attr) -> Option<T>>(
+        self: &Self,
+        player: &Player,
+        f: F,
+    ) -> T {
+        self.get_attrs(player).filter_map(f).sum()
+    }
+
+    fn get_attrs(self: &Self, player: &Player) -> std::iter::Rev<std::slice::Iter<Attr>> {
+        self.state
+            .players
+            .get(player)
+            .expect(&format!("No such player: {:?}", player))
             .iter()
             .rev()
+    }
+
+    fn get_faction(self: &Self, player: &Player) -> Faction {
+        self.get_attrs(player)
             .find_map(|a| a.get_faction())
             .expect(&format!("Player does not have a faction: {:?}", player))
     }
@@ -122,6 +146,20 @@ impl Game {
         }
     }
 
+    fn get_living_players(self: &Self) -> Vec<Player> {
+        self.state
+            .players
+            .keys()
+            .filter_map(|p| {
+                if self.is_alive(p) {
+                    Some(p.clone())
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
     fn get_plan(self: &Self) -> Plan {
         let mut acted = Set::new();
         let mut plan = Plan::new();
@@ -146,48 +184,18 @@ impl Game {
         plan
     }
 
-    fn get_living_players(self: &Self) -> Vec<Player> {
-        self.state
-            .players
-            .keys()
-            .filter_map(|p| {
-                if self.is_alive(p) {
-                    Some(p.clone())
-                } else {
-                    None
-                }
-            })
-            .collect()
-    }
-
     fn get_rng(self: &mut Self) -> Rng {
         self.state.seed += 1;
         Rng::seed_from_u64(self.state.seed)
     }
 
     fn is_alive(self: &Self, player: &Player) -> bool {
-        self.state.players[player]
-            .iter()
-            .rev()
-            .find_map(|a| a.is_alive())
-            .unwrap_or(true)
+        self.get_attr(player, |a| a.is_alive(), true)
     }
 
     fn is_protected(self: &Self, player: &Player) -> bool {
-        self.state.players[player]
-            .iter()
-            .rev()
-            .find_map(|a| a.is_protected())
-            .unwrap_or(true)
+        self.get_attr(player, |a| a.is_protected(), false)
     }
-
-    // fn get_attr<T, F: FnOnce<T>>(self: &Self, player: &Player, f: F, default: T) {
-    //     self.state.players[player]
-    //         .iter()
-    //         .rev()
-    //         .find_map(|a| a.is_protected())
-    //         .unwrap_or(true)
-    // }
 
     fn make_dead(self: &mut Self, player: &Player) {
         self.state.players.get_mut(player).unwrap().push(Attr::Dead);
@@ -213,11 +221,7 @@ impl Game {
     }
 
     fn num_votes_for(self: &Self, player: &Player) -> i64 {
-        self.state.players[player]
-            .iter()
-            .rev()
-            .filter_map(|a| a.num_votes())
-            .sum()
+        self.get_attr_sum(player, |a| a.num_votes())
     }
 
     fn resolve(self: &mut Self) {
