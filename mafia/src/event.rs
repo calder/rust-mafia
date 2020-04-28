@@ -13,5 +13,6 @@ pub enum Event {
     Input(Input),
     PhaseEnded(Phase),
     Used(Player, Action),
+    VotedFor(Player, Player),
     Won(Faction),
 }

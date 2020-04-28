@@ -15,4 +15,5 @@
         "Alice": [(effect: BelongsTo("Town"))],
         "Charlie": [(effect: BelongsTo("Survivors"))],
     },
+    seed: 0,
 )

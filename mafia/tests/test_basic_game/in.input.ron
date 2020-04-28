@@ -1,18 +1,24 @@
 [
     // Test faction actions, kills, and amending actions.
-    Plan("Eve", Order("Eve", Kill("Alice"))),
-    Plan("Eve", Order("Malory", Kill("Charlie"))),
+    Use("Eve", Order("Eve", Kill("Alice"))),
+    Use("Eve", Order("Malory", Kill("Charlie"))),
 
     // Test good investigation.
-    Plan("Alice", Investigate("Bob")),
+    Use("Alice", Investigate("Bob")),
 
     // Test protecting the right player.
-    Plan("Bob", Protect("Charlie")),
+    Use("Bob", Protect("Charlie")),
 
     // Resolve Night 0.
     AdvancePhase,
 
     //------------------------------------------------------
+
+    // Tie vote to test RNG determinism.
+    Use("Alice", Vote("Charlie")),
+    Use("Bob", Vote("Alice")),
+    Use("Charlie", Vote("Bob")),
+    Use("Eve", Vote("Malory")),
 
     // Resolve Day 1.
     AdvancePhase,
@@ -20,13 +26,13 @@
     //------------------------------------------------------
 
     // Test evil investigation.
-    Plan("Alice", Investigate("Eve")),
+    Use("Alice", Investigate("Eve")),
 
     // Test protecting the wrong player.
-    Plan("Bob", Protect("Alice")),
+    Use("Bob", Protect("Alice")),
 
     // Test mafia win.
-    Plan("Eve", Order("Eve", Kill("Charlie"))),
+    Use("Eve", Order("Eve", Kill("Charlie"))),
 
     // Resolve Night 1.
     AdvancePhase,

@@ -1,13 +1,5 @@
 (
     factions: {
-        "Mafia": (
-            abilities: [
-                Kill,
-            ],
-            alignment: Evil,
-            membership: Visible,
-            objective: Majority,
-        ),
         "Town": (
             alignment: Good,
             membership: Hidden,
@@ -22,9 +14,6 @@
             (
                 effect: Has(Vote),
             ),
-            (
-                effect: Has(Investigate),
-            ),
         ],
         "Bob": [
             (
@@ -37,25 +26,6 @@
         "Charlie": [
             (
                 effect: BelongsTo("Town"),
-            ),
-            (
-                effect: Has(Vote),
-            ),
-            (
-                effect: Has(Protect),
-            ),
-        ],
-        "Eve": [
-            (
-                effect: BelongsTo("Mafia"),
-            ),
-            (
-                effect: Has(Vote),
-            ),
-        ],
-        "Malory": [
-            (
-                effect: BelongsTo("Mafia"),
             ),
             (
                 effect: Has(Vote),

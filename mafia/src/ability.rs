@@ -5,4 +5,5 @@ pub enum Ability {
     Investigate,
     Kill,
     Protect,
+    Vote,
 }

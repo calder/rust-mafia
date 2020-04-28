@@ -1,10 +1,5 @@
 (
     factions: {
-        "Mafia": (
-            alignment: Evil,
-            membership: Visible,
-            objective: Majority,
-        ),
         "Town": (
             alignment: Good,
             membership: Hidden,
@@ -14,19 +9,31 @@
     players: {
         "Alice": [
             (
-                effect: BelongsTo("Mafia"),
+                effect: BelongsTo("Town"),
+            ),
+            (
+                effect: Has(Vote),
             ),
         ],
         "Bob": [
             (
-                effect: BelongsTo("Mafia"),
+                effect: BelongsTo("Town"),
+            ),
+            (
+                effect: Has(Vote),
+            ),
+            (
+                effect: Dead,
             ),
         ],
         "Charlie": [
             (
                 effect: BelongsTo("Town"),
             ),
+            (
+                effect: Has(Vote),
+            ),
         ],
     },
-    seed: 0,
+    seed: 1,
 )

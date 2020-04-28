@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+use rand_core::SeedableRng;
 use serde::{Deserialize, Serialize};
 
 use crate::action::*;
@@ -13,6 +15,8 @@ use crate::objective::*;
 use crate::phase::*;
 use crate::state::*;
 use crate::util::*;
+
+type Rng = rand_xoshiro::Xoshiro256StarStar;
 
 type Plan = Vec<(Player, Action)>;
 
@@ -43,9 +47,30 @@ impl Game {
 
         match input {
             Input::AdvancePhase => self.resolve(),
-            Input::Plan(_, _) => { /* Do nothing until phase end. */ }
-            Input::Use(_, _) => { /* PLACEHOLDER */ }
+            Input::Use(player, action) => match action {
+                Action::Immediate(action) => {
+                    self.resolve_action(player, action);
+                }
+                Action::Investigate(_) => {}
+                Action::Kill(_) => {}
+                Action::Protect(_) => {}
+                Action::Order(minion, faction_action) => match &**faction_action {
+                    Action::Immediate(a) => {
+                        self.resolve_action(minion, &*a);
+                    }
+                    _ => {}
+                },
+                Action::Vote(target) => {
+                    self.log
+                        .push(Event::VotedFor(player.clone(), target.clone()));
+                }
+            },
         }
+    }
+
+    fn apply_modifier(self: &mut Self, player: &Player, modifier: Modifier) {
+        println!("WTF {:?}", player);
+        self.state.players.get_mut(player).unwrap().push(modifier);
     }
 
     fn get_faction(self: &Self, player: &Player) -> Faction {
@@ -109,7 +134,8 @@ impl Game {
                 Event::PhaseEnded(_) => {
                     break;
                 }
-                Event::Input(Input::Plan(player, action)) => {
+                Event::Input(Input::Use(_, Action::Immediate(_))) => {}
+                Event::Input(Input::Use(player, action)) => {
                     if !acted.contains(player) {
                         // TODO: Check action validity.
                         plan.push((player.clone(), action.clone()));
@@ -124,12 +150,24 @@ impl Game {
         plan
     }
 
-    fn get_living_players(self: &Self) -> Vec<&Player> {
+    fn get_living_players(self: &Self) -> Vec<Player> {
         self.state
             .players
             .keys()
-            .filter(|p| self.is_alive(p))
+            .filter_map(|p| {
+                if self.is_alive(p) {
+                    Some(p.clone())
+                } else {
+                    None
+                }
+            })
             .collect()
+    }
+
+    fn get_rng(self: &mut Self) -> Rng {
+        let rng = Rng::seed_from_u64(self.state.seed);
+        self.state.seed += 1;
+        rng
     }
 
     fn is_alive(self: &Self, player: &Player) -> bool {
@@ -152,6 +190,15 @@ impl Game {
         false
     }
 
+    fn make_dead(self: &mut Self, player: &Player) {
+        self.state
+            .players
+            .get_mut(player)
+            .unwrap()
+            .push(Modifier::new(Effect::Dead, Deadline::Never));
+        self.log.push(Event::Died(player.clone()));
+    }
+
     fn num_living_alignment(self: &Self, alignment: &Alignment) -> usize {
         self.get_living_players()
             .iter()
@@ -170,9 +217,24 @@ impl Game {
         self.get_living_players().len()
     }
 
+    fn num_votes_for(self: &Self, player: &Player) -> i64 {
+        let mut votes = 0;
+        for modifier in self.state.players[player].iter().rev() {
+            match modifier.effect {
+                Effect::ReceivedVotes(n) => {
+                    votes += n;
+                }
+                _ => {}
+            }
+        }
+        votes
+    }
+
     fn resolve(self: &mut Self) {
+        let plan = self.get_plan();
+
         // Resolve actions.
-        for (player, action) in &self.get_plan() {
+        for (player, action) in &plan {
             self.resolve_action(player, action);
         }
 
@@ -180,6 +242,18 @@ impl Game {
         for (faction, _) in &self.state.factions {
             if self.get_fate(faction) == Fate::Won {
                 self.log.push(Event::Won(faction.clone()));
+            }
+        }
+
+        // Resolve elimination.
+        if let Phase::Day(_) = self.phase {
+            let mut queue = self.get_living_players();
+            let mut rng = self.get_rng();
+            queue.shuffle(&mut rng);
+            queue.sort_by_cached_key(|p| -self.num_votes_for(p));
+            println!("Queue: {:?}", queue);
+            if let Some(target) = queue.first() {
+                self.make_dead(target);
             }
         }
 
@@ -191,10 +265,7 @@ impl Game {
             .map(|(player, modifiers)| {
                 (
                     player.clone(),
-                    modifiers
-                        .iter()
-                        .filter_map(|m| m.advance(&self.phase))
-                        .collect(),
+                    modifiers.iter().filter_map(|m| m.next()).collect(),
                 )
             })
             .collect();
@@ -206,14 +277,10 @@ impl Game {
 
     fn resolve_action(self: &mut Self, _player: &Player, action: &Action) {
         match action {
+            Action::Immediate(_) => {}
             Action::Kill(target) => {
                 if self.is_alive(target) && !self.is_protected(target) {
-                    self.state
-                        .players
-                        .get_mut(target)
-                        .unwrap()
-                        .push(Modifier::new(Effect::Dead));
-                    self.log.push(Event::Died(target.clone()));
+                    self.make_dead(target);
                 }
             }
             Action::Investigate(target) => {
@@ -221,16 +288,18 @@ impl Game {
                 self.log
                     .push(Event::FoundAlignment(target.clone(), result.clone()));
             }
-            Action::Order(player, faction_action) => self.resolve_action(player, faction_action),
-            Action::Protect(player) => {
-                self.state
-                    .players
-                    .get_mut(player)
-                    .unwrap()
-                    .push(Modifier::new_with_deadline(
-                        Effect::Protected,
-                        Deadline::Nights(1),
-                    ));
+            Action::Order(minion, faction_action) => self.resolve_action(minion, faction_action),
+            Action::Protect(target) => {
+                self.apply_modifier(
+                    target,
+                    Modifier::new(Effect::Protected, Deadline::Phases(1)),
+                );
+            }
+            Action::Vote(target) => {
+                self.apply_modifier(
+                    target,
+                    Modifier::new(Effect::ReceivedVotes(1), Deadline::Phases(1)),
+                );
             }
         }
     }

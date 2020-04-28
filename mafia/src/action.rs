@@ -4,6 +4,9 @@ use crate::util::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Action {
+    // Immediately resolve an action.
+    Immediate(std::boxed::Box<Action>),
+
     // Investigate a player's alignment.
     Investigate(Player),
 
@@ -15,15 +18,20 @@ pub enum Action {
 
     // Protect a player from kills.
     Protect(Player),
+
+    // Vote to eliminate a player from the game.
+    Vote(Player),
 }
 
 impl Action {
     pub fn order(self: &Self) -> usize {
         match self {
-            Self::Investigate(_) => 0,
-            Self::Protect(_) => 1,
+            Self::Immediate(_) => 0,
+            Self::Investigate(_) => 1,
+            Self::Protect(_) => 2,
             Self::Kill(_) => 1000,
             Self::Order(_, a) => a.order(),
+            Self::Vote(_) => 1000,
         }
     }
 }

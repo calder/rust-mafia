@@ -16,4 +16,5 @@
         "Bob": [(effect: BelongsTo("Mafia"))],
         "Charlie": [(effect: BelongsTo("Town"))],
     },
+    seed: 0,
 )

@@ -37,6 +37,7 @@ TODO
         [ ] Player has action
         [ ] Target is alive
         [ ] Doctors can't protect themselves
+        [ ] Faction action chain of command
 [ ] Basic server
     [ ] State updates
     [ ] Log updates

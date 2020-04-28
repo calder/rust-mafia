@@ -1,32 +1,18 @@
 use serde::{Deserialize, Serialize};
 
-use crate::phase::*;
-
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Deadline {
     Never,
-    Days(i64),
-    Nights(i64),
+    Phases(usize),
 }
 
 impl Deadline {
-    pub fn advance(self: &Self, phase: &Phase) -> Option<Deadline> {
-        match (self.clone(), phase) {
-            (Self::Days(n), Phase::Day(_)) => {
-                if n <= 1 {
-                    None
-                } else {
-                    Some(Self::Days(n - 1))
-                }
-            }
-            (Self::Nights(n), Phase::Night(_)) => {
-                if n <= 1 {
-                    None
-                } else {
-                    Some(Self::Nights(n - 1))
-                }
-            }
-            _ => Some(self.clone()),
+    pub fn next(self: &Self) -> Option<Deadline> {
+        match self {
+            Self::Phases(0) => None,
+            Self::Phases(1) => None,
+            Self::Phases(n) => Some(Self::Phases(n - 1)),
+            Self::Never => Some(Self::Never),
         }
     }
 }

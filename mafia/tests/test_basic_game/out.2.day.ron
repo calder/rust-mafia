@@ -20,6 +20,9 @@
                 effect: BelongsTo("Town"),
             ),
             (
+                effect: Has(Vote),
+            ),
+            (
                 effect: Has(Investigate),
             ),
         ],
@@ -27,10 +30,16 @@
             (
                 effect: BelongsTo("Town"),
             ),
+            (
+                effect: Has(Vote),
+            ),
         ],
         "Charlie": [
             (
                 effect: BelongsTo("Town"),
+            ),
+            (
+                effect: Has(Vote),
             ),
             (
                 effect: Has(Protect),
@@ -43,11 +52,18 @@
             (
                 effect: BelongsTo("Mafia"),
             ),
+            (
+                effect: Has(Vote),
+            ),
         ],
         "Malory": [
             (
                 effect: BelongsTo("Mafia"),
             ),
+            (
+                effect: Has(Vote),
+            ),
         ],
     },
+    seed: 1,
 )

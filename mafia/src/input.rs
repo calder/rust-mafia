@@ -8,10 +8,7 @@ pub enum Input {
     // Resolve current phase and advance to next phase.
     AdvancePhase,
 
-    // Plan normal action.
-    Plan(Player, Action),
-
-    // Use instantaneous action.
+    // Use an action.
     Use(Player, Action),
 }
 

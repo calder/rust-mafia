@@ -11,4 +11,5 @@ pub enum Effect {
     Dead,
     Poisoned(Deadline),
     Protected,
+    ReceivedVotes(i64),
 }

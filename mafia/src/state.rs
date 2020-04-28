@@ -7,6 +7,7 @@ use crate::player::*;
 pub struct State {
     pub factions: Factions,
     pub players: Players,
+    pub seed: u64,
 }
 
 impl State {
@@ -14,6 +15,7 @@ impl State {
         State {
             factions: Factions::new(),
             players: Players::new(),
+            seed: 0,
         }
     }
 }
