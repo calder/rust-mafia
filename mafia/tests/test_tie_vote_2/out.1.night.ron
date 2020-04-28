@@ -1,0 +1,39 @@
+(
+    factions: {
+        "Town": (
+            alignment: Good,
+            membership: Hidden,
+            objective: Eliminate(Evil),
+        ),
+    },
+    players: {
+        "Alice": [
+            (
+                effect: BelongsTo("Town"),
+            ),
+            (
+                effect: Has(Vote),
+            ),
+            (
+                effect: Dead,
+            ),
+        ],
+        "Bob": [
+            (
+                effect: BelongsTo("Town"),
+            ),
+            (
+                effect: Has(Vote),
+            ),
+        ],
+        "Charlie": [
+            (
+                effect: BelongsTo("Town"),
+            ),
+            (
+                effect: Has(Vote),
+            ),
+        ],
+    },
+    seed: 6,
+)

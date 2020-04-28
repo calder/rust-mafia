@@ -238,13 +238,6 @@ impl Game {
             self.resolve_action(player, action);
         }
 
-        // Evaluate win conditions.
-        for (faction, _) in &self.state.factions {
-            if self.get_fate(faction) == Fate::Won {
-                self.log.push(Event::Won(faction.clone()));
-            }
-        }
-
         // Resolve elimination.
         if let Phase::Day(_) = self.phase {
             let mut queue = self.get_living_players();
@@ -269,6 +262,13 @@ impl Game {
                 )
             })
             .collect();
+
+        // Evaluate win conditions.
+        for (faction, _) in &self.state.factions {
+            if self.get_fate(faction) == Fate::Won {
+                self.log.push(Event::Won(faction.clone()));
+            }
+        }
 
         // Advance phase.
         self.log.push(Event::PhaseEnded(self.phase.clone()));

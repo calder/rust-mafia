@@ -1,10 +1,4 @@
 [
-    Input(Use("Alice", Vote("Bob"))),
-    VotedFor("Alice", "Bob"),
-    Input(Use("Bob", Vote("Charlie"))),
-    VotedFor("Bob", "Charlie"),
-    Input(Use("Charlie", Vote("Alice"))),
-    VotedFor("Charlie", "Alice"),
     Input(AdvancePhase),
     Won("Town"),
     PhaseEnded(Night(0)),
@@ -15,7 +9,7 @@
     Input(Use("Charlie", Vote("Alice"))),
     VotedFor("Charlie", "Alice"),
     Input(AdvancePhase),
+    Died("Charlie"),
     Won("Town"),
-    Died("Bob"),
     PhaseEnded(Day(1)),
 ]

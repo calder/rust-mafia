@@ -1,0 +1,15 @@
+[
+    Input(AdvancePhase),
+    Won("Town"),
+    PhaseEnded(Night(0)),
+    Input(Use("Alice", Vote("Bob"))),
+    VotedFor("Alice", "Bob"),
+    Input(Use("Bob", Vote("Charlie"))),
+    VotedFor("Bob", "Charlie"),
+    Input(Use("Charlie", Vote("Alice"))),
+    VotedFor("Charlie", "Alice"),
+    Input(AdvancePhase),
+    Died("Alice"),
+    Won("Town"),
+    PhaseEnded(Day(1)),
+]
