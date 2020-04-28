@@ -5,11 +5,17 @@
     // Test faction actions and kills.
     Plan("Eve", Order("Malory", Kill("Bob"))),
 
+    // Test good investigation.
+    Plan("Alice", Investigate("Bob")),
+
     // Resolve Night 0.
     AdvancePhase,
 
     // Resolve Day 1.
     AdvancePhase,
+
+    // Test bad investigation.
+    Plan("Alice", Investigate("Eve")),
 
     // Test mafia win.
     Plan("Eve", Order("Eve", Kill("Charlie"))),

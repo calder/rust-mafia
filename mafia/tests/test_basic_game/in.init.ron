@@ -1,7 +1,7 @@
 (
     factions: {
         "Mafia": (
-            abilities: [(kind: Kill)],
+            abilities: [Kill],
             alignment: Evil,
             membership: Visible,
             objective: Majority,
@@ -13,10 +13,21 @@
         ),
     },
     players: {
-        "Alice": [(effect: BelongsTo("Town"))],
-        "Bob": [(effect: BelongsTo("Town"))],
-        "Charlie": [(effect: BelongsTo("Town"))],
-        "Eve": [(effect: BelongsTo("Mafia"))],
-        "Malory": [(effect: BelongsTo("Mafia"))],
+        "Alice": [
+            (effect: BelongsTo("Town")),
+            (effect: Has(Investigate)),
+        ],
+        "Bob": [
+            (effect: BelongsTo("Town")),
+        ],
+        "Charlie": [
+            (effect: BelongsTo("Town")),
+        ],
+        "Eve": [
+            (effect: BelongsTo("Mafia")),
+        ],
+        "Malory": [
+            (effect: BelongsTo("Mafia")),
+        ],
     },
 )

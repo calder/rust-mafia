@@ -1,7 +1,9 @@
 [
     Input(Plan("Eve", Order("Eve", Kill("Alice")))),
     Input(Plan("Eve", Order("Malory", Kill("Bob")))),
+    Input(Plan("Alice", Investigate("Bob"))),
     Input(AdvancePhase),
     Died("Bob"),
+    Investigated("Alice", "Bob", Good),
     PhaseEnded(Night(0)),
 ]

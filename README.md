@@ -27,12 +27,16 @@ TODO
     [X] Town
     [X] Faction actions
     [X] Mafia
-    [ ] Individual actions
-    [ ] Cop
+    [X] Individual actions
+    [X] Cop
     [ ] Doctor
     [ ] Day
     [X] Action amending
+    [ ] Log visibility
     [ ] Action validity checking
+        [ ] Player has action
+        [ ] Target is alive
+        [ ] Doctors can't protect themselves
 [ ] Basic server
 
 

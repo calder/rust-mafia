@@ -2,9 +2,7 @@
     factions: {
         "Mafia": (
             abilities: [
-                (
-                    kind: Kill,
-                ),
+                Kill,
             ],
             alignment: Evil,
             membership: Visible,
@@ -20,6 +18,9 @@
         "Alice": [
             (
                 effect: BelongsTo("Town"),
+            ),
+            (
+                effect: Has(Investigate),
             ),
         ],
         "Bob": [

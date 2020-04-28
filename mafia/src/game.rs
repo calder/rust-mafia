@@ -176,9 +176,8 @@ impl Game {
         self.phase = self.phase.next();
     }
 
-    fn resolve_action(self: &mut Self, _player: &Player, action: &Action) {
+    fn resolve_action(self: &mut Self, player: &Player, action: &Action) {
         match action {
-            Action::Order(player, faction_action) => self.resolve_action(player, faction_action),
             Action::Kill(target) => {
                 if self.is_alive(target) {
                     self.state
@@ -189,6 +188,15 @@ impl Game {
                     self.log.push(Event::Died(target.clone()));
                 }
             }
+            Action::Investigate(target) => {
+                let result = self.get_player_alignment(target);
+                self.log.push(Event::Investigated(
+                    player.clone(),
+                    target.clone(),
+                    result.clone(),
+                ));
+            }
+            Action::Order(player, faction_action) => self.resolve_action(player, faction_action),
             _ => {}
         }
     }
