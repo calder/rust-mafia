@@ -40,7 +40,7 @@ Instead of first class roles, players have any number of attributes. Examples:
 | Role | Implementation |
 | ---- | -------------- |
 | Mafia goon | `Member("Mafia") + Can(Vote)` |
-| Town member | `Member("Town") + Can(Vote)` |
+| Townie | `Member("Town") + Can(Vote)` |
 | Cop | `Member("Town") + Can(Vote) + Can(Investigate)` |
 | Doctor | `Member("Town") + Can(Vote) + Can(Protect)` |
 
