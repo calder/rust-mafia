@@ -37,8 +37,8 @@ Auth(<passcode>)
 
 Instead of first class roles, players have any number of attributes. Examples:
 
-| Role | Implementation |
-| ---- | -------------- |
+| Role | Attributes |
+| ---- | ---------- |
 | Mafia goon | `Member("Mafia") + Can(Vote)` |
 | Townie | `Member("Town") + Can(Vote)` |
 | Cop | `Member("Town") + Can(Vote) + Can(Investigate)` |
