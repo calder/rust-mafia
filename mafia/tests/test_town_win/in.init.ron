@@ -12,8 +12,8 @@
         ),
     },
     players: {
-        "Alice": [(effect: BelongsTo("Town"))],
-        "Charlie": [(effect: BelongsTo("Survivors"))],
+        "Alice": [(effect: Member("Town"))],
+        "Charlie": [(effect: Member("Survivors"))],
     },
     seed: 0,
 )

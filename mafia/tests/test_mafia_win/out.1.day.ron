@@ -14,17 +14,17 @@
     players: {
         "Alice": [
             (
-                effect: BelongsTo("Mafia"),
+                effect: Member("Mafia"),
             ),
         ],
         "Bob": [
             (
-                effect: BelongsTo("Mafia"),
+                effect: Member("Mafia"),
             ),
         ],
         "Charlie": [
             (
-                effect: BelongsTo("Town"),
+                effect: Member("Town"),
             ),
         ],
     },

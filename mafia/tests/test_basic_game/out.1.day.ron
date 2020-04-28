@@ -17,48 +17,48 @@
     players: {
         "Alice": [
             (
-                effect: BelongsTo("Town"),
+                effect: Member("Town"),
             ),
             (
-                effect: Has(Vote),
+                effect: Can(Vote),
             ),
             (
-                effect: Has(Investigate),
+                effect: Can(Investigate),
             ),
         ],
         "Bob": [
             (
-                effect: BelongsTo("Town"),
+                effect: Member("Town"),
             ),
             (
-                effect: Has(Vote),
+                effect: Can(Vote),
             ),
         ],
         "Charlie": [
             (
-                effect: BelongsTo("Town"),
+                effect: Member("Town"),
             ),
             (
-                effect: Has(Vote),
+                effect: Can(Vote),
             ),
             (
-                effect: Has(Protect),
+                effect: Can(Protect),
             ),
         ],
         "Eve": [
             (
-                effect: BelongsTo("Mafia"),
+                effect: Member("Mafia"),
             ),
             (
-                effect: Has(Vote),
+                effect: Can(Vote),
             ),
         ],
         "Malory": [
             (
-                effect: BelongsTo("Mafia"),
+                effect: Member("Mafia"),
             ),
             (
-                effect: Has(Vote),
+                effect: Can(Vote),
             ),
         ],
     },

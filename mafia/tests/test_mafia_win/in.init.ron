@@ -12,9 +12,9 @@
         ),
     },
     players: {
-        "Alice": [(effect: BelongsTo("Mafia"))],
-        "Bob": [(effect: BelongsTo("Mafia"))],
-        "Charlie": [(effect: BelongsTo("Town"))],
+        "Alice": [(effect: Member("Mafia"))],
+        "Bob": [(effect: Member("Mafia"))],
+        "Charlie": [(effect: Member("Town"))],
     },
     seed: 0,
 )

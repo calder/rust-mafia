@@ -14,26 +14,26 @@
     },
     players: {
         "Alice": [
-            (effect: BelongsTo("Town")),
-            (effect: Has(Vote)),
-            (effect: Has(Investigate)),
+            (effect: Member("Town")),
+            (effect: Can(Vote)),
+            (effect: Can(Investigate)),
         ],
         "Bob": [
-            (effect: BelongsTo("Town")),
-            (effect: Has(Vote)),
+            (effect: Member("Town")),
+            (effect: Can(Vote)),
         ],
         "Charlie": [
-            (effect: BelongsTo("Town")),
-            (effect: Has(Vote)),
-            (effect: Has(Protect)),
+            (effect: Member("Town")),
+            (effect: Can(Vote)),
+            (effect: Can(Protect)),
         ],
         "Eve": [
-            (effect: BelongsTo("Mafia")),
-            (effect: Has(Vote)),
+            (effect: Member("Mafia")),
+            (effect: Can(Vote)),
         ],
         "Malory": [
-            (effect: BelongsTo("Mafia")),
-            (effect: Has(Vote)),
+            (effect: Member("Mafia")),
+            (effect: Can(Vote)),
         ],
     },
     seed: 0,

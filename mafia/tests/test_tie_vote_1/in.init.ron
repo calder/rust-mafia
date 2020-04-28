@@ -8,16 +8,16 @@
     },
     players: {
         "Alice": [
-            (effect: BelongsTo("Town")),
-            (effect: Has(Vote)),
+            (effect: Member("Town")),
+            (effect: Can(Vote)),
         ],
         "Bob": [
-            (effect: BelongsTo("Town")),
-            (effect: Has(Vote)),
+            (effect: Member("Town")),
+            (effect: Can(Vote)),
         ],
         "Charlie": [
-            (effect: BelongsTo("Town")),
-            (effect: Has(Vote)),
+            (effect: Member("Town")),
+            (effect: Can(Vote)),
         ],
     },
     seed: 0,

@@ -18,6 +18,19 @@ TODO
 
 
 
+## Roles
+
+Instead of a first class notion of roles, players have any number of temporary or permanent modifiers. Here's an example implementation of the classic mafia roles:
+
+| Role | Implementation | Description |
+| ---- | -------------- | ----------- |
+| Town member | `Member("Town") + Can(Vote)` | A member of the town without any special abilities. |
+| Mafia goon | `Member("Mafia") + Can(Vote)` | A member of the mafia without any special abilities. |
+| Cop | `Member("Town") + Can(Vote) + Can(Investigate)` | A mafia member without any other special abilities. |
+| Doctor | `Member("Town") + Can(Vote) + Can(Protect)` | A mafia member without any other special abilities. |
+
+
+
 ## TODO
 
 * [ ] Basic gameplay

@@ -6,8 +6,8 @@ use crate::util::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Effect {
-    BelongsTo(Faction),
-    Has(Ability),
+    Member(Faction),
+    Can(Ability),
     Dead,
     Poisoned(Deadline),
     Protected,

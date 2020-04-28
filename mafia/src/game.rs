@@ -76,7 +76,7 @@ impl Game {
     fn get_faction(self: &Self, player: &Player) -> Faction {
         for modifier in self.state.players[player].iter().rev() {
             match &modifier.effect {
-                Effect::BelongsTo(faction) => return faction.clone(),
+                Effect::Member(faction) => return faction.clone(),
                 _ => {}
             }
         }

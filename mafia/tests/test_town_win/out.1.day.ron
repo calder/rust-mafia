@@ -14,12 +14,12 @@
     players: {
         "Alice": [
             (
-                effect: BelongsTo("Town"),
+                effect: Member("Town"),
             ),
         ],
         "Charlie": [
             (
-                effect: BelongsTo("Survivors"),
+                effect: Member("Survivors"),
             ),
         ],
     },

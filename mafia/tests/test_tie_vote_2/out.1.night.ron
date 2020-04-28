@@ -9,10 +9,10 @@
     players: {
         "Alice": [
             (
-                effect: BelongsTo("Town"),
+                effect: Member("Town"),
             ),
             (
-                effect: Has(Vote),
+                effect: Can(Vote),
             ),
             (
                 effect: Dead,
@@ -20,18 +20,18 @@
         ],
         "Bob": [
             (
-                effect: BelongsTo("Town"),
+                effect: Member("Town"),
             ),
             (
-                effect: Has(Vote),
+                effect: Can(Vote),
             ),
         ],
         "Charlie": [
             (
-                effect: BelongsTo("Town"),
+                effect: Member("Town"),
             ),
             (
-                effect: Has(Vote),
+                effect: Can(Vote),
             ),
         ],
     },
