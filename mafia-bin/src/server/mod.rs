@@ -47,6 +47,7 @@ impl Server {
     pub async fn run(self: &mut Self) -> Result<Server, io::Error> {
         loop {
             let (mut conn, _) = self.listener.accept().await.unwrap();
+            debug!("Client connected.");
 
             tokio::spawn(async move {
                 let (reader, mut writer) = conn.split();
@@ -60,10 +61,11 @@ impl Server {
                         }
                         Err(e) => {
                             debug!("Error: {:?}", e);
-                            return;
+                            break;
                         }
                     }
                 }
+                debug!("Client disconnected.");
             });
         }
     }
