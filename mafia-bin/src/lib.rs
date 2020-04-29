@@ -32,7 +32,7 @@ pub enum Command {
     },
 
     /// Print version and exit.
-    Version {},
+    Version,
 }
 
 pub async fn main(opt: Mafia) {
@@ -55,7 +55,7 @@ pub async fn main(opt: Mafia) {
             }
         }
 
-        Command::Version {} => {
+        Command::Version => {
             println!("mafia {}", env!("CARGO_PKG_VERSION"));
         }
     }

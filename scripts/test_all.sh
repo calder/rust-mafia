@@ -31,21 +31,21 @@ function check_versions_match {
     fi
 }
 
+# Run tests for a given crate.
+function test_crate() {
+    CRATE="$1"
+    (
+        cd "$CRATE"
+        check_cargo_fmt
+        cargo test
+    )
+}
+
 # Check versions.
 check_versions_match mafia mafia-bin
 
-# Test mafia.
-(
-    cd mafia
-    check_cargo_fmt
-    cargo test
-)
-
-# Test mafia-bin.
-(
-    cd mafia-bin
-    check_cargo_fmt
-    cargo run -- version
-)
+# Run tests.
+test_crate mafia
+test_crate mafia-bin
 
 printf "\nTests ${GREEN}PASSED${RESET}.\n"
