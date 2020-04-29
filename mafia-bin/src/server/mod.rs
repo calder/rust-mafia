@@ -47,7 +47,8 @@ impl Server {
     pub async fn run(self: &mut Self) -> Result<Server, io::Error> {
         loop {
             let (mut conn, _) = self.listener.accept().await.unwrap();
-            debug!("Client connected.");
+            let peer = conn.peer_addr().unwrap();
+            debug!("{}: <CONNECTED>", peer);
 
             tokio::spawn(async move {
                 let (reader, mut writer) = conn.split();
@@ -56,16 +57,16 @@ impl Server {
                     match lines.next_line().await {
                         Ok(None) => {}
                         Ok(Some(msg)) => {
-                            debug!("Received: {:?}", msg);
+                            debug!("{}: {}", peer, msg);
                             writer.write(msg.to_uppercase().as_bytes()).await.unwrap();
                         }
                         Err(e) => {
-                            debug!("Error: {:?}", e);
+                            debug!("{}: {}", peer, e);
                             break;
                         }
                     }
                 }
-                debug!("Client disconnected.");
+                debug!("{}: <DISCONNECTED>", peer);
             });
         }
     }

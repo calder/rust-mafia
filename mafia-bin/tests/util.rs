@@ -66,7 +66,6 @@ impl ServerTestHelper {
             ));
             let client = groups.get(1).unwrap().as_str();
             let message = groups.get(2).unwrap().as_str().to_string() + "\n";
-            debug!("{:?}, {:?}", client, message);
 
             // Create new client connection if necessary.
             if !self.clients.contains_key(client) {
