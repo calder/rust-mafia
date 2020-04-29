@@ -1,5 +1,5 @@
 [
     (Moderator, Input(AdvancePhase)),
-    (Moderator, Won("Town")),
-    (Moderator, PhaseEnded(Night(0))),
+    (Public, Won("Town")),
+    (Public, PhaseEnded(Night(0))),
 ]

@@ -63,7 +63,7 @@ impl Game {
                 },
                 Action::Vote(target) => {
                     self.log.push((
-                        Visibility::Moderator,
+                        Visibility::Public,
                         Event::VotedFor(player.clone(), target.clone()),
                     ));
                 }
@@ -199,7 +199,7 @@ impl Game {
     fn make_dead(self: &mut Self, player: &Player) {
         self.state.players.get_mut(player).unwrap().push(Attr::Dead);
         self.log
-            .push((Visibility::Moderator, Event::Died(player.clone())));
+            .push((Visibility::Public, Event::Died(player.clone())));
     }
 
     fn num_living_alignment(self: &Self, alignment: &Alignment) -> usize {
@@ -260,17 +260,17 @@ impl Game {
         for (faction, _) in &self.state.factions {
             if self.get_fate(faction) == Fate::Won {
                 self.log
-                    .push((Visibility::Moderator, Event::Won(faction.clone())));
+                    .push((Visibility::Public, Event::Won(faction.clone())));
             }
         }
 
         // Advance phase.
         self.log
-            .push((Visibility::Moderator, Event::PhaseEnded(self.phase.clone())));
+            .push((Visibility::Public, Event::PhaseEnded(self.phase.clone())));
         self.phase = self.phase.next();
     }
 
-    fn resolve_action(self: &mut Self, _player: &Player, action: &Action) {
+    fn resolve_action(self: &mut Self, player: &Player, action: &Action) {
         match action {
             Action::Immediate(_) => {}
             Action::Kill(target) => {
@@ -281,7 +281,7 @@ impl Game {
             Action::Investigate(target) => {
                 let result = self.get_player_alignment(target);
                 self.log.push((
-                    Visibility::Moderator,
+                    Visibility::Player(player.clone()),
                     Event::FoundAlignment(target.clone(), result.clone()),
                 ));
             }

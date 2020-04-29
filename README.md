@@ -60,7 +60,7 @@ Instead of first class roles, players have any number of attributes. Examples:
     * [X] Doctor
     * [X] Day
     * [X] Action amending
-    * [ ] Log visibility
+    * [X] Log visibility
     * [ ] Action validity checking
         * [ ] Player has action
         * [ ] Target is alive
