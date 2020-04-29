@@ -25,8 +25,8 @@ impl Server {
 
         // Create metadata file.
         //
-        // Write to a temporary file and then move to the metadata file so
-        // watchers don't accidentally read before we've finished writing.
+        // Write to a temporary file then move to the metadata file so watchers
+        // can't read while we're part way through writing.
         if let Some(path) = metadata_path {
             let metadata = Metadata {
                 address: addr.ip(),
@@ -49,21 +49,20 @@ impl Server {
             let (mut conn, _) = self.listener.accept().await.unwrap();
 
             tokio::spawn(async move {
-                let mut buf = [0; 1024];
-
+                let (reader, mut writer) = conn.split();
+                let mut lines = tokio::io::BufReader::new(reader).lines();
                 loop {
-                    match conn.read(&mut buf).await {
-                        Ok(0) => return,
-                        Ok(n) => {
-                            let msg = std::str::from_utf8(&buf[0..n]).unwrap();
+                    match lines.next_line().await {
+                        Ok(None) => {}
+                        Ok(Some(msg)) => {
                             debug!("Received: {:?}", msg);
-                            conn.write(msg.to_uppercase().as_bytes()).await.unwrap();
+                            writer.write(msg.to_uppercase().as_bytes()).await.unwrap();
                         }
                         Err(e) => {
                             debug!("Error: {:?}", e);
                             return;
                         }
-                    };
+                    }
                 }
             });
         }
