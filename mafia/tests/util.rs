@@ -43,6 +43,7 @@ pub fn run_test<P: AsRef<std::path::Path>>(path: P) {
     let mut game = mafia::Game::new_from_state(t.load("in.setup.ron"));
     let inputs: mafia::Inputs = t.load("in.actions.ron");
 
+    let mut log_start = 0;
     for input in inputs {
         game.apply(&input);
         match input {
@@ -53,12 +54,13 @@ pub fn run_test<P: AsRef<std::path::Path>>(path: P) {
                         game.phase.prev().num(),
                         game.phase.prev().kind_str(),
                     ),
-                    &game.log,
+                    &game.log[log_start..].to_vec(),
                 );
                 t.save(
                     format!("out.{}.{}.ron", game.phase.num(), game.phase.kind_str(),),
                     &game.state,
                 );
+                log_start = game.log.len();
             }
             _ => {}
         }

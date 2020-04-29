@@ -149,7 +149,7 @@ cargo run -- help
 
     # Inspect outputs:
     #   test_foo/out.*.*.ron:     Game state at the beginning of each phase.
-    #   test_foo/out.*.*_log.ron: Events up through the end of each phase.
+    #   test_foo/out.*.*_log.ron: Events that occurred during each phase.
     ```
 
 3.  If you're satisfied, commit your changes and send out a pull request!

@@ -1,11 +1,4 @@
 [
-    (Moderator, Input(Use("Eve", Order("Eve", Kill("Alice"))))),
-    (Moderator, Input(Use("Eve", Order("Malory", Kill("Charlie"))))),
-    (Moderator, Input(Use("Alice", Investigate("Bob")))),
-    (Moderator, Input(Use("Bob", Protect("Charlie")))),
-    (Moderator, Input(AdvancePhase)),
-    (Player("Alice"), FoundAlignment("Bob", Good)),
-    (Public, PhaseEnded(Night(0))),
     (Moderator, Input(Use("Alice", Vote("Eve")))),
     (Public, VotedFor("Alice", "Eve")),
     (Moderator, Input(Use("Bob", Vote("Charlie")))),
