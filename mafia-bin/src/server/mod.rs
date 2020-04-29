@@ -55,10 +55,13 @@ impl Server {
                 let mut lines = tokio::io::BufReader::new(reader).lines();
                 loop {
                     match lines.next_line().await {
-                        Ok(None) => {}
                         Ok(Some(msg)) => {
                             debug!("{}: {}", peer, msg);
                             writer.write(msg.to_uppercase().as_bytes()).await.unwrap();
+                        }
+                        Ok(None) => {
+                            debug!("{}: <EOF>", peer);
+                            break;
                         }
                         Err(e) => {
                             debug!("{}: {}", peer, e);
