@@ -13,11 +13,13 @@ authors = [
 ]
 
 [dependencies]
+env_logger = "0.7"
+log = "0.4"
+mafia = { path = "../mafia" }
 structopt = "0.3"
 termion = "1.5"
 tokio = { version = "0.2", features = ["full"] }
 tui = "0.9"
-mafia = { path = "../mafia" }
 
 [[bin]]
 name = "mafia"

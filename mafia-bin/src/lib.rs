@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 pub mod client;
 pub mod server;
 
@@ -12,6 +15,10 @@ pub struct Mafia {
     /// Subcommand.
     #[structopt(subcommand)]
     pub cmd: Command,
+
+    /// RUST_LOG compatible verbosity filter
+    #[structopt(short, long, default_value = "info")]
+    verbose: String,
 }
 
 /// Subcommand.
@@ -40,7 +47,16 @@ pub enum Command {
 }
 
 pub async fn main(args: Vec<String>) {
+    // Parse command line args.
     let opt = Mafia::from_iter(args);
+
+    // Initialize logging.
+    match env_logger::builder().parse_filters(&opt.verbose).try_init() {
+        Err(e) => {
+            eprintln!("Error initializing logging: {:?}", e);
+        }
+        Ok(()) => {}
+    }
 
     match opt.cmd {
         Command::Join { smoketest } => {

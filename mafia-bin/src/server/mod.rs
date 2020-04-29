@@ -8,6 +8,10 @@ pub struct Server {
 impl Server {
     pub async fn new(address: &str) -> Result<Server, io::Error> {
         let listener = TcpListener::bind(address).await?;
+
+        let addr = listener.local_addr().unwrap();
+        info!("Listening on {}", addr);
+
         Ok(Server { listener: listener })
     }
 
