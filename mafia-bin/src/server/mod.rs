@@ -46,19 +46,21 @@ impl Server {
 
     pub async fn run(self: &mut Self) -> Result<Server, io::Error> {
         loop {
-            let (mut socket, _) = self.listener.accept().await.unwrap();
+            let (mut conn, _) = self.listener.accept().await.unwrap();
 
             tokio::spawn(async move {
                 let mut buf = [0; 1024];
 
                 loop {
-                    match socket.read(&mut buf).await {
+                    match conn.read(&mut buf).await {
                         Ok(0) => return,
                         Ok(n) => {
-                            debug!("Received: {:?}", std::str::from_utf8(&buf[0..n]));
+                            let msg = std::str::from_utf8(&buf[0..n]).unwrap();
+                            debug!("Received: {:?}", msg);
+                            conn.write(msg.to_uppercase().as_bytes()).await.unwrap();
                         }
                         Err(e) => {
-                            debug!("Error reading from socket: {:?}", e);
+                            debug!("Error: {:?}", e);
                             return;
                         }
                     };

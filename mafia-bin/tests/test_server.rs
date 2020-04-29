@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 use std::fs::File;
 use std::time::Duration;
 
@@ -27,7 +30,18 @@ async fn test_server_hello() {
     let _client = tokio::spawn(async move {
         let mut conn = tokio::net::TcpStream::connect(addr).await.unwrap();
         conn.write(b"Hello world\n").await.unwrap();
-        conn.flush();
+
+        let mut buf = [0; 1024];
+        match conn.read(&mut buf).await {
+            Ok(0) => return,
+            Ok(n) => {
+                let msg = std::str::from_utf8(&buf[0..n]).unwrap();
+                debug!("Received: {:?}", msg);
+            }
+            Err(e) => {
+                debug!("Error: {:?}", e);
+            }
+        };
     })
     .await;
     tokio::time::delay_for(Duration::from_millis(1)).await;
