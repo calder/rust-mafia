@@ -51,7 +51,8 @@ pub async fn main(args: Vec<String>) {
     let opt = Mafia::from_iter(args);
 
     // Initialize logging.
-    match env_logger::builder().try_init() {
+    let env = env_logger::Env::default().filter_or(env_logger::DEFAULT_FILTER_ENV, "info");
+    match env_logger::try_init_from_env(env) {
         Err(e) => {
             eprintln!("Error initializing logging: {:?}", e);
         }
