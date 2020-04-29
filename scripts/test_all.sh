@@ -46,8 +46,6 @@ check_versions_match mafia mafia-bin
     cd mafia-bin
     check_cargo_fmt
     cargo run -- version
-    cargo run -- join --smoketest
-    cargo run -- host --smoketest
 )
 
 printf "\nTests ${GREEN}PASSED${RESET}.\n"
