@@ -6,8 +6,8 @@ pub struct Server {
 }
 
 impl Server {
-    pub async fn new() -> Result<Server, io::Error> {
-        let listener = TcpListener::bind("127.0.0.1:8080").await?;
+    pub async fn new(address: &str) -> Result<Server, io::Error> {
+        let listener = TcpListener::bind(address).await?;
         Ok(Server { listener: listener })
     }
 

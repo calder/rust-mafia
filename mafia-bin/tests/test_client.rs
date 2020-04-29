@@ -1,10 +1,6 @@
-use mafia_bin::*;
+mod util;
 
 #[tokio::test]
 async fn test_client_smoketest() {
-    tokio::spawn(main(Mafia {
-        cmd: Command::Join { smoketest: true },
-    }))
-    .await
-    .unwrap();
+    util::main(&["mafia", "join", "--smoketest"]).await;
 }

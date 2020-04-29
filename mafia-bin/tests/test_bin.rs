@@ -1,10 +1,6 @@
-use mafia_bin::*;
+mod util;
 
 #[tokio::test]
 async fn test_version() {
-    tokio::spawn(main(Mafia {
-        cmd: Command::Version,
-    }))
-    .await
-    .unwrap();
+    util::main(&["mafia", "version"]).await;
 }

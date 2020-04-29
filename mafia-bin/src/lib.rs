@@ -26,6 +26,10 @@ pub enum Command {
 
     /// Host a game.
     Host {
+        /// Address to bind to.
+        #[structopt(long, default_value = "0.0.0.0:0")]
+        address: String,
+
         /// Start the server then exit.
         #[structopt(long)]
         smoketest: bool,
@@ -35,7 +39,9 @@ pub enum Command {
     Version,
 }
 
-pub async fn main(opt: Mafia) {
+pub async fn main(args: Vec<String>) {
+    let opt = Mafia::from_iter(args);
+
     match opt.cmd {
         Command::Join { smoketest } => {
             let mut app = Client::new().unwrap();
@@ -47,8 +53,8 @@ pub async fn main(opt: Mafia) {
             }
         }
 
-        Command::Host { smoketest } => {
-            let mut server = Server::new().await.unwrap();
+        Command::Host { address, smoketest } => {
+            let mut server = Server::new(&address).await.unwrap();
 
             if !smoketest {
                 server.run().await.unwrap();

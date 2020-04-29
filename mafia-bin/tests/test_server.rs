@@ -1,10 +1,6 @@
-use mafia_bin::*;
+mod util;
 
 #[tokio::test]
 async fn test_server_smoketest() {
-    tokio::spawn(main(Mafia {
-        cmd: Command::Host { smoketest: true },
-    }))
-    .await
-    .unwrap();
+    util::main(&["mafia", "host", "--smoketest"]).await;
 }
