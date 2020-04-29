@@ -37,6 +37,10 @@ pub enum Command {
         #[structopt(long, default_value = "0.0.0.0:0")]
         address: String,
 
+        /// File to write server metadata to on startup.
+        #[structopt(long, parse(from_os_str))]
+        metadata: Option<std::path::PathBuf>,
+
         /// Start the server then exit.
         #[structopt(long)]
         smoketest: bool,
@@ -69,8 +73,12 @@ pub async fn main(args: Vec<String>) {
             }
         }
 
-        Command::Host { address, smoketest } => {
-            let mut server = Server::new(&address).await.unwrap();
+        Command::Host {
+            address,
+            metadata,
+            smoketest,
+        } => {
+            let mut server = Server::new(&address, metadata).await.unwrap();
 
             if !smoketest {
                 server.run().await.unwrap();

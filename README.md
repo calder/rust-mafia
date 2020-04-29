@@ -67,6 +67,11 @@ Instead of first class roles, players have any number of attributes. Examples:
         * [ ] Doctors can't protect themselves
         * [ ] Faction action chain of command
 * [ ] Basic server
+    * [ ] Test infrastructure
+        * [X] Run binary
+        * [ ] Connect to server
+        * [ ] Stop server
+        * [ ] Replay game
     * [ ] State updates
     * [ ] Log updates
     * [ ] Auth

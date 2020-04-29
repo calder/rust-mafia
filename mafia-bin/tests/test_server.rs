@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 // use tokio::prelude::*;
 
 mod util;
@@ -9,12 +11,18 @@ async fn test_server_smoketest() {
 
 #[tokio::test]
 async fn test_server_hello() {
-    // util::main(&["host"]).await;
+    let dir = tempfile::tempdir().unwrap();
+    let metadata = dir.path().join("meta.yaml");
+    let metadata_str = metadata.to_str().unwrap().to_string();
+    let server = util::mafia(&["host", "--metadata", &metadata_str]);
 
-    // let client = tokio::spawn(async {
-    //     let mut conn = tokio::net::TcpStream::connect("127.0.0.1:8080").await.unwrap();
-    //     conn.write(b"hello world\n").await.unwrap();
-    // });
+    while !metadata.exists() {
+        tokio::time::delay_for(Duration::from_millis(1)).await;
+    }
 
-    // tokio::try_join!(server, client).unwrap();
+    let client = tokio::spawn(async {
+        // let mut conn = tokio::net::TcpStream::connect("127.0.0.1:8080").await.unwrap();
+        // conn.write(b"hello world\n").await.unwrap();
+    })
+    .await;
 }
