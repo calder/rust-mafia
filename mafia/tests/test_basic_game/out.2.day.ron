@@ -23,6 +23,7 @@
         "Bob": [
             Member("Town"),
             Can(Vote),
+            Dead,
         ],
         "Charlie": [
             Member("Town"),

@@ -33,7 +33,7 @@
     Use("Bob", Protect("Alice")),
 
     // Test mafia win.
-    Use("Eve", Order("Eve", Kill("Charlie"))),
+    Use("Eve", Order("Eve", Kill("Bob"))),
 
     // Resolve Night 1.
     AdvancePhase,

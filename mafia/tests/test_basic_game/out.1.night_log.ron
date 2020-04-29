@@ -21,8 +21,10 @@
     (Public, PhaseEnded(Day(1))),
     (Moderator, Input(Use("Alice", Investigate("Eve")))),
     (Moderator, Input(Use("Bob", Protect("Alice")))),
-    (Moderator, Input(Use("Eve", Order("Eve", Kill("Charlie"))))),
+    (Moderator, Input(Use("Eve", Order("Eve", Kill("Bob"))))),
     (Moderator, Input(AdvancePhase)),
     (Player("Alice"), FoundAlignment("Eve", Evil)),
+    (Public, Died("Bob")),
+    (Public, Won("Mafia")),
     (Public, PhaseEnded(Night(1))),
 ]
