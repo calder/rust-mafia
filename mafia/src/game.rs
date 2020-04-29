@@ -14,6 +14,7 @@ use crate::objective::*;
 use crate::phase::*;
 use crate::state::*;
 use crate::util::*;
+use crate::visibility::*;
 
 type Rng = rand_xoshiro::Xoshiro256StarStar;
 
@@ -42,7 +43,8 @@ impl Game {
     }
 
     pub fn apply(self: &mut Self, input: &Input) {
-        self.log.push(Event::Input(input.clone()));
+        self.log
+            .push((Visibility::Moderator, Event::Input(input.clone())));
 
         match input {
             Input::AdvancePhase => self.resolve(),
@@ -60,8 +62,10 @@ impl Game {
                     _ => {}
                 },
                 Action::Vote(target) => {
-                    self.log
-                        .push(Event::VotedFor(player.clone(), target.clone()));
+                    self.log.push((
+                        Visibility::Moderator,
+                        Event::VotedFor(player.clone(), target.clone()),
+                    ));
                 }
             },
         }
@@ -158,7 +162,7 @@ impl Game {
     fn get_plan(self: &Self) -> Plan {
         let mut acted = Set::new();
         let mut plan = Plan::new();
-        for event in self.log.iter().rev() {
+        for (_visibility, event) in self.log.iter().rev() {
             match event {
                 Event::PhaseEnded(_) => {
                     break;
@@ -194,7 +198,8 @@ impl Game {
 
     fn make_dead(self: &mut Self, player: &Player) {
         self.state.players.get_mut(player).unwrap().push(Attr::Dead);
-        self.log.push(Event::Died(player.clone()));
+        self.log
+            .push((Visibility::Moderator, Event::Died(player.clone())));
     }
 
     fn num_living_alignment(self: &Self, alignment: &Alignment) -> usize {
@@ -254,12 +259,14 @@ impl Game {
         // Evaluate win conditions.
         for (faction, _) in &self.state.factions {
             if self.get_fate(faction) == Fate::Won {
-                self.log.push(Event::Won(faction.clone()));
+                self.log
+                    .push((Visibility::Moderator, Event::Won(faction.clone())));
             }
         }
 
         // Advance phase.
-        self.log.push(Event::PhaseEnded(self.phase.clone()));
+        self.log
+            .push((Visibility::Moderator, Event::PhaseEnded(self.phase.clone())));
         self.phase = self.phase.next();
     }
 
@@ -273,8 +280,10 @@ impl Game {
             }
             Action::Investigate(target) => {
                 let result = self.get_player_alignment(target);
-                self.log
-                    .push(Event::FoundAlignment(target.clone(), result.clone()));
+                self.log.push((
+                    Visibility::Moderator,
+                    Event::FoundAlignment(target.clone(), result.clone()),
+                ));
             }
             Action::Order(minion, faction_action) => self.resolve_action(minion, faction_action),
             Action::Protect(target) => {

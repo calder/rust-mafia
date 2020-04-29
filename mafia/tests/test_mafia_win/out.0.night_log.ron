@@ -1,5 +1,5 @@
 [
-    Input(AdvancePhase),
-    Won("Mafia"),
-    PhaseEnded(Night(0)),
+    (Moderator, Input(AdvancePhase)),
+    (Moderator, Won("Mafia")),
+    (Moderator, PhaseEnded(Night(0))),
 ]

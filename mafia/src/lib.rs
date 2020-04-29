@@ -19,6 +19,7 @@ mod phase;
 mod player;
 mod state;
 mod util;
+mod visibility;
 
 pub use crate::ability::*;
 pub use crate::action::*;
@@ -36,3 +37,4 @@ pub use crate::phase::*;
 pub use crate::player::*;
 pub use crate::state::*;
 pub use crate::util::*;
+pub use crate::visibility::*;

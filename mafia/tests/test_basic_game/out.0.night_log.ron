@@ -1,9 +1,9 @@
 [
-    Input(Use("Eve", Order("Eve", Kill("Alice")))),
-    Input(Use("Eve", Order("Malory", Kill("Charlie")))),
-    Input(Use("Alice", Investigate("Bob"))),
-    Input(Use("Bob", Protect("Charlie"))),
-    Input(AdvancePhase),
-    FoundAlignment("Bob", Good),
-    PhaseEnded(Night(0)),
+    (Moderator, Input(Use("Eve", Order("Eve", Kill("Alice"))))),
+    (Moderator, Input(Use("Eve", Order("Malory", Kill("Charlie"))))),
+    (Moderator, Input(Use("Alice", Investigate("Bob")))),
+    (Moderator, Input(Use("Bob", Protect("Charlie")))),
+    (Moderator, Input(AdvancePhase)),
+    (Moderator, FoundAlignment("Bob", Good)),
+    (Moderator, PhaseEnded(Night(0))),
 ]
