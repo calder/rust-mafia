@@ -69,8 +69,8 @@ Instead of first class roles, players have any number of attributes. Examples:
 * [ ] Basic server
     * [ ] Test infrastructure
         * [X] Run binary
-        * [ ] Connect to server
-        * [ ] Stop server
+        * [X] Connect to server
+        * [X] Stop server
         * [ ] Replay game
     * [ ] State updates
     * [ ] Log updates
