@@ -13,12 +13,12 @@ fn generate_tests() {
         if path.is_dir() && path.to_str().unwrap().starts_with("tests/test_") {
             write!(
                 out_file,
-                "
+                r#"
                     #[test]
                     fn {name}() {{
-                        util::run_test(\"{name}\")
+                        util::run_test("{name}")
                     }}
-                ",
+                "#,
                 name = path.strip_prefix("tests").unwrap().to_str().unwrap(),
             )
             .unwrap();
