@@ -15,10 +15,6 @@ pub struct Mafia {
     /// Subcommand.
     #[structopt(subcommand)]
     pub cmd: Command,
-
-    /// RUST_LOG compatible verbosity filter
-    #[structopt(short, long, default_value = "info")]
-    verbose: String,
 }
 
 /// Subcommand.
@@ -55,7 +51,7 @@ pub async fn main(args: Vec<String>) {
     let opt = Mafia::from_iter(args);
 
     // Initialize logging.
-    match env_logger::builder().parse_filters(&opt.verbose).try_init() {
+    match env_logger::builder().try_init() {
         Err(e) => {
             eprintln!("Error initializing logging: {:?}", e);
         }

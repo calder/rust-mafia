@@ -109,6 +109,13 @@ cd mafia
 cargo test basic_game
 ```
 
+Run tests with verbose logging:
+
+```sh
+cd mafia-bin
+env RUST_LOG=debug cargo test
+```
+
 
 
 ### Running games
