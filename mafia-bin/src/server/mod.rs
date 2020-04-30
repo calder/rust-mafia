@@ -12,14 +12,14 @@ use mafia::{Action, Game, Map, Player, Set};
 
 use crate::auth::KeyMap;
 
-pub type ChanMap = Map<Player, Set<mpsc::Receiver<Response>>>;
+pub type ConnMap = Map<Player, Set<mpsc::Receiver<Response>>>;
 
 pub struct Server {
-    chans: Arc<RwLock<ChanMap>>,
+    path: PathBuf,
+    keys: Arc<RwLock<KeyMap>>,
     game: Game,
     listener: TcpListener,
-    keys: Arc<RwLock<KeyMap>>,
-    path: PathBuf,
+    conns: Arc<RwLock<ConnMap>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -60,17 +60,31 @@ impl Server {
             ));
         };
 
-        let listener = TcpListener::bind(address).await?;
+        // Load key file.
+        let keys_path = path.join("auth.ron");
+        let keys = if keys_path.exists() {
+            load_file(&keys_path)
+        } else {
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!(
+                    "Missing {}. Run `mafia init` to generate one.",
+                    keys_path.display()
+                ),
+            ));
+        };
 
+        // Open listening socket.
+        let listener = TcpListener::bind(address).await?;
         let addr = listener.local_addr().unwrap();
         info!("Listening on {}", addr);
 
         Ok(Server {
-            chans: Arc::new(RwLock::new(ChanMap::new())),
-            game: game,
-            listener: listener,
-            keys: Arc::new(RwLock::new(KeyMap::new())),
             path: path,
+            keys: Arc::new(RwLock::new(keys)),
+            game: game,
+            conns: Arc::new(RwLock::new(ConnMap::new())),
+            listener: listener,
         })
     }
 
@@ -81,7 +95,7 @@ impl Server {
             debug!("{}: <CONNECTED>", peer);
 
             let keys = self.keys.clone();
-            let chans = self.chans.clone();
+            let conns = self.conns.clone();
             tokio::spawn(async move {
                 let (reader, mut writer) = conn.into_split();
                 // let (mut tx, mut rx) = mpsc::channel(1);
@@ -92,7 +106,7 @@ impl Server {
                         Ok(Some(msg)) => {
                             debug!("{}: {}", peer, msg);
                             let request: Request = ron::de::from_str(&msg).unwrap();
-                            handle(&request, &mut writer, &chans, &keys).await;
+                            handle(&request, &mut writer, &conns, &keys).await;
                         }
                         Ok(None) => {
                             debug!("{}: <EOF>", peer);
@@ -113,7 +127,7 @@ impl Server {
 async fn handle(
     request: &Request,
     writer: &mut tokio::net::tcp::OwnedWriteHalf,
-    chans: &Arc<RwLock<ChanMap>>,
+    conns: &Arc<RwLock<ConnMap>>,
     keys: &Arc<RwLock<KeyMap>>,
 ) {
     match request {
