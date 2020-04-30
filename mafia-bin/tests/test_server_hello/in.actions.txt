@@ -1,2 +1,0 @@
-moderator:  hello
-moderator:  world
