@@ -47,9 +47,9 @@ impl Server {
         let game_path = path.join("game.ron");
         let setup_path = path.join("setup.ron");
         let game = if game_path.exists() {
-            load_file(&game_path)
+            load_file(&game_path)?
         } else if setup_path.exists() {
-            Game::new_from_state(load_file(&setup_path))
+            Game::new_from_state(load_file(&setup_path)?)
         } else {
             return Err(io::Error::new(
                 io::ErrorKind::NotFound,
@@ -63,7 +63,7 @@ impl Server {
         // Load key file.
         let keys_path = path.join("auth.ron");
         let keys = if keys_path.exists() {
-            load_file(&keys_path)
+            load_file(&keys_path)?
         } else {
             return Err(io::Error::new(
                 io::ErrorKind::NotFound,
@@ -154,7 +154,20 @@ async fn handle(
     }
 }
 
-fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> T {
-    let file = File::open(path).expect(&format!("Error opening {}", &path.display()));
-    ron::de::from_reader(file).expect(&format!("Error reading {}", &path.display()))
+fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Error> {
+    let file = File::open(path).map_err(|e| {
+        io::Error::new(
+            e.kind(),
+            format!("Error opening {}: {}", &path.display(), e),
+        )
+    })?;
+
+    let result = ron::de::from_reader(file).map_err(|e| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("Error at {}:{}", &path.display(), e),
+        )
+    })?;
+
+    Ok(result)
 }
