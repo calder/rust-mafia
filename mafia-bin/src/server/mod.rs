@@ -162,11 +162,19 @@ fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Er
         )
     })?;
 
-    let result = ron::de::from_reader(file).map_err(|e| {
-        io::Error::new(
+    let result = ron::de::from_reader(file).map_err(|e| match e {
+        ron::de::Error::IoError(_) => io::Error::new(
+            io::ErrorKind::Other,
+            format!("Error reading {}: {}", &path.display(), e),
+        ),
+        ron::de::Error::Message(_) => io::Error::new(
+            io::ErrorKind::Other,
+            format!("Error reading {}: {}", &path.display(), e),
+        ),
+        ron::de::Error::Parser(_, _) => io::Error::new(
             io::ErrorKind::InvalidInput,
-            format!("Error at {}:{}", &path.display(), e),
-        )
+            format!("Error at {}:{}:", &path.display(), e),
+        ),
     })?;
 
     Ok(result)
