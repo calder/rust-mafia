@@ -30,7 +30,7 @@ pub enum Command {
     /// Host a game.
     Host {
         /// Address to bind to.
-        #[structopt(long, default_value = "0.0.0.0:0")]
+        #[structopt(long, default_value = "0.0.0.0:6666")]
         address: String,
 
         /// File to write server metadata to on startup.

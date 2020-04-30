@@ -27,8 +27,8 @@ mafia host
 Join a game:
 
 ```sh
-telnet <address> <port>
-Auth(<passcode>)
+socat - TCP:<address>:<port>
+Auth("<password>")
 ```
 
 
