@@ -1,12 +1,15 @@
 #[macro_use]
 extern crate log;
 
+pub mod auth;
 pub mod client;
+pub mod init;
 pub mod server;
 
 use structopt::StructOpt;
 
 use crate::client::Client;
+use crate::init::init;
 use crate::server::Server;
 
 /// Rust implementation of the classic party game Mafia.
@@ -33,9 +36,24 @@ pub enum Command {
         #[structopt(long, default_value = "0.0.0.0:6666")]
         address: String,
 
+        /// Storage directory.
+        #[structopt(long, parse(from_os_str), default_value = ".")]
+        path: std::path::PathBuf,
+
         /// Start the server then exit.
         #[structopt(long)]
         smoketest: bool,
+    },
+
+    /// Create a game directory for hosting.
+    Init {
+        /// Storage directory.
+        #[structopt(long, parse(from_os_str), default_value = ".")]
+        path: std::path::PathBuf,
+
+        /// Starting random seed.
+        #[structopt(long)]
+        seed: Option<u64>,
     },
 
     /// Print version and exit.
@@ -66,12 +84,20 @@ pub async fn main(args: Vec<String>) {
             }
         }
 
-        Command::Host { address, smoketest } => {
-            let mut server = Server::new(&address).await.unwrap();
+        Command::Host {
+            address,
+            path,
+            smoketest,
+        } => {
+            let mut server = Server::new(path, &address).await.unwrap();
 
             if !smoketest {
                 server.run().await.unwrap();
             }
+        }
+
+        Command::Init { path, seed } => {
+            init(path, seed);
         }
 
         Command::Version => {

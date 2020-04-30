@@ -8,13 +8,15 @@ use tokio::sync::RwLock;
 
 use mafia::{Action, Map, Player, Set};
 
-pub type KeyMap = Map<String, Player>;
+use crate::auth::KeyMap;
+
 pub type ChanMap = Map<Player, Set<mpsc::Receiver<Response>>>;
 
 pub struct Server {
-    listener: TcpListener,
     chans: Arc<RwLock<ChanMap>>,
+    listener: TcpListener,
     keys: Arc<RwLock<KeyMap>>,
+    path: std::path::PathBuf,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -37,7 +39,7 @@ pub enum Response {
 }
 
 impl Server {
-    pub async fn new(address: &str) -> Result<Server, io::Error> {
+    pub async fn new(path: std::path::PathBuf, address: &str) -> Result<Server, io::Error> {
         let listener = TcpListener::bind(address).await?;
 
         let addr = listener.local_addr().unwrap();
@@ -47,6 +49,7 @@ impl Server {
             listener: listener,
             chans: Arc::new(RwLock::new(ChanMap::new())),
             keys: Arc::new(RwLock::new(KeyMap::new())),
+            path: path,
         })
     }
 
@@ -57,7 +60,7 @@ impl Server {
             debug!("{}: <CONNECTED>", peer);
 
             let keys = self.keys.clone();
-            let chans = self.chans.clone();
+            let _chans = self.chans.clone();
             tokio::spawn(async move {
                 let (reader, mut writer) = conn.split();
                 // let (mut tx, mut rx) = mpsc::channel(1);
@@ -71,7 +74,7 @@ impl Server {
                             match request {
                                 Request::Auth(key) => {
                                     match keys.read().await.get(&key) {
-                                        Some(player) => {
+                                        Some(_player) => {
                                             // PLACEHOLDER
                                         }
                                         None => {
@@ -90,7 +93,7 @@ impl Server {
                                     }
                                 }
                                 Request::EndPhase => {}
-                                Use => {}
+                                Request::Use(_action) => {}
                             }
                         }
                         Ok(None) => {
