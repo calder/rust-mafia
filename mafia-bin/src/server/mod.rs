@@ -15,7 +15,6 @@ pub struct Server {
     listener: TcpListener,
     chans: Arc<RwLock<ChanMap>>,
     keys: Arc<RwLock<KeyMap>>,
-    // moderator: Arc<Mutex<Moderator>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -114,7 +113,6 @@ impl Server {
                                 Request::EndPhase => {}
                                 Use => {}
                             }
-                            // moderator.lock().await.handle(msg);
                         }
                         Ok(None) => {
                             debug!("{}: <EOF>", peer);
