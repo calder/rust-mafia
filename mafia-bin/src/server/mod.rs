@@ -37,32 +37,11 @@ pub enum Response {
 }
 
 impl Server {
-    pub async fn new(
-        address: &str,
-        metadata_path: Option<std::path::PathBuf>,
-    ) -> Result<Server, io::Error> {
+    pub async fn new(address: &str) -> Result<Server, io::Error> {
         let listener = TcpListener::bind(address).await?;
 
         let addr = listener.local_addr().unwrap();
         info!("Listening on {}", addr);
-
-        // Write metadata file.
-        //
-        // Write to a temporary file then move to the metadata file so watchers
-        // can't read while we're part way through writing.
-        if let Some(path) = metadata_path {
-            let metadata = Metadata {
-                address: addr.ip(),
-                pid: std::process::id(),
-                port: addr.port(),
-            };
-
-            let basename = path.file_name().unwrap().to_str().unwrap().to_string();
-            let tmp_path = path.with_file_name(basename + ".tmp");
-            let tmp_file = std::fs::File::create(tmp_path.clone()).unwrap();
-            serde_yaml::to_writer(tmp_file, &metadata).unwrap();
-            std::fs::rename(tmp_path, path).unwrap();
-        }
 
         Ok(Server {
             listener: listener,
