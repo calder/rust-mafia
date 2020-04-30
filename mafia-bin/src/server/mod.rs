@@ -38,6 +38,7 @@ pub enum Request {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Response {
+    Authenticated(Player),
     Error(String),
 }
 
@@ -133,8 +134,9 @@ async fn handle(
     match request {
         Request::Auth(key) => {
             match keys.read().await.get(&key) {
-                Some(_player) => {
+                Some(player) => {
                     // PLACEHOLDER
+                    write(writer, Response::Authenticated(player.clone())).await?;
                 }
                 None => {
                     write(writer, Response::Error("Invalid token".to_string())).await?;
