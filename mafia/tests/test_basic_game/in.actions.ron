@@ -10,7 +10,7 @@
     Use("Bob", Protect("Charlie")),
 
     // Resolve Night 0.
-    AdvancePhase,
+    EndPhase,
 
     //------------------------------------------------------
 
@@ -22,7 +22,7 @@
     Use("Malory", Vote("Charlie")),
 
     // Resolve Day 1.
-    AdvancePhase,
+    EndPhase,
 
     //------------------------------------------------------
 
@@ -36,5 +36,5 @@
     Use("Eve", Order("Eve", Kill("Bob"))),
 
     // Resolve Night 1.
-    AdvancePhase,
+    EndPhase,
 ]

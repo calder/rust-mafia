@@ -47,7 +47,7 @@ pub fn run_test<P: AsRef<std::path::Path>>(path: P) {
     for input in inputs {
         game.apply(&input);
         match input {
-            mafia::Input::AdvancePhase => {
+            mafia::Input::EndPhase => {
                 t.save(
                     format!(
                         "out.{}.{}_log.ron",

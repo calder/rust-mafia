@@ -47,7 +47,7 @@ impl Game {
             .push((Visibility::Moderator, Event::Input(input.clone())));
 
         match input {
-            Input::AdvancePhase => self.resolve(),
+            Input::EndPhase => self.resolve(),
             Input::Use(player, action) => match action {
                 Action::Immediate(action) => {
                     self.resolve_action(player, action);

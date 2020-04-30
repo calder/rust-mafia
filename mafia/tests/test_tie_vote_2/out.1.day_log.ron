@@ -5,7 +5,7 @@
     (Public, VotedFor("Bob", "Charlie")),
     (Moderator, Input(Use("Charlie", Vote("Alice")))),
     (Public, VotedFor("Charlie", "Alice")),
-    (Moderator, Input(AdvancePhase)),
+    (Moderator, Input(EndPhase)),
     (Public, Died("Alice")),
     (Public, Won("Town")),
     (Public, PhaseEnded(Day(1))),

@@ -9,7 +9,7 @@
     (Public, VotedFor("Eve", "Charlie")),
     (Moderator, Input(Use("Malory", Vote("Charlie")))),
     (Public, VotedFor("Malory", "Charlie")),
-    (Moderator, Input(AdvancePhase)),
+    (Moderator, Input(EndPhase)),
     (Public, Died("Charlie")),
     (Public, PhaseEnded(Day(1))),
 ]

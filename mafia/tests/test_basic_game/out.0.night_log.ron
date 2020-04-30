@@ -3,7 +3,7 @@
     (Moderator, Input(Use("Eve", Order("Malory", Kill("Charlie"))))),
     (Moderator, Input(Use("Alice", Investigate("Bob")))),
     (Moderator, Input(Use("Bob", Protect("Charlie")))),
-    (Moderator, Input(AdvancePhase)),
+    (Moderator, Input(EndPhase)),
     (Player("Alice"), FoundAlignment("Bob", Good)),
     (Public, PhaseEnded(Night(0))),
 ]
