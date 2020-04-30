@@ -106,7 +106,7 @@ impl Server {
                         Ok(Some(msg)) => {
                             debug!("{}: {}", peer, msg);
                             let request: Request = ron::de::from_str(&msg).unwrap();
-                            handle(&request, &mut writer, &conns, &keys).await;
+                            handle(&request, &mut writer, &conns, &keys).await.unwrap();
                         }
                         Ok(None) => {
                             debug!("{}: <EOF>", peer);
@@ -129,7 +129,7 @@ async fn handle(
     writer: &mut tokio::net::tcp::OwnedWriteHalf,
     conns: &Arc<RwLock<ConnMap>>,
     keys: &Arc<RwLock<KeyMap>>,
-) {
+) -> Result<(), io::Error> {
     match request {
         Request::Auth(key) => {
             match keys.read().await.get(key) {
@@ -137,21 +137,25 @@ async fn handle(
                     // PLACEHOLDER
                 }
                 None => {
-                    writer
-                        .write(
-                            (ron::ser::to_string(&Response::Error("Invalid token".to_string()))
-                                .unwrap()
-                                + "\n")
-                                .as_bytes(),
-                        )
-                        .await
-                        .unwrap();
+                    write(writer, Response::Error("Invalid token".to_string())).await?;
                 }
             }
         }
         Request::EndPhase => {}
         Request::Use(_action) => {}
-    }
+    };
+
+    Ok(())
+}
+
+async fn write(
+    writer: &mut tokio::net::tcp::OwnedWriteHalf,
+    response: Response,
+) -> Result<(), io::Error> {
+    let response = ron::ser::to_string(&response).unwrap() + "\n";
+    writer.write(response.as_bytes()).await?;
+
+    Ok(())
 }
 
 fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Error> {
