@@ -2,7 +2,7 @@ mod util;
 
 #[tokio::test]
 async fn test_version() {
-    util::mafia(&["version"]).await.unwrap();
+    util::mafia(&["version"]).await.unwrap().unwrap();
 }
 
 #[tokio::test]
@@ -13,5 +13,6 @@ async fn test_init() {
     }
     util::mafia(&["init", "--path", test_dir, "--seed=1234567890"])
         .await
+        .unwrap()
         .unwrap();
 }

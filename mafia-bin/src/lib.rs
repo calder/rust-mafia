@@ -60,7 +60,7 @@ pub enum Command {
     Version,
 }
 
-pub async fn main(args: Vec<String>) {
+pub async fn main(args: Vec<String>) -> Result<(), std::io::Error> {
     // Parse command line args.
     let opt = Mafia::from_iter(args);
 
@@ -75,13 +75,14 @@ pub async fn main(args: Vec<String>) {
 
     match opt.cmd {
         Command::Join { smoketest } => {
-            let mut app = Client::new().unwrap();
+            let mut app = Client::new()?;
 
             if smoketest {
-                app.draw().unwrap();
-            } else {
-                app.run().unwrap();
+                app.draw()?;
+                return Ok(());
             }
+
+            app.run()?;
         }
 
         Command::Host {
@@ -89,11 +90,13 @@ pub async fn main(args: Vec<String>) {
             path,
             smoketest,
         } => {
-            let mut server = Server::new(path, &address).await.unwrap();
+            let mut server = Server::new(path, &address).await?;
 
-            if !smoketest {
-                server.run().await.unwrap();
+            if smoketest {
+                return Ok(());
             }
+
+            server.run().await?;
         }
 
         Command::Init { path, seed } => {
@@ -103,5 +106,7 @@ pub async fn main(args: Vec<String>) {
         Command::Version => {
             println!("mafia {}", env!("CARGO_PKG_VERSION"));
         }
-    }
+    };
+
+    Ok(())
 }

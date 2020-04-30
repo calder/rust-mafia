@@ -1,4 +1,4 @@
-pub fn mafia(args: &[&str]) -> tokio::task::JoinHandle<()> {
+pub fn mafia(args: &[&str]) -> tokio::task::JoinHandle<Result<(), std::io::Error>> {
     let args = [["mafia"].to_vec(), args.to_vec()]
         .concat()
         .iter()
