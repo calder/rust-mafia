@@ -20,9 +20,6 @@ pub struct Server {
     listener: TcpListener,
     keys: Arc<RwLock<KeyMap>>,
     path: PathBuf,
-
-    #[allow(unused)]
-    lock_file: dotlock::Dotlock,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -46,23 +43,6 @@ pub enum Response {
 
 impl Server {
     pub async fn new(path: PathBuf, address: &str) -> Result<Server, io::Error> {
-        // Check for or create lock file.
-        let lock_path = path.join(".lock");
-        let lock_file = dotlock::DotlockOptions::new()
-            .tries(1)
-            .create(lock_path.clone())
-            .map_err(|e| {
-                io::Error::new(
-                    e.kind(),
-                    format!(
-                        "Failed to acquire lock file: {}. \n\n\
-                        If nothing is using it, `rm {}` and try again.",
-                        e,
-                        &lock_path.display(),
-                    ),
-                )
-            })?;
-
         // Load or create game file.
         let game_path = path.join("game.ron");
         let setup_path = path.join("setup.ron");
@@ -90,7 +70,6 @@ impl Server {
             game: game,
             listener: listener,
             keys: Arc::new(RwLock::new(KeyMap::new())),
-            lock_file: lock_file,
             path: path,
         })
     }
