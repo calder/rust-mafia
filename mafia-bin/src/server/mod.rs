@@ -106,7 +106,7 @@ impl Server {
                         Ok(Some(msg)) => {
                             debug!("{}: {}", peer, msg);
                             let request: Request = ron::de::from_str(&msg).unwrap();
-                            handle(&request, &mut writer, &conns, &keys).await.unwrap();
+                            handle(request, &mut writer, &conns, &keys).await.unwrap();
                         }
                         Ok(None) => {
                             debug!("{}: <EOF>", peer);
@@ -125,14 +125,14 @@ impl Server {
 }
 
 async fn handle(
-    request: &Request,
+    request: Request,
     writer: &mut tokio::net::tcp::OwnedWriteHalf,
     conns: &Arc<RwLock<ConnMap>>,
     keys: &Arc<RwLock<KeyMap>>,
 ) -> Result<(), io::Error> {
     match request {
         Request::Auth(key) => {
-            match keys.read().await.get(key) {
+            match keys.read().await.get(&key) {
                 Some(_player) => {
                     // PLACEHOLDER
                 }
