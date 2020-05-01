@@ -1,9 +1,12 @@
 use std::fs::File;
+use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
-use tokio::net::TcpListener;
+use tokio::io::{BufReader, Lines};
+use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
+use tokio::net::{TcpListener, TcpStream};
 use tokio::prelude::*;
 use tokio::sync::mpsc;
 use tokio::sync::RwLock;
@@ -14,12 +17,43 @@ use crate::auth::{Entity, KeyMap};
 
 pub type ConnMap = Map<Player, Set<mpsc::Receiver<Response>>>;
 
+/// Game server.
 pub struct Server {
-    path: PathBuf,
-    keys: Arc<RwLock<KeyMap>>,
-    game: Game,
+    /// Listening socket.
     listener: TcpListener,
-    conns: Arc<RwLock<ConnMap>>,
+
+    /// Server state shared between all connections.
+    state: Arc<RwLock<ServerState>>,
+}
+
+/// Server state shared between all connections.
+struct ServerState {
+    /// Client connections.
+    conns: ConnMap,
+
+    /// Game state.
+    game: Game,
+
+    /// Authentication keys.
+    keys: KeyMap,
+
+    /// Game directory.
+    path: PathBuf,
+}
+
+/// A single client connection.
+struct ServerConn {
+    /// Shared server state.
+    state: Arc<RwLock<ServerState>>,
+
+    /// Client address
+    peer: SocketAddr,
+
+    /// Client reader.
+    reader: Lines<BufReader<OwnedReadHalf>>,
+
+    /// Client writer.
+    writer: OwnedWriteHalf,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -74,88 +108,93 @@ impl Server {
         info!("Listening on {}", addr);
 
         Ok(Server {
-            path: path,
-            keys: Arc::new(RwLock::new(keys)),
-            game: game,
-            conns: Arc::new(RwLock::new(ConnMap::new())),
             listener: listener,
+            state: Arc::new(RwLock::new(ServerState {
+                conns: ConnMap::new(),
+                game: game,
+                keys: keys,
+                path: path,
+            })),
         })
     }
 
     pub async fn run(self: &mut Self) -> Result<Server, io::Error> {
         loop {
-            let (conn, _) = self.listener.accept().await.unwrap();
-            let peer = conn.peer_addr().unwrap();
-            debug!("{}: <CONNECTED>", peer);
+            let (conn, peer) = self.listener.accept().await.unwrap();
+            let conn = ServerConn::new(self.state.clone(), conn, peer);
 
-            let keys = self.keys.clone();
-            let conns = self.conns.clone();
             tokio::spawn(async move {
-                let (reader, mut writer) = conn.into_split();
-                // let (mut tx, mut rx) = mpsc::channel(1);
-
-                let mut lines = tokio::io::BufReader::new(reader).lines();
-                loop {
-                    match lines.next_line().await {
-                        Ok(Some(msg)) => {
-                            debug!("{}> {}", peer, msg);
-                            let request: Request = ron::de::from_str(&msg).unwrap();
-                            handle(request, &mut writer, &peer, &conns, &keys)
-                                .await
-                                .unwrap();
-                        }
-                        Ok(None) => {
-                            debug!("{}: <EOF>", peer);
-                            break;
-                        }
-                        Err(e) => {
-                            debug!("{}: <ERROR: {}>", peer, e);
-                            break;
-                        }
-                    }
-                }
-                debug!("{}: <DISCONNECTED>", peer);
+                conn.run().await.unwrap();
             });
         }
     }
 }
 
-async fn handle(
-    request: Request,
-    writer: &mut tokio::net::tcp::OwnedWriteHalf,
-    peer: &std::net::SocketAddr,
-    conns: &Arc<RwLock<ConnMap>>,
-    keys: &Arc<RwLock<KeyMap>>,
-) -> Result<(), io::Error> {
-    match request {
-        Request::Auth(key) => {
-            match keys.read().await.get(&key) {
-                Some(entity) => {
-                    // PLACEHOLDER
-                    write(writer, peer, Response::Authenticated(entity.clone())).await?;
+impl ServerConn {
+    fn new(state: Arc<RwLock<ServerState>>, conn: TcpStream, peer: SocketAddr) -> Self {
+        let (reader, writer) = conn.into_split();
+        let reader = tokio::io::BufReader::new(reader).lines();
+
+        ServerConn {
+            state: state,
+            peer: peer,
+            reader: reader,
+            writer: writer,
+        }
+    }
+
+    async fn run(mut self: Self) -> Result<(), io::Error> {
+        debug!("{}: <CONNECTED>", self.peer);
+        loop {
+            match self.reader.next_line().await {
+                Ok(Some(msg)) => {
+                    debug!("{}: > {}", self.peer, msg);
+                    let request: Request = ron::de::from_str(&msg).unwrap();
+                    self.handle(request).await.unwrap();
                 }
-                None => {
-                    write(writer, peer, Response::Error("Invalid token".to_string())).await?;
+                Ok(None) => {
+                    debug!("{}: <EOF>", self.peer);
+                    break;
+                }
+                Err(e) => {
+                    debug!("{}: <ERROR: {}>", self.peer, e);
+                    break;
                 }
             }
         }
-        Request::EndPhase => {}
-        Request::Use(_action) => {}
-    };
+        debug!("{}: <DISCONNECTED>", self.peer);
 
-    Ok(())
-}
+        Ok(())
+    }
 
-async fn write(
-    writer: &mut tokio::net::tcp::OwnedWriteHalf,
-    peer: &std::net::SocketAddr,
-    response: Response,
-) -> Result<(), io::Error> {
-    let msg = ron::ser::to_string(&response).unwrap();
-    debug!("{}< {}", peer, msg);
-    writer.write((msg + "\n").as_bytes()).await?;
+    async fn handle(self: &mut Self, request: Request) -> Result<(), io::Error> {
+        match request {
+            Request::Auth(key) => {
+                match self.state.clone().read().await.keys.get(&key) {
+                    Some(entity) => {
+                        // PLACEHOLDER
+                        self.write(Response::Authenticated(entity.clone())).await?;
+                    }
+                    None => {
+                        self.write(Response::Error("Invalid token".to_string()))
+                            .await?;
+                    }
+                }
+            }
+            Request::EndPhase => {}
+            Request::Use(_action) => {}
+        };
 
-    Ok(())
+        Ok(())
+    }
+
+    async fn write(self: &mut Self, response: Response) -> Result<(), io::Error> {
+        let msg = ron::ser::to_string(&response).unwrap();
+        debug!("{}: < {}", self.peer, msg);
+        self.writer.write((msg + "\n").as_bytes()).await?;
+
+        Ok(())
+    }
 }
 
 fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Error> {

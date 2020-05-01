@@ -1,5 +1,8 @@
 {
-    "123": "Alice",
-    "456": "Bob",
-    "789": "Charlie",
+    "badpassword1": Moderator,
+    "badpassword2": Player("Alice"),
+    "badpassword3": Player("Bob"),
+    "badpassword4": Player("Charlie"),
+    "badpassword5": Player("Eve"),
+    "badpassword6": Player("Malory"),
 }
