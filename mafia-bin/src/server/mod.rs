@@ -10,7 +10,7 @@ use tokio::sync::RwLock;
 
 use mafia::{Action, Game, Map, Player, Set};
 
-use crate::auth::KeyMap;
+use crate::auth::{Entity, KeyMap};
 
 pub type ConnMap = Map<Player, Set<mpsc::Receiver<Response>>>;
 
@@ -23,13 +23,6 @@ pub struct Server {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct Metadata {
-    pub address: std::net::IpAddr,
-    pub pid: u32,
-    pub port: u16,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Request {
     Auth(String),
     EndPhase,
@@ -38,7 +31,7 @@ pub enum Request {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Response {
-    Authenticated(Player),
+    Authenticated(Entity),
     Error(String),
 }
 
@@ -105,9 +98,11 @@ impl Server {
                 loop {
                     match lines.next_line().await {
                         Ok(Some(msg)) => {
-                            debug!("{}: {}", peer, msg);
+                            debug!("{}> {}", peer, msg);
                             let request: Request = ron::de::from_str(&msg).unwrap();
-                            handle(request, &mut writer, &conns, &keys).await.unwrap();
+                            handle(request, &mut writer, &peer, &conns, &keys)
+                                .await
+                                .unwrap();
                         }
                         Ok(None) => {
                             debug!("{}: <EOF>", peer);
@@ -128,18 +123,19 @@ impl Server {
 async fn handle(
     request: Request,
     writer: &mut tokio::net::tcp::OwnedWriteHalf,
+    peer: &std::net::SocketAddr,
     conns: &Arc<RwLock<ConnMap>>,
     keys: &Arc<RwLock<KeyMap>>,
 ) -> Result<(), io::Error> {
     match request {
         Request::Auth(key) => {
             match keys.read().await.get(&key) {
-                Some(player) => {
+                Some(entity) => {
                     // PLACEHOLDER
-                    write(writer, Response::Authenticated(player.clone())).await?;
+                    write(writer, peer, Response::Authenticated(entity.clone())).await?;
                 }
                 None => {
-                    write(writer, Response::Error("Invalid token".to_string())).await?;
+                    write(writer, peer, Response::Error("Invalid token".to_string())).await?;
                 }
             }
         }
@@ -152,10 +148,12 @@ async fn handle(
 
 async fn write(
     writer: &mut tokio::net::tcp::OwnedWriteHalf,
+    peer: &std::net::SocketAddr,
     response: Response,
 ) -> Result<(), io::Error> {
-    let response = ron::ser::to_string(&response).unwrap() + "\n";
-    writer.write(response.as_bytes()).await?;
+    let msg = ron::ser::to_string(&response).unwrap();
+    debug!("{}< {}", peer, msg);
+    writer.write((msg + "\n").as_bytes()).await?;
 
     Ok(())
 }

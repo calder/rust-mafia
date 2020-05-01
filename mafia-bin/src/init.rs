@@ -2,7 +2,7 @@ use std::io::Write;
 
 use mafia::{Ability, Alignment, Attr, FactionState, Membership, Objective};
 
-use crate::auth::KeyMap;
+use crate::auth::{Entity, KeyMap};
 
 pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
     std::fs::create_dir_all(path.clone()).unwrap();
@@ -59,9 +59,27 @@ pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
     setup.seed = seed.unwrap_or_else(rand::random);
 
     let mut keys = KeyMap::new();
-    keys.insert("123".to_string(), "Alice".to_string());
-    keys.insert("456".to_string(), "Bob".to_string());
-    keys.insert("789".to_string(), "Charlie".to_string());
+    keys.insert("badpassword1".to_string(), Entity::Moderator);
+    keys.insert(
+        "badpassword2".to_string(),
+        Entity::Player("Alice".to_string()),
+    );
+    keys.insert(
+        "badpassword3".to_string(),
+        Entity::Player("Bob".to_string()),
+    );
+    keys.insert(
+        "badpassword4".to_string(),
+        Entity::Player("Charlie".to_string()),
+    );
+    keys.insert(
+        "badpassword5".to_string(),
+        Entity::Player("Eve".to_string()),
+    );
+    keys.insert(
+        "badpassword6".to_string(),
+        Entity::Player("Malory".to_string()),
+    );
 
     init_file(path.join("setup.ron"), &setup);
     init_file(path.join("auth.ron"), &keys);
