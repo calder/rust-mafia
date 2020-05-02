@@ -81,10 +81,11 @@ Examples of traditional roles implemented via attributes:
 
 |    | Ability | Description |
 |----|---------|-------------|
-| ✔️ | `Investigate` | Determine a player's alignment. |
+| ✔️ | `Investigate` | Investigate a player's alignment. |
 | ✔️ | `Kill` | Kill a player. |
-| ✔️ | `Protect` | Temporarily make a player immune to kills. |
-| ❌ | `Roleblock` | Temporarily prevent a player from using actions. |
+| ✔️ | `Protect` | Protect a player from kills. |
+| ❌ | `Recruit` | Recruit a player into your faction. |
+| ❌ | `Roleblock` | Block a player from using abilities. |
 
 
 
@@ -107,8 +108,9 @@ Factions are defined by:
 
 |    | Faction | Objective | Alignment | Abilities | Membership |
 |----|---------|-----------|-----------|-----------|------------|
-| ✔️ | Survivor | `Survive` | `Good` | `[]` | `Visible` |
+| ❌ | Cult | `AchieveMajority` | `Evil` | `[]` | `Visible` |
 | ✔️ | Mason | `Eliminate(Evil)` | `Good` | `[]` | `Visible` |
+| ✔️ | Survivor | `Survive` | `Neutral` | `[]` | `Visible` |
 
 #### Objectives
 
