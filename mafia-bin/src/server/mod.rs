@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::io::Write;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -81,6 +82,13 @@ pub enum Response {
 
     /// Request accepted.
     Ok,
+}
+
+impl ServerState {
+    fn apply(self: &mut Self, input: &Input) {
+        self.game.apply(input);
+        save_file(&self.path.join("game.ron"), &self.game);
+    }
 }
 
 impl Server {
@@ -200,6 +208,7 @@ impl ServerConn {
             }
             Request::EndPhase => match &self.entity {
                 Some(Entity::Moderator) => {
+                    self.state.clone().write().await.apply(&Input::EndPhase);
                     self.send(Response::Ok).await?;
                 }
                 _ => {
@@ -209,13 +218,12 @@ impl ServerConn {
             },
             Request::Use(action) => match &self.entity.clone() {
                 Some(Entity::Player(player)) => {
-                    self.send(Response::Ok).await?;
                     self.state
                         .clone()
                         .write()
                         .await
-                        .game
                         .apply(&Input::Use(player.clone(), action));
+                    self.send(Response::Ok).await?;
                 }
                 _ => {
                     self.send(Response::Error("Permission denied".to_string()))
@@ -260,4 +268,20 @@ fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Er
     })?;
 
     Ok(result)
+}
+
+/// Atomically serialize a value to a file.
+///
+/// Atomicity is achieved by writing to a temporary file then renaming. Renames
+/// are atomic on most modern filesystems.
+fn save_file<T: serde::ser::Serialize>(path: &PathBuf, value: &T) {
+    // Serialize value.
+    let config = ron::ser::PrettyConfig::default();
+    let output = ron::ser::to_string_pretty(&value, config).unwrap();
+
+    // Write to a temporary file then move to real file for atomicity.
+    let tmp_path = PathBuf::from(path.to_str().unwrap().to_string() + ".tmp");
+    let mut tmp_file = File::create(tmp_path.clone()).unwrap();
+    tmp_file.write(output.as_bytes()).unwrap();
+    std::fs::rename(tmp_path, path).unwrap();
 }
