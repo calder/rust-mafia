@@ -72,7 +72,7 @@ Examples of traditional roles implemented via attributes:
 
 | Attributes | Description |
 | ---------- | ----------- |
-| `Has(Ability)` | Player is dead. |
+| `Has(Ability)` | Player can use `Ability`. |
 | `Dead` | Player is dead. |
 | `Member(Faction)` | Player belongs to `Faction`. |
 
