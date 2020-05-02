@@ -89,24 +89,24 @@ Examples of traditional roles implemented via attributes:
 ### Factions
 
 Factions are defined by:
-* An alignment: `Good`, `Neutral`, or `Evil`.
 * An objective.
-* An optional list of faction abilities.
+* An list of faction abilities.
+* An alignment: `Good`, `Neutral`, or `Evil`.
 * Whether membership is `Hidden` or `Visible` to other players in the faction.
 
 #### Core factions
 
-| Faction | `objective` | `alignment` | `abilities` | `membership` |
-|---------|-------------|-------------|-------------|--------------|
+| Faction | Objective | Alignment | Abilities | Membership |
+|---------|-----------|-----------|-----------|------------|
 | Mafia | `AchieveMajority` | `Evil` | `[Kill]` | `Visible` |
-| Town | `Eliminate(Evil)` | `Good` | None | `Hidden` |
+| Town | `Eliminate(Evil)` | `Good` | `[]` | `Hidden` |
 
 #### Common factions
 
-| Faction | `objective` | `alignment` | `abilities` | `membership` |
-|---------|-------------|-------------|-------------|--------------|
-| Survivor | `Survive` | `Good` | None | `Visible` |
-| Mason | `Eliminate(Evil)` | `Good` | None | `Visible` |
+| Faction | Objective | Alignment | Abilities | Membership |
+|---------|-----------|-----------|-----------|------------|
+| Survivor | `Survive` | `Good` | `[]` | `Visible` |
+| Mason | `Eliminate(Evil)` | `Good` | `[]` | `Visible` |
 
 #### Objectives
 
@@ -116,11 +116,6 @@ Factions are defined by:
 | `EliminateFaction(Faction)` | Eliminate all players of a given faction. |
 | `Majority` | Outnumber all other surviving players. |
 | `Survive` | Survive until the end of the game. |
-
-#### Objectives
-
-| Objective | Description |
-| --------- | ----------- |
 
 
 ## TODO
