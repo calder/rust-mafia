@@ -162,12 +162,20 @@ impl ServerState {
             for (visibility, event) in &log {
                 let visible = match (visibility, &conn.auth) {
                     (Visibility::Public, _) => true,
-                    (Visibility::Player(p1), auth) => match auth {
+                    (Visibility::Faction(f), auth) => match auth {
+                        Visibility::Faction(af) => f == af,
                         Visibility::Moderator => true,
-                        Visibility::Player(p2) => p1 == p2,
+                        Visibility::Player(p) => self.game.can_see_faction_messages(p, f),
+                        Visibility::Public => false,
+                    },
+                    (Visibility::Player(p), auth) => match auth {
+                        Visibility::Faction(_) => false,
+                        Visibility::Moderator => true,
+                        Visibility::Player(ap) => p == ap,
                         Visibility::Public => false,
                     },
                     (Visibility::Moderator, auth) => match auth {
+                        Visibility::Faction(_) => false,
                         Visibility::Moderator => true,
                         Visibility::Player(_) => false,
                         Visibility::Public => false,
