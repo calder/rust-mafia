@@ -149,6 +149,11 @@ Each player has a number of **attributes**. Attributes can be:
     * [X] Log updates
     * [X] Log visibility
 
+Punted:
+* [ ] Allow "..." as a shortcut for "Use(...)"
+* [ ] Remove trailing commas and add spaces in server responses
+* [ ] Vote count updates
+
 
 
 ## ❤️ Contributing
