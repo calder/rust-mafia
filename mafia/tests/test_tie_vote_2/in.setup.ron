@@ -7,18 +7,9 @@
         ),
     },
     players: {
-        "Alice": [
-            Member("Town"),
-            Can(Vote),
-        ],
-        "Bob": [
-            Member("Town"),
-            Can(Vote),
-        ],
-        "Charlie": [
-            Member("Town"),
-            Can(Vote),
-        ],
+        "Alice": [Member("Town")],
+        "Bob": [Member("Town")],
+        "Charlie": [Member("Town")],
     },
     seed: 5,
 )

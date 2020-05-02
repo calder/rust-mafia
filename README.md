@@ -21,6 +21,12 @@ cargo install mafia-bin
 Host a game:
 
 ```sh
+# Create a basic game template:
+mafia init
+
+# Edit auth.ron and setup.ron to your heart's content.
+
+# When you're ready, start the game:
 mafia host
 ```
 
@@ -33,17 +39,88 @@ Auth("<password>")
 
 
 
-## Roles
+## Data model
 
-Instead of first class roles, players have any number of attributes. Examples:
+
+
+### Players
+
+Instead of roles, player can have any number of attributes. Attributes can be:
+* **Stacked:** A Godfather is `[Member("Mafia"), Bulletproof, Appears(Good)]`.
+* **Modified:** Stone is `OneShot(Bulletproof)`. Doctors apply `OnePhase(Bulletproof)`.
+
+Examples of traditional roles implemented via attributes:
+
+#### Core roles
 
 | Role | Attributes |
 | ---- | ---------- |
-| Mafia goon | `Member("Mafia") + Can(Vote)` |
-| Townie | `Member("Town") + Can(Vote)` |
-| Cop | `Member("Town") + Can(Vote) + Can(Investigate)` |
-| Doctor | `Member("Town") + Can(Vote) + Can(Protect)` |
+| Mafia member | `Member("Mafia")` |
+| Town member | `Member("Town")` |
+| Cop | `Has(Investigate)` |
+| Doctor | `Has(Protect)` |
 
+#### Common roles
+
+| Role | Attributes |
+| ---- | ---------- |
+| Cult member (aka Cultist) | `Member("Cult")` |
+| Stone | `OneShot(Bulletproof)` |
+| Double stone | `OneShot(OneShot(Bulletproof))` |
+
+#### Attributes
+
+| Attributes | Description |
+| ---------- | ----------- |
+| `Has(Ability)` | Player is dead. |
+| `Dead` | Player is dead. |
+| `Member(Faction)` | Player belongs to `Faction`. |
+
+#### Abilities
+
+| Ability | Description |
+| ------- | ----------- |
+| `Investigate` | Determine a player's alignment. |
+| `Kill` | Kill a player. |
+| `Protect` | Make a player temporarily immune to kills. |
+
+
+
+### Factions
+
+Factions are defined by:
+* An alignment: `Good`, `Neutral`, or `Evil`.
+* An objective.
+* An optional list of faction abilities.
+* Whether membership is `Hidden` or `Visible` to other players in the faction.
+
+#### Core factions
+
+| Faction | `objective` | `alignment` | `abilities` | `membership` |
+|---------|-------------|-------------|-------------|--------------|
+| Mafia | `AchieveMajority` | `Evil` | `[Kill]` | `Visible` |
+| Town | `Eliminate(Evil)` | `Good` | None | `Hidden` |
+
+#### Common factions
+
+| Faction | `objective` | `alignment` | `abilities` | `membership` |
+|---------|-------------|-------------|-------------|--------------|
+| Survivor | `Survive` | `Good` | None | `Visible` |
+| Mason | `Eliminate(Evil)` | `Good` | None | `Visible` |
+
+#### Objectives
+
+| Objective | Description |
+| --------- | ----------- |
+| `Eliminate(Alignment)` | Eliminate all players of a given alignment. |
+| `EliminateFaction(Faction)` | Eliminate all players of a given faction. |
+| `Majority` | Outnumber all other surviving players. |
+| `Survive` | Survive until the end of the game. |
+
+#### Objectives
+
+| Objective | Description |
+| --------- | ----------- |
 
 
 ## TODO
@@ -67,7 +144,7 @@ Instead of first class roles, players have any number of attributes. Examples:
         * [ ] Doctors can't protect themselves
         * [ ] Faction action chain of command
 * [ ] Basic server
-    * [ ] Auth
+    * [X] Auth
     * [ ] Client input
     * [ ] State updates
     * [ ] Log updates
@@ -135,7 +212,7 @@ cargo run -- help
     cp -r test_basic_game test_foo
     rm test_foo/out.*
 
-    # Edit these files to your heart's content:
+    # Edit these files to your liking:
     #   test_foo/in.actions.ron: Player actions throughout the game.
     #   test_foo/in.setup.ron:   Initial game setup.
 

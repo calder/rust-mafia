@@ -6,7 +6,7 @@
             ],
             alignment: Evil,
             membership: Visible,
-            objective: Majority,
+            objective: AchieveMajority,
         ),
         "Town": (
             alignment: Good,
@@ -17,25 +17,20 @@
     players: {
         "Alice": [
             Member("Town"),
-            Can(Vote),
-            Can(Investigate),
+            Has(Investigate),
         ],
         "Bob": [
             Member("Town"),
-            Can(Vote),
         ],
         "Charlie": [
             Member("Town"),
-            Can(Vote),
-            Can(Protect),
+            Has(Protect),
         ],
         "Eve": [
             Member("Mafia"),
-            Can(Vote),
         ],
         "Malory": [
             Member("Mafia"),
-            Can(Vote),
         ],
     },
     seed: 0,

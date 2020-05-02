@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 use crate::action::*;
 use crate::alignment::*;
 use crate::attr::*;
-use crate::deadline::*;
 use crate::event::*;
 use crate::fate::*;
 use crate::input::*;
@@ -133,7 +132,7 @@ impl Game {
                     Fate::Losing
                 }
             }
-            Objective::Majority => {
+            Objective::AchieveMajority => {
                 if 2 * self.num_living_members(faction) > self.num_living_players() {
                     Fate::Won
                 } else {
@@ -287,16 +286,10 @@ impl Game {
             }
             Action::Order(minion, faction_action) => self.resolve_action(minion, faction_action),
             Action::Protect(target) => {
-                self.add_attr(
-                    target,
-                    Attr::Temporarily(Box::new(Attr::Protected), Deadline::Phases(1)),
-                );
+                self.add_attr(target, Attr::OnePhase(Box::new(Attr::Bulletproof)));
             }
             Action::Vote(target) => {
-                self.add_attr(
-                    target,
-                    Attr::Temporarily(Box::new(Attr::ReceivedVotes(1)), Deadline::Phases(1)),
-                );
+                self.add_attr(target, Attr::OnePhase(Box::new(Attr::ReceivedVotes(1))));
             }
         }
     }

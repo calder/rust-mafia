@@ -58,8 +58,13 @@ struct ServerConn {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Request {
+    /// Authenticate to the server.
     Auth(String),
+
+    /// Immediately end the current phase (moderator only).
     EndPhase,
+
+    /// Use an action (player only).
     Use(Action),
 }
 

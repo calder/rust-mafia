@@ -3,7 +3,7 @@
         "Mafia": (
             alignment: Evil,
             membership: Visible,
-            objective: Majority,
+            objective: AchieveMajority,
         ),
         "Town": (
             alignment: Good,

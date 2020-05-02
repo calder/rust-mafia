@@ -9,16 +9,13 @@
     players: {
         "Alice": [
             Member("Town"),
-            Can(Vote),
         ],
         "Bob": [
             Member("Town"),
-            Can(Vote),
             Dead,
         ],
         "Charlie": [
             Member("Town"),
-            Can(Vote),
         ],
     },
     seed: 1,

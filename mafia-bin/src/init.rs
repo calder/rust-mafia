@@ -14,7 +14,7 @@ pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
             abilities: [Ability::Kill].to_vec(),
             alignment: Alignment::Evil,
             membership: Membership::Visible,
-            objective: Objective::Majority,
+            objective: Objective::AchieveMajority,
         },
     );
     setup.factions.insert(
@@ -30,31 +30,29 @@ pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
         "Alice".to_string(),
         [
             Attr::Member("Town".to_string()),
-            Attr::Can(Ability::Vote),
-            Attr::Can(Ability::Investigate),
+            Attr::Has(Ability::Investigate),
         ]
         .to_vec(),
     );
     setup.players.insert(
         "Bob".to_string(),
-        [Attr::Member("Town".to_string()), Attr::Can(Ability::Vote)].to_vec(),
+        [Attr::Member("Town".to_string())].to_vec(),
     );
     setup.players.insert(
         "Charlie".to_string(),
         [
             Attr::Member("Town".to_string()),
-            Attr::Can(Ability::Vote),
-            Attr::Can(Ability::Protect),
+            Attr::Has(Ability::Protect),
         ]
         .to_vec(),
     );
     setup.players.insert(
         "Eve".to_string(),
-        [Attr::Member("Mafia".to_string()), Attr::Can(Ability::Vote)].to_vec(),
+        [Attr::Member("Mafia".to_string())].to_vec(),
     );
     setup.players.insert(
         "Malory".to_string(),
-        [Attr::Member("Mafia".to_string()), Attr::Can(Ability::Vote)].to_vec(),
+        [Attr::Member("Mafia".to_string())].to_vec(),
     );
     setup.seed = seed.unwrap_or_else(rand::random);
 
