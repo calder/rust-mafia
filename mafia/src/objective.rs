@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::alignment::*;
 use crate::util::*;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Objective {
     /// Eliminate all players of a given alignment.
     Eliminate(Alignment),

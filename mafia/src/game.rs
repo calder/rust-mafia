@@ -19,7 +19,7 @@ type Rng = rand_xoshiro::Xoshiro256StarStar;
 
 type Plan = Vec<(Player, Action)>;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Game {
     pub start: State,
     pub state: State,

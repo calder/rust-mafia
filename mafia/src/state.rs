@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::faction::*;
 use crate::player::*;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub struct State {
     pub factions: Factions,
     pub players: Players,

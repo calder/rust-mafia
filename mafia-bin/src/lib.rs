@@ -1,10 +1,10 @@
 #[macro_use]
 extern crate log;
 
-pub mod auth;
 pub mod client;
 pub mod init;
 pub mod server;
+pub mod util;
 
 use structopt::StructOpt;
 

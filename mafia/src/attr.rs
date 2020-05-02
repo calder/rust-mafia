@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::ability::*;
 use crate::util::*;
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Attr {
     Dead,
     Has(Ability),

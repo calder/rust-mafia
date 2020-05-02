@@ -12,11 +12,10 @@ use tokio::prelude::*;
 use tokio::sync::mpsc;
 use tokio::sync::RwLock;
 
-use mafia::{Action, Game, Input, Map, Player, Set};
+use mafia::{Action, Game, Input, Map, Set, Visibility};
 
-use crate::auth::{Entity, KeyMap};
-
-pub type ConnMap = Map<Player, Set<mpsc::Receiver<Response>>>;
+pub type ConnMap = Map<Visibility, Set<mpsc::Receiver<Response>>>;
+pub type KeyMap = Map<String, Visibility>;
 
 /// Game server.
 pub struct Server {
@@ -57,10 +56,10 @@ struct ServerConn {
     writer: OwnedWriteHalf,
 
     /// Authenticated entity.
-    entity: Option<Entity>,
+    auth: Visibility,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Request {
     /// Authenticate to the server.
     Auth(String),
@@ -72,23 +71,16 @@ pub enum Request {
     Use(Action),
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Response {
     /// Successfully authenticated as the given entity.
-    Authenticated(Entity),
+    Authenticated(Visibility),
 
     /// Error processing request.
     Error(String),
 
     /// Request accepted.
     Ok,
-}
-
-impl ServerState {
-    fn apply(self: &mut Self, input: &Input) {
-        self.game.apply(input);
-        save_file(&self.path.join("game.ron"), &self.game);
-    }
 }
 
 impl Server {
@@ -152,6 +144,13 @@ impl Server {
     }
 }
 
+impl ServerState {
+    fn apply(self: &mut Self, input: &Input) {
+        self.game.apply(input);
+        save_file(&self.path.join("game.ron"), &self.game);
+    }
+}
+
 impl ServerConn {
     fn new(state: Arc<RwLock<ServerState>>, conn: TcpStream, peer: SocketAddr) -> Self {
         let (reader, writer) = conn.into_split();
@@ -162,7 +161,7 @@ impl ServerConn {
             peer: peer,
             reader: reader,
             writer: writer,
-            entity: None,
+            auth: Visibility::Public,
         }
     }
 
@@ -194,11 +193,11 @@ impl ServerConn {
         match request {
             Request::Auth(key) => {
                 match self.state.clone().read().await.keys.get(&key) {
-                    Some(entity) => {
+                    Some(auth) => {
                         // TODO: Unsubscribe from messages for old entity (if any).
                         // TODO: Subscribe to messages for entity.
-                        self.entity = Some(entity.clone());
-                        self.send(Response::Authenticated(entity.clone())).await?;
+                        self.auth = auth.clone();
+                        self.send(Response::Authenticated(auth.clone())).await?;
                     }
                     None => {
                         self.send(Response::Error("Invalid token".to_string()))
@@ -206,8 +205,8 @@ impl ServerConn {
                     }
                 }
             }
-            Request::EndPhase => match &self.entity {
-                Some(Entity::Moderator) => {
+            Request::EndPhase => match &self.auth {
+                Visibility::Moderator => {
                     self.state.clone().write().await.apply(&Input::EndPhase);
                     self.send(Response::Ok).await?;
                 }
@@ -216,8 +215,8 @@ impl ServerConn {
                         .await?;
                 }
             },
-            Request::Use(action) => match &self.entity.clone() {
-                Some(Entity::Player(player)) => {
+            Request::Use(action) => match &self.auth.clone() {
+                Visibility::Player(player) => {
                     self.state
                         .clone()
                         .write()
