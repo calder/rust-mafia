@@ -143,7 +143,8 @@ Each player has a number of **attributes**. Attributes can be:
         * [ ] Faction action chain of command
 * [ ] Basic server
     * [X] Auth
-    * [ ] Client input
+    * [X] Client input
+    * [ ] Persistence
     * [ ] State updates
     * [ ] Log updates
     * [ ] Log visibility

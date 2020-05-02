@@ -11,7 +11,7 @@ use tokio::prelude::*;
 use tokio::sync::mpsc;
 use tokio::sync::RwLock;
 
-use mafia::{Action, Game, Map, Player, Set};
+use mafia::{Action, Game, Input, Map, Player, Set};
 
 use crate::auth::{Entity, KeyMap};
 
@@ -54,6 +54,9 @@ struct ServerConn {
 
     /// Client writer.
     writer: OwnedWriteHalf,
+
+    /// Authenticated entity.
+    entity: Option<Entity>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -70,8 +73,14 @@ pub enum Request {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Response {
+    /// Successfully authenticated as the given entity.
     Authenticated(Entity),
+
+    /// Error processing request.
     Error(String),
+
+    /// Request accepted.
+    Ok,
 }
 
 impl Server {
@@ -145,6 +154,7 @@ impl ServerConn {
             peer: peer,
             reader: reader,
             writer: writer,
+            entity: None,
         }
     }
 
@@ -177,23 +187,47 @@ impl ServerConn {
             Request::Auth(key) => {
                 match self.state.clone().read().await.keys.get(&key) {
                     Some(entity) => {
-                        // PLACEHOLDER
-                        self.write(Response::Authenticated(entity.clone())).await?;
+                        // TODO: Unsubscribe from messages for old entity (if any).
+                        // TODO: Subscribe to messages for entity.
+                        self.entity = Some(entity.clone());
+                        self.send(Response::Authenticated(entity.clone())).await?;
                     }
                     None => {
-                        self.write(Response::Error("Invalid token".to_string()))
+                        self.send(Response::Error("Invalid token".to_string()))
                             .await?;
                     }
                 }
             }
-            Request::EndPhase => {}
-            Request::Use(_action) => {}
+            Request::EndPhase => match &self.entity {
+                Some(Entity::Moderator) => {
+                    self.send(Response::Ok).await?;
+                }
+                _ => {
+                    self.send(Response::Error("Permission denied".to_string()))
+                        .await?;
+                }
+            },
+            Request::Use(action) => match &self.entity.clone() {
+                Some(Entity::Player(player)) => {
+                    self.send(Response::Ok).await?;
+                    self.state
+                        .clone()
+                        .write()
+                        .await
+                        .game
+                        .apply(&Input::Use(player.clone(), action));
+                }
+                _ => {
+                    self.send(Response::Error("Permission denied".to_string()))
+                        .await?;
+                }
+            },
         };
 
         Ok(())
     }
 
-    async fn write(self: &mut Self, response: Response) -> Result<(), io::Error> {
+    async fn send(self: &mut Self, response: Response) -> Result<(), io::Error> {
         let msg = ron::ser::to_string(&response).unwrap();
         debug!("{}: < {}", self.peer, msg);
         self.writer.write((msg + "\n").as_bytes()).await?;
