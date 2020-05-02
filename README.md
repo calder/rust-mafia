@@ -43,11 +43,9 @@ Auth("<password>")
 
 ### Players
 
-Instead of roles, player can have any number of attributes. Attributes can be:
+Each player has a number of **attributes**. Attributes can be:
 * **Stacked:** A Godfather is `[Member("Mafia"), Bulletproof, Appears(Good)]`.
 * **Composed:** Stone is `OneShot(Bulletproof)`. Doctors apply `OnePhase(Bulletproof)`.
-
-Examples of traditional roles implemented via attributes:
 
 #### Core roles
 
@@ -91,11 +89,11 @@ Examples of traditional roles implemented via attributes:
 
 ### Factions
 
-Factions are defined by:
+**Factions** are groups of players with a common objective. Each faction has:
 * An objective.
 * An list of faction abilities.
 * An alignment: `Good`, `Neutral`, or `Evil`.
-* Whether membership is `Hidden` or `Visible` to other players in the faction.
+* Membership `Hidden` or `Visible` to other players in the faction.
 
 #### Core factions
 
