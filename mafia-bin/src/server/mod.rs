@@ -142,6 +142,7 @@ impl Server {
         })
     }
 
+    /// Run server forever.
     pub async fn run(self: &mut Self) -> Result<Server, io::Error> {
         loop {
             let (conn, peer) = self.listener.accept().await.unwrap();
@@ -155,22 +156,21 @@ impl Server {
 }
 
 impl ServerState {
+    /// Update game state and send out events to clients.
     async fn apply(self: &mut Self, input: &Input) -> Result<(), io::Error> {
         // Update game state.
         let log = self.game.apply(input).to_vec();
-
-        // Save game before generating any externally visible side effects.
         save_file(&self.path.join("game.ron"), &self.game);
 
-        // Distribute log messages and prune dead connections.
+        // Update clients and prune dead connections.
+        //
+        // TODO: Replace with .retain() once Rust supports async closures.
         let mut new_conns = Vec::new();
         for conn in &self.conns {
             let mut c = conn.write().await;
             match c.send_updates(&self.game, &log).await {
                 Err(e) => {
                     debug!("{} [{:?}]: <ERROR: {}>", c.peer, c.auth, e);
-                    // TODO: Will this ever fail with client still connected? If
-                    // so, drop so we don't silently stop sending them updates.
                 }
                 Ok(()) => {
                     new_conns.push(conn.clone());
@@ -201,25 +201,32 @@ impl Conn {
     }
 
     async fn run(mut self: Self) -> Result<(), io::Error> {
-        let mut auth = Visibility::Public;
-        debug!("{} [{:?}]: <CONNECTED>", self.peer, auth);
+        debug!(
+            "{} [{:?}]: <CONNECTED>",
+            self.peer,
+            self.state.read().await.auth
+        );
 
-        // Distribute log.
-        {
-            // Lock server to prevent new messages from interleaving.
-            let mut server = self.server.write().await;
-            self.state
-                .write()
-                .await
-                .send_updates(&server.game, &server.game.log)
-                .await?;
-            server.conns.push(self.state.clone());
-        }
+        // Atomically send current log and subscribe to new events.
+        let mut server = self.server.write().await;
+        self.state
+            .write()
+            .await
+            .send_updates(&server.game, &server.game.log)
+            .await?;
+        server.conns.push(self.state.clone());
+        std::mem::drop(server);
 
+        // Process messages from client line by line until they disconnect.
         loop {
             match self.reader.next_line().await {
                 Ok(Some(msg)) => {
-                    debug!("{} [{:?}]: > {}", self.peer, auth, msg);
+                    debug!(
+                        "{} [{:?}]: > {}",
+                        self.peer,
+                        self.state.read().await.auth,
+                        msg
+                    );
                     let request: Request = match ron::de::from_str(&msg) {
                         Err(e) => {
                             self.state
@@ -234,24 +241,32 @@ impl Conn {
                     self.handle(request).await?;
                 }
                 Ok(None) => {
-                    debug!("{} [{:?}]: <EOF>", self.peer, auth);
+                    debug!("{} [{:?}]: <EOF>", self.peer, self.state.read().await.auth);
                     break;
                 }
                 Err(e) => {
-                    debug!("{} [{:?}]: <ERROR: {}>", self.peer, auth, e);
+                    debug!(
+                        "{} [{:?}]: <ERROR: {}>",
+                        self.peer,
+                        self.state.read().await.auth,
+                        e
+                    );
                     break;
                 }
             }
-            auth = self.state.read().await.auth.clone();
         }
-        debug!("{} [{:?}]: <DISCONNECTED>", self.peer, auth);
+        debug!(
+            "{} [{:?}]: <DISCONNECTED>",
+            self.peer,
+            self.state.read().await.auth
+        );
 
         Ok(())
     }
 
+    /// Handle a successfully parsed message from client.
     async fn handle(self: &mut Self, request: Request) -> Result<(), io::Error> {
         let mut state = self.state.write().await;
-        let auth = state.auth.clone();
         match request {
             Request::Auth(key) => match self.server.read().await.keys.get(&key) {
                 Some(auth) => {
@@ -264,7 +279,7 @@ impl Conn {
                         .await?;
                 }
             },
-            Request::EndPhase => match auth {
+            Request::EndPhase => match &self.state.read().await.auth {
                 Visibility::Moderator => {
                     std::mem::drop(state);
                     self.server.write().await.apply(&Input::EndPhase).await?;
@@ -275,7 +290,7 @@ impl Conn {
                         .await?;
                 }
             },
-            Request::Use(action) => match auth {
+            Request::Use(action) => match &self.state.read().await.auth {
                 Visibility::Player(player) => {
                     std::mem::drop(state);
                     self.server
@@ -356,6 +371,7 @@ impl ConnState {
     }
 }
 
+/// Load a serialized value from a file.
 fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Error> {
     let file = File::open(path).map_err(|e| {
         io::Error::new(
