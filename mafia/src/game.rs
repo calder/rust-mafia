@@ -11,6 +11,7 @@ use crate::input::*;
 use crate::log::*;
 use crate::objective::*;
 use crate::phase::*;
+use crate::player::*;
 use crate::state::*;
 use crate::util::*;
 use crate::visibility::*;
@@ -33,11 +34,12 @@ impl Game {
     }
 
     pub fn new_from_state(state: State) -> Self {
+        let phase = Phase::Night(0);
         Game {
             start: state.clone(),
             state: state,
-            phase: Phase::Night(0),
-            log: Log::new(),
+            phase: phase.clone(),
+            log: [(Visibility::Public, Event::PhaseBegan(phase))].to_vec(),
         }
     }
 
@@ -71,6 +73,14 @@ impl Game {
         }
 
         &self.log[log_start..]
+    }
+
+    pub fn get_statuses(self: &Self) -> Map<Player, PlayerStatus> {
+        self.state
+            .players
+            .keys()
+            .map(|p| (p.clone(), self.get_status(p)))
+            .collect()
     }
 
     fn add_attr(self: &mut Self, player: &Player, attr: Attr) {
@@ -166,7 +176,7 @@ impl Game {
         let mut plan = Plan::new();
         for (_visibility, event) in self.log.iter().rev() {
             match event {
-                Event::PhaseEnded(_) => {
+                Event::PhaseBegan(_) => {
                     break;
                 }
                 Event::Input(Input::Use(_, Action::Immediate(_))) => {}
@@ -188,6 +198,10 @@ impl Game {
     fn get_rng(self: &mut Self) -> Rng {
         self.state.seed += 1;
         Rng::seed_from_u64(self.state.seed)
+    }
+
+    fn get_status(self: &Self, player: &Player) -> PlayerStatus {
+        PlayerStatus::alive(self.is_alive(player))
     }
 
     fn is_alive(self: &Self, player: &Player) -> bool {
@@ -280,6 +294,8 @@ impl Game {
         self.log
             .push((Visibility::Public, Event::PhaseEnded(self.phase.clone())));
         self.phase = self.phase.next();
+        self.log
+            .push((Visibility::Public, Event::PhaseBegan(self.phase.clone())));
     }
 
     fn resolve_action(self: &mut Self, player: &Player, action: &Action) {

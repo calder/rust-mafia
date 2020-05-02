@@ -1,4 +1,5 @@
 [
+    (Public, PhaseBegan(Day(1))),
     (Moderator, Input(Use("Alice", Vote("Bob")))),
     (Public, VotedFor("Alice", "Bob")),
     (Moderator, Input(Use("Bob", Vote("Charlie")))),

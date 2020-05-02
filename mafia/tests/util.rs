@@ -54,13 +54,13 @@ pub fn run_test<P: AsRef<std::path::Path>>(path: P) {
                         game.phase.prev().num(),
                         game.phase.prev().kind_str(),
                     ),
-                    &game.log[log_start..].to_vec(),
+                    &game.log[log_start..game.log.len() - 1].to_vec(),
                 );
                 t.save(
                     format!("out.{}.{}.ron", game.phase.num(), game.phase.kind_str(),),
                     &game.state,
                 );
-                log_start = game.log.len();
+                log_start = game.log.len() - 1;
             }
             _ => {}
         }

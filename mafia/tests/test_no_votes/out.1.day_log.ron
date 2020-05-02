@@ -1,4 +1,5 @@
 [
+    (Public, PhaseBegan(Day(1))),
     (Moderator, Input(EndPhase)),
     (Public, Won("Town")),
     (Public, PhaseEnded(Day(1))),

@@ -145,7 +145,7 @@ Each player has a number of **attributes**. Attributes can be:
     * [X] Auth
     * [X] Client input
     * [X] Persistence
-    * [ ] State updates
+    * [X] Liveness updates
     * [X] Log updates
     * [X] Log visibility
 

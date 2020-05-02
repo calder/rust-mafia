@@ -1,4 +1,5 @@
 [
+    (Public, PhaseBegan(Night(1))),
     (Moderator, Input(Use("Alice", Investigate("Eve")))),
     (Moderator, Input(Use("Bob", Protect("Alice")))),
     (Moderator, Input(Use("Eve", Order("Eve", Kill("Bob"))))),

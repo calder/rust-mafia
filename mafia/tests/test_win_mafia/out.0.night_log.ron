@@ -1,4 +1,5 @@
 [
+    (Public, PhaseBegan(Night(0))),
     (Moderator, Input(EndPhase)),
     (Public, Won("Mafia")),
     (Public, PhaseEnded(Night(0))),

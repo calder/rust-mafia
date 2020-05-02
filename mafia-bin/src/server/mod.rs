@@ -11,7 +11,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::prelude::*;
 use tokio::sync::RwLock;
 
-use mafia::{Action, Event, Game, Input, Map, Visibility};
+use mafia::{Action, Event, Game, Input, Map, Player, PlayerStatus, Visibility};
 
 type Connections = Vec<Arc<RwLock<ConnState>>>;
 type KeyMap = Map<String, Visibility>;
@@ -88,6 +88,9 @@ pub enum Response {
 
     /// An in-game event.
     Event(Event),
+
+    /// Player status reminder.
+    Players(Map<Player, PlayerStatus>),
 }
 
 impl Server {
@@ -159,10 +162,22 @@ impl ServerState {
         // Save game before generating any externally visible side effects.
         save_file(&self.path.join("game.ron"), &self.game);
 
-        // Distribute log messages.
+        // Distribute log messages and prune dead connections.
+        let mut new_conns = Vec::new();
         for conn in &self.conns {
-            conn.write().await.send_log(&log).await?;
+            let mut c = conn.write().await;
+            match c.send_updates(&self.game, &log).await {
+                Err(e) => {
+                    debug!("{} [{:?}]: <ERROR: {}>", c.peer, c.auth, e);
+                    // TODO: Will this ever fail with client still connected? If
+                    // so, drop so we don't silently stop sending them updates.
+                }
+                Ok(()) => {
+                    new_conns.push(conn.clone());
+                }
+            }
         }
+        self.conns = new_conns;
 
         Ok(())
     }
@@ -193,7 +208,11 @@ impl Conn {
         {
             // Lock server to prevent new messages from interleaving.
             let mut server = self.server.write().await;
-            self.state.write().await.send_log(&server.game.log).await?;
+            self.state
+                .write()
+                .await
+                .send_updates(&server.game, &server.game.log)
+                .await?;
             server.conns.push(self.state.clone());
         }
 
@@ -279,19 +298,20 @@ impl Conn {
 
 impl ConnState {
     async fn send(self: &mut Self, message: Response) -> Result<(), io::Error> {
-        let msg = match message {
-            Response::Event(e) => ron::ser::to_string(&e),
-            m => ron::ser::to_string(&m),
+        match message {
+            Response::Event(e) => self.send_raw(e).await,
+            m => self.send_raw(m).await,
         }
-        .unwrap();
-        debug!("{} [{:?}]: < {}", self.peer, self.auth, msg);
-        self.writer.write((msg + "\n").as_bytes()).await?;
-
-        Ok(())
     }
 
-    async fn send_log(self: &mut Self, log: &[(Visibility, Event)]) -> Result<(), io::Error> {
-        for (visibility, event) in log {
+    async fn send_updates(
+        self: &mut Self,
+        game: &Game,
+        updates: &[(Visibility, Event)],
+    ) -> Result<(), io::Error> {
+        let mut send_players = false;
+
+        for (visibility, event) in updates {
             let visible = match (visibility, &self.auth) {
                 (Visibility::Public, _) => true,
                 (Visibility::Player(p1), auth) => match auth {
@@ -309,7 +329,28 @@ impl ConnState {
             if visible {
                 self.send(Response::Event(event.clone())).await?;
             }
+
+            send_players |= match event {
+                Event::PhaseBegan(_) => true,
+                Event::Died(_) => true,
+                _ => false,
+            };
         }
+
+        if send_players {
+            self.send(Response::Players(game.get_statuses())).await?;
+        }
+
+        Ok(())
+    }
+
+    async fn send_raw<T: serde::ser::Serialize>(
+        self: &mut Self,
+        message: T,
+    ) -> Result<(), io::Error> {
+        let msg = ron::ser::to_string(&message).unwrap();
+        debug!("{} [{:?}]: < {}", self.peer, self.auth, msg);
+        self.writer.write((msg + "\n").as_bytes()).await?;
 
         Ok(())
     }

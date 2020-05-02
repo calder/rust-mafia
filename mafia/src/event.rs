@@ -11,6 +11,7 @@ pub enum Event {
     Died(Player),
     FoundAlignment(Player, Alignment),
     Input(Input),
+    PhaseBegan(Phase),
     PhaseEnded(Phase),
     Used(Player, Action),
     VotedFor(Player, Player),
