@@ -62,7 +62,7 @@ Examples of traditional roles implemented via attributes:
 
 |    | Role | Attributes |
 |----|------|------------|
-| ❌ | Cult member (aka Cultist) | `Member("Cult")` |
+| ❌ | Cult member | `Member("Cult")` |
 | ❌ | Roleblocker | `Has(Roleblock)` |
 | ❌ | Stone | `OneShot(Bulletproof)` |
 
