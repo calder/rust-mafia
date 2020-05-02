@@ -233,12 +233,22 @@ impl Game {
 
         // Resolve elimination.
         if let Phase::Day(_) = self.phase {
-            let mut queue = self.get_living_players();
+            let queue = self.get_living_players();
             let mut rng = self.get_rng();
+
+            // Count votes up front so we use OneShots exactly once.
+            let mut queue: Vec<(i64, &Player)> =
+                queue.iter().map(|p| (self.num_votes_for(p), p)).collect();
+
+            // Sort the queue by decreasing vote count, randomizing ties.
             queue.shuffle(&mut rng);
-            queue.sort_by_cached_key(|p| -self.num_votes_for(p));
-            if let Some(target) = queue.first() {
-                self.make_dead(target);
+            queue.sort_by_cached_key(|(v, _)| -v);
+
+            // Kill the first player if they received positive votes.
+            if let Some((votes, player)) = queue.first() {
+                if *votes > 0 {
+                    self.make_dead(player);
+                }
             }
         }
 

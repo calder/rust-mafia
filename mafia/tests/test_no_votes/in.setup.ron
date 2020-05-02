@@ -1,0 +1,15 @@
+(
+    factions: {
+        "Town": (
+            alignment: Good,
+            membership: Hidden,
+            objective: Eliminate(Evil),
+        ),
+    },
+    players: {
+        "Alice": [Member("Town")],
+        "Bob": [Member("Town")],
+        "Charlie": [Member("Town")],
+    },
+    seed: 0,
+)
