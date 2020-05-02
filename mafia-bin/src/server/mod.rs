@@ -12,9 +12,9 @@ use tokio::prelude::*;
 use tokio::sync::mpsc;
 use tokio::sync::RwLock;
 
-use mafia::{Action, Game, Input, Map, Set, Visibility};
+use mafia::{Action, Game, Input, Map, Visibility};
 
-pub type ConnMap = Map<Visibility, Set<mpsc::Receiver<Response>>>;
+pub type Connections = Vec<mpsc::Sender<Response>>;
 pub type KeyMap = Map<String, Visibility>;
 
 /// Game server.
@@ -29,7 +29,7 @@ pub struct Server {
 /// Server state shared between all connections.
 struct ServerState {
     /// Client connections.
-    conns: ConnMap,
+    conns: Connections,
 
     /// Game state.
     game: Game,
@@ -54,6 +54,12 @@ struct ServerConn {
 
     /// Client writer.
     writer: OwnedWriteHalf,
+
+    /// Sender for other threads to push notifications to this client.
+    push_sender: mpsc::Sender<Response>,
+
+    /// Receiver for this thread to get push notifications from other threads.
+    push_receiver: mpsc::Receiver<Response>,
 
     /// Authenticated entity.
     auth: Visibility,
@@ -124,7 +130,7 @@ impl Server {
         Ok(Server {
             listener: listener,
             state: Arc::new(RwLock::new(ServerState {
-                conns: ConnMap::new(),
+                conns: Connections::new(),
                 game: game,
                 keys: keys,
                 path: path,
@@ -155,6 +161,7 @@ impl ServerConn {
     fn new(state: Arc<RwLock<ServerState>>, conn: TcpStream, peer: SocketAddr) -> Self {
         let (reader, writer) = conn.into_split();
         let reader = tokio::io::BufReader::new(reader).lines();
+        let (push_sender, push_receiver) = mpsc::channel(1);
 
         ServerConn {
             state: state,
@@ -162,11 +169,19 @@ impl ServerConn {
             reader: reader,
             writer: writer,
             auth: Visibility::Public,
+            push_sender: push_sender,
+            push_receiver: push_receiver,
         }
     }
 
     async fn run(mut self: Self) -> Result<(), io::Error> {
         debug!("{}: <CONNECTED>", self.peer);
+        self.state
+            .clone()
+            .write()
+            .await
+            .conns
+            .push(self.push_sender.clone());
         loop {
             match self.reader.next_line().await {
                 Ok(Some(msg)) => {
@@ -191,20 +206,16 @@ impl ServerConn {
 
     async fn handle(self: &mut Self, request: Request) -> Result<(), io::Error> {
         match request {
-            Request::Auth(key) => {
-                match self.state.clone().read().await.keys.get(&key) {
-                    Some(auth) => {
-                        // TODO: Unsubscribe from messages for old entity (if any).
-                        // TODO: Subscribe to messages for entity.
-                        self.auth = auth.clone();
-                        self.send(Response::Authenticated(auth.clone())).await?;
-                    }
-                    None => {
-                        self.send(Response::Error("Invalid token".to_string()))
-                            .await?;
-                    }
+            Request::Auth(key) => match self.state.clone().read().await.keys.get(&key) {
+                Some(auth) => {
+                    self.auth = auth.clone();
+                    self.send(Response::Authenticated(auth.clone())).await?;
                 }
-            }
+                None => {
+                    self.send(Response::Error("Invalid token".to_string()))
+                        .await?;
+                }
+            },
             Request::EndPhase => match &self.auth {
                 Visibility::Moderator => {
                     self.state.clone().write().await.apply(&Input::EndPhase);
