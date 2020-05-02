@@ -11,7 +11,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::prelude::*;
 use tokio::sync::RwLock;
 
-use mafia::{Action, Game, Input, Map, Visibility};
+use mafia::{Action, Event, Game, Input, Map, Visibility};
 
 type Connections = Vec<Arc<RwLock<ConnState>>>;
 type KeyMap = Map<String, Visibility>;
@@ -85,6 +85,9 @@ pub enum Response {
 
     /// Error processing request.
     Error(String),
+
+    /// An in-game event.
+    Event(Event),
 }
 
 impl Server {
@@ -158,26 +161,7 @@ impl ServerState {
 
         // Distribute log messages.
         for conn in &self.conns {
-            let mut conn = conn.write().await;
-            for (visibility, event) in &log {
-                let visible = match (visibility, &conn.auth) {
-                    (Visibility::Public, _) => true,
-                    (Visibility::Player(p1), auth) => match auth {
-                        Visibility::Moderator => true,
-                        Visibility::Player(p2) => p1 == p2,
-                        Visibility::Public => false,
-                    },
-                    (Visibility::Moderator, auth) => match auth {
-                        Visibility::Moderator => true,
-                        Visibility::Player(_) => false,
-                        Visibility::Public => false,
-                    },
-                };
-
-                if visible {
-                    conn.send(event.clone()).await?;
-                }
-            }
+            conn.write().await.send_log(&log).await?;
         }
 
         Ok(())
@@ -202,26 +186,46 @@ impl Conn {
     }
 
     async fn run(mut self: Self) -> Result<(), io::Error> {
-        debug!("{}: <CONNECTED>", self.peer);
-        self.server.write().await.conns.push(self.state.clone());
+        let mut auth = Visibility::Public;
+        debug!("{} [{:?}]: <CONNECTED>", self.peer, auth);
+
+        // Distribute log.
+        {
+            // Lock server to prevent new messages from interleaving.
+            let mut server = self.server.write().await;
+            self.state.write().await.send_log(&server.game.log).await?;
+            server.conns.push(self.state.clone());
+        }
+
         loop {
             match self.reader.next_line().await {
                 Ok(Some(msg)) => {
-                    debug!("{}: > {}", self.peer, msg);
-                    let request: Request = ron::de::from_str(&msg).unwrap();
-                    self.handle(request).await.unwrap();
+                    debug!("{} [{:?}]: > {}", self.peer, auth, msg);
+                    let request: Request = match ron::de::from_str(&msg) {
+                        Err(e) => {
+                            self.state
+                                .write()
+                                .await
+                                .send(Response::Error(e.to_string()))
+                                .await?;
+                            continue;
+                        }
+                        Ok(r) => r,
+                    };
+                    self.handle(request).await?;
                 }
                 Ok(None) => {
-                    debug!("{}: <EOF>", self.peer);
+                    debug!("{} [{:?}]: <EOF>", self.peer, auth);
                     break;
                 }
                 Err(e) => {
-                    debug!("{}: <ERROR: {}>", self.peer, e);
+                    debug!("{} [{:?}]: <ERROR: {}>", self.peer, auth, e);
                     break;
                 }
             }
+            auth = self.state.read().await.auth.clone();
         }
-        debug!("{}: <DISCONNECTED>", self.peer);
+        debug!("{} [{:?}]: <DISCONNECTED>", self.peer, auth);
 
         Ok(())
     }
@@ -274,10 +278,38 @@ impl Conn {
 }
 
 impl ConnState {
-    async fn send<T: serde::ser::Serialize>(self: &mut Self, message: T) -> Result<(), io::Error> {
-        let msg = ron::ser::to_string(&message).unwrap();
-        debug!("{}: < {}", self.peer, msg);
+    async fn send(self: &mut Self, message: Response) -> Result<(), io::Error> {
+        let msg = match message {
+            Response::Event(e) => ron::ser::to_string(&e),
+            m => ron::ser::to_string(&m),
+        }
+        .unwrap();
+        debug!("{} [{:?}]: < {}", self.peer, self.auth, msg);
         self.writer.write((msg + "\n").as_bytes()).await?;
+
+        Ok(())
+    }
+
+    async fn send_log(self: &mut Self, log: &[(Visibility, Event)]) -> Result<(), io::Error> {
+        for (visibility, event) in log {
+            let visible = match (visibility, &self.auth) {
+                (Visibility::Public, _) => true,
+                (Visibility::Player(p1), auth) => match auth {
+                    Visibility::Moderator => true,
+                    Visibility::Player(p2) => p1 == p2,
+                    Visibility::Public => false,
+                },
+                (Visibility::Moderator, auth) => match auth {
+                    Visibility::Moderator => true,
+                    Visibility::Player(_) => false,
+                    Visibility::Public => false,
+                },
+            };
+
+            if visible {
+                self.send(Response::Event(event.clone())).await?;
+            }
+        }
 
         Ok(())
     }
