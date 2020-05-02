@@ -41,48 +41,50 @@ Auth("<password>")
 
 ## Rules
 
-
-
 ### Players
 
 Instead of roles, player can have any number of attributes. Attributes can be:
 * **Stacked:** A Godfather is `[Member("Mafia"), Bulletproof, Appears(Good)]`.
-* **Modified:** Stone is `OneShot(Bulletproof)`. Doctors apply `OnePhase(Bulletproof)`.
+* **Composed:** Stone is `OneShot(Bulletproof)`. Doctors apply `OnePhase(Bulletproof)`.
 
 Examples of traditional roles implemented via attributes:
 
 #### Core roles
 
-| Role | Attributes |
-| ---- | ---------- |
-| Town member | `Member("Town")` |
-| Mafia member | `Member("Mafia")` |
-| Cop | `Has(Investigate)` |
-| Doctor | `Has(Protect)` |
+| Implemented | Role | Attributes |
+|-------------|------|------------|
+| ✔️ | Town member | `Member("Town")` |
+| ✔️ | Mafia member | `Member("Mafia")` |
+| ✔️ | Cop | `Has(Investigate)` |
+| ✔️ | Doctor | `Has(Protect)` |
 
 #### Common roles
 
-| Role | Attributes |
-| ---- | ---------- |
-| Cult member (aka Cultist) | `Member("Cult")` |
-| Stone | `OneShot(Bulletproof)` |
-| Double stone | `OneShot(OneShot(Bulletproof))` |
+| Implemented | Role | Attributes |
+|-------------|------|------------|
+| ❌ | Cult member (aka Cultist) | `Member("Cult")` |
+| ❌ | Roleblocker | `Has(Roleblock)` |
+| ❌ | Stone | `OneShot(Bulletproof)` |
 
 #### Attributes
 
-| Attributes | Description |
-| ---------- | ----------- |
-| `Dead` | Player is dead. |
-| `Has(Ability)` | Player can use `Ability`. |
-| `Member(Faction)` | Player belongs to `Faction`. |
+| Implemented | Attributes | Description |
+|-------------|------------|-------------|
+| ❌ | `Appears(Alignment)` | Shows up as `Alignment` to investigations. |
+| ✔️ | `Dead` | Player is dead. |
+| ✔️ | `Has(Ability)` | Player can use `Ability`. |
+| ✔️ | `Member(Faction)` | Player belongs to `Faction`. |
+| ✔️ | `OnePhase(Attribute)` | Attribute expires after one phase. |
+| ❌ | `OneShot(Attribute)` | Attribute expires after one use. |
 
 #### Abilities
 
-| Ability | Description |
-| ------- | ----------- |
-| `Investigate` | Determine a player's alignment. |
-| `Kill` | Kill a player. |
-| `Protect` | Make a player temporarily immune to kills. |
+| Implemented | Ability | Description |
+|-------------|---------|-------------|
+| ✔️ | `Investigate` | Determine a player's alignment. |
+| ✔️ | `Kill` | Kill a player. |
+| ✔️ | `Protect` | Temporarily make a player immune to kills. |
+| ❌ | `Roleblock` | Temporarily prevent a player from using actions. |
 
 
 
@@ -96,26 +98,27 @@ Factions are defined by:
 
 #### Core factions
 
-| Faction | Objective | Alignment | Abilities | Membership |
-|---------|-----------|-----------|-----------|------------|
-| Town | `Eliminate(Evil)` | `Good` | `[]` | `Hidden` |
-| Mafia | `AchieveMajority` | `Evil` | `[Kill]` | `Visible` |
+| Implemented | Faction | Objective | Alignment | Abilities | Membership |
+|-------------|---------|-----------|-----------|-----------|------------|
+| ✔️ | Town | `Eliminate(Evil)` | `Good` | `[]` | `Hidden` |
+| ✔️ | Mafia | `AchieveMajority` | `Evil` | `[Kill]` | `Visible` |
 
 #### Common factions
 
-| Faction | Objective | Alignment | Abilities | Membership |
-|---------|-----------|-----------|-----------|------------|
-| Survivor | `Survive` | `Good` | `[]` | `Visible` |
-| Mason | `Eliminate(Evil)` | `Good` | `[]` | `Visible` |
+| Implemented | Faction | Objective | Alignment | Abilities | Membership |
+|-------------|---------|-----------|-----------|-----------|------------|
+| ✔️ | Survivor | `Survive` | `Good` | `[]` | `Visible` |
+| ✔️ | Mason | `Eliminate(Evil)` | `Good` | `[]` | `Visible` |
 
 #### Objectives
 
-| Objective | Description |
-| --------- | ----------- |
-| `Eliminate(Alignment)` | Eliminate all players of a given alignment. |
-| `EliminateFaction(Faction)` | Eliminate all players of a given faction. |
-| `Majority` | Outnumber all other surviving players. |
-| `Survive` | Survive until the end of the game. |
+| Implemented | Objective | Description |
+|-------------|-----------|-------------|
+| ✔️ | `Eliminate(Alignment)` | Eliminate all players of a given alignment. |
+| ✔️ | `EliminateFaction(Faction)` | Eliminate all players of a given faction. |
+| ✔️ | `Majority` | Outnumber all other surviving players. |
+| ✔️ | `Survive` | Survive until the end of the game. |
+
 
 
 ## TODO
@@ -149,7 +152,9 @@ Factions are defined by:
 
 ## ❤️ Contributing
 
-Contributions are very welcome! See the [issue tracker](https://github.com/calder/rust-mafia/issues) if you're looking for a place to start.
+Contributions are very welcome! If you're looking for a place to start:
+* Submit a pull request adding a new role idea to this README.
+* Submit a pull request implementing a role idea on this README.
 
 ### Setup
 
