@@ -9,13 +9,12 @@ use tokio::io::{BufReader, Lines};
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::prelude::*;
-use tokio::sync::mpsc;
 use tokio::sync::RwLock;
 
 use mafia::{Action, Game, Input, Map, Visibility};
 
-pub type Connections = Vec<mpsc::Sender<Response>>;
-pub type KeyMap = Map<String, Visibility>;
+type Connections = Vec<Arc<RwLock<ConnState>>>;
+type KeyMap = Map<String, Visibility>;
 
 /// Game server.
 pub struct Server {
@@ -42,9 +41,9 @@ struct ServerState {
 }
 
 /// A single client connection.
-struct ServerConn {
+struct Conn {
     /// Shared server state.
-    state: Arc<RwLock<ServerState>>,
+    server: Arc<RwLock<ServerState>>,
 
     /// Client address
     peer: SocketAddr,
@@ -52,17 +51,19 @@ struct ServerConn {
     /// Client reader.
     reader: Lines<BufReader<OwnedReadHalf>>,
 
-    /// Client writer.
-    writer: OwnedWriteHalf,
+    /// Connection state shared between threads.
+    state: Arc<RwLock<ConnState>>,
+}
 
-    /// Sender for other threads to push notifications to this client.
-    push_sender: mpsc::Sender<Response>,
-
-    /// Receiver for this thread to get push notifications from other threads.
-    push_receiver: mpsc::Receiver<Response>,
-
+struct ConnState {
     /// Authenticated entity.
     auth: Visibility,
+
+    /// Client address
+    peer: SocketAddr,
+
+    /// Client writer.
+    writer: OwnedWriteHalf,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
@@ -141,7 +142,7 @@ impl Server {
     pub async fn run(self: &mut Self) -> Result<Server, io::Error> {
         loop {
             let (conn, peer) = self.listener.accept().await.unwrap();
-            let conn = ServerConn::new(self.state.clone(), conn, peer);
+            let conn = Conn::new(self.state.clone(), conn, peer);
 
             tokio::spawn(async move {
                 conn.run().await.unwrap();
@@ -157,31 +158,26 @@ impl ServerState {
     }
 }
 
-impl ServerConn {
-    fn new(state: Arc<RwLock<ServerState>>, conn: TcpStream, peer: SocketAddr) -> Self {
+impl Conn {
+    fn new(server: Arc<RwLock<ServerState>>, conn: TcpStream, peer: SocketAddr) -> Self {
         let (reader, writer) = conn.into_split();
-        let reader = tokio::io::BufReader::new(reader).lines();
-        let (push_sender, push_receiver) = mpsc::channel(1);
+        let reader = BufReader::new(reader).lines();
 
-        ServerConn {
-            state: state,
-            peer: peer,
+        Conn {
+            server: server,
+            peer: peer.clone(),
             reader: reader,
-            writer: writer,
-            auth: Visibility::Public,
-            push_sender: push_sender,
-            push_receiver: push_receiver,
+            state: Arc::new(RwLock::new(ConnState {
+                peer: peer,
+                writer: writer,
+                auth: Visibility::Public,
+            })),
         }
     }
 
     async fn run(mut self: Self) -> Result<(), io::Error> {
         debug!("{}: <CONNECTED>", self.peer);
-        self.state
-            .clone()
-            .write()
-            .await
-            .conns
-            .push(self.push_sender.clone());
+        self.server.write().await.conns.push(self.state.clone());
         loop {
             match self.reader.next_line().await {
                 Ok(Some(msg)) => {
@@ -205,38 +201,47 @@ impl ServerConn {
     }
 
     async fn handle(self: &mut Self, request: Request) -> Result<(), io::Error> {
+        let mut state = self.state.write().await;
         match request {
-            Request::Auth(key) => match self.state.clone().read().await.keys.get(&key) {
+            Request::Auth(key) => match self.server.read().await.keys.get(&key) {
                 Some(auth) => {
-                    self.auth = auth.clone();
-                    self.send(Response::Authenticated(auth.clone())).await?;
+                    state.auth = auth.clone();
+                    state.send(Response::Authenticated(auth.clone())).await?;
+
+                    // TODO: Proof-of-concept pubsub to all clients. Remove
+                    std::mem::drop(state);
+                    for conn in &self.server.read().await.conns {
+                        conn.write().await.send(Response::Ok).await?;
+                    }
                 }
                 None => {
-                    self.send(Response::Error("Invalid token".to_string()))
+                    state
+                        .send(Response::Error("Invalid token".to_string()))
                         .await?;
                 }
             },
-            Request::EndPhase => match &self.auth {
+            Request::EndPhase => match &state.auth {
                 Visibility::Moderator => {
-                    self.state.clone().write().await.apply(&Input::EndPhase);
-                    self.send(Response::Ok).await?;
+                    self.server.write().await.apply(&Input::EndPhase);
+                    state.send(Response::Ok).await?;
                 }
                 _ => {
-                    self.send(Response::Error("Permission denied".to_string()))
+                    state
+                        .send(Response::Error("Permission denied".to_string()))
                         .await?;
                 }
             },
-            Request::Use(action) => match &self.auth.clone() {
+            Request::Use(action) => match &state.auth {
                 Visibility::Player(player) => {
-                    self.state
-                        .clone()
+                    self.server
                         .write()
                         .await
                         .apply(&Input::Use(player.clone(), action));
-                    self.send(Response::Ok).await?;
+                    state.send(Response::Ok).await?;
                 }
                 _ => {
-                    self.send(Response::Error("Permission denied".to_string()))
+                    state
+                        .send(Response::Error("Permission denied".to_string()))
                         .await?;
                 }
             },
@@ -244,7 +249,9 @@ impl ServerConn {
 
         Ok(())
     }
+}
 
+impl ConnState {
     async fn send(self: &mut Self, response: Response) -> Result<(), io::Error> {
         let msg = ron::ser::to_string(&response).unwrap();
         debug!("{}: < {}", self.peer, msg);
