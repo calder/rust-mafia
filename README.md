@@ -51,8 +51,8 @@ Examples of traditional roles implemented via attributes:
 
 #### Core roles
 
-| Implemented | Role | Attributes |
-|-------------|------|------------|
+|    | Role | Attributes |
+|----|------|------------|
 | ✔️ | Town member | `Member("Town")` |
 | ✔️ | Mafia member | `Member("Mafia")` |
 | ✔️ | Cop | `Has(Investigate)` |
@@ -60,16 +60,16 @@ Examples of traditional roles implemented via attributes:
 
 #### Common roles
 
-| Implemented | Role | Attributes |
-|-------------|------|------------|
+|    | Role | Attributes |
+|----|------|------------|
 | ❌ | Cult member (aka Cultist) | `Member("Cult")` |
 | ❌ | Roleblocker | `Has(Roleblock)` |
 | ❌ | Stone | `OneShot(Bulletproof)` |
 
 #### Attributes
 
-| Implemented | Attributes | Description |
-|-------------|------------|-------------|
+|    | Attributes | Description |
+|----|------------|-------------|
 | ❌ | `Appears(Alignment)` | Shows up as `Alignment` to investigations. |
 | ✔️ | `Dead` | Player is dead. |
 | ✔️ | `Has(Ability)` | Player can use `Ability`. |
@@ -79,8 +79,8 @@ Examples of traditional roles implemented via attributes:
 
 #### Abilities
 
-| Implemented | Ability | Description |
-|-------------|---------|-------------|
+|    | Ability | Description |
+|----|---------|-------------|
 | ✔️ | `Investigate` | Determine a player's alignment. |
 | ✔️ | `Kill` | Kill a player. |
 | ✔️ | `Protect` | Temporarily make a player immune to kills. |
@@ -98,22 +98,22 @@ Factions are defined by:
 
 #### Core factions
 
-| Implemented | Faction | Objective | Alignment | Abilities | Membership |
-|-------------|---------|-----------|-----------|-----------|------------|
+|    | Faction | Objective | Alignment | Abilities | Membership |
+|----|---------|-----------|-----------|-----------|------------|
 | ✔️ | Town | `Eliminate(Evil)` | `Good` | `[]` | `Hidden` |
 | ✔️ | Mafia | `AchieveMajority` | `Evil` | `[Kill]` | `Visible` |
 
 #### Common factions
 
-| Implemented | Faction | Objective | Alignment | Abilities | Membership |
-|-------------|---------|-----------|-----------|-----------|------------|
+|    | Faction | Objective | Alignment | Abilities | Membership |
+|----|---------|-----------|-----------|-----------|------------|
 | ✔️ | Survivor | `Survive` | `Good` | `[]` | `Visible` |
 | ✔️ | Mason | `Eliminate(Evil)` | `Good` | `[]` | `Visible` |
 
 #### Objectives
 
-| Implemented | Objective | Description |
-|-------------|-----------|-------------|
+|    | Objective | Description |
+|----|-----------|-------------|
 | ✔️ | `Eliminate(Alignment)` | Eliminate all players of a given alignment. |
 | ✔️ | `EliminateFaction(Faction)` | Eliminate all players of a given faction. |
 | ✔️ | `Majority` | Outnumber all other surviving players. |
