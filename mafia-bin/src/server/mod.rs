@@ -85,9 +85,6 @@ pub enum Response {
 
     /// Error processing request.
     Error(String),
-
-    /// Request accepted.
-    Ok,
 }
 
 impl Server {
@@ -152,9 +149,38 @@ impl Server {
 }
 
 impl ServerState {
-    fn apply(self: &mut Self, input: &Input) {
-        self.game.apply(input);
+    async fn apply(self: &mut Self, input: &Input) -> Result<(), io::Error> {
+        // Update game state.
+        let log = self.game.apply(input).to_vec();
+
+        // Save game before generating any externally visible side effects.
         save_file(&self.path.join("game.ron"), &self.game);
+
+        // Distribute log messages.
+        for conn in &self.conns {
+            let mut conn = conn.write().await;
+            for (visibility, event) in &log {
+                let visible = match (visibility, &conn.auth) {
+                    (Visibility::Public, _) => true,
+                    (Visibility::Player(p1), auth) => match auth {
+                        Visibility::Moderator => true,
+                        Visibility::Player(p2) => p1 == p2,
+                        Visibility::Public => false,
+                    },
+                    (Visibility::Moderator, auth) => match auth {
+                        Visibility::Moderator => true,
+                        Visibility::Player(_) => false,
+                        Visibility::Public => false,
+                    },
+                };
+
+                if visible {
+                    conn.send(event.clone()).await?;
+                }
+            }
+        }
+
+        Ok(())
     }
 }
 
@@ -202,17 +228,12 @@ impl Conn {
 
     async fn handle(self: &mut Self, request: Request) -> Result<(), io::Error> {
         let mut state = self.state.write().await;
+        let auth = state.auth.clone();
         match request {
             Request::Auth(key) => match self.server.read().await.keys.get(&key) {
                 Some(auth) => {
                     state.auth = auth.clone();
                     state.send(Response::Authenticated(auth.clone())).await?;
-
-                    // TODO: Proof-of-concept pubsub to all clients. Remove
-                    std::mem::drop(state);
-                    for conn in &self.server.read().await.conns {
-                        conn.write().await.send(Response::Ok).await?;
-                    }
                 }
                 None => {
                     state
@@ -220,10 +241,10 @@ impl Conn {
                         .await?;
                 }
             },
-            Request::EndPhase => match &state.auth {
+            Request::EndPhase => match auth {
                 Visibility::Moderator => {
-                    self.server.write().await.apply(&Input::EndPhase);
-                    state.send(Response::Ok).await?;
+                    std::mem::drop(state);
+                    self.server.write().await.apply(&Input::EndPhase).await?;
                 }
                 _ => {
                     state
@@ -231,13 +252,14 @@ impl Conn {
                         .await?;
                 }
             },
-            Request::Use(action) => match &state.auth {
+            Request::Use(action) => match auth {
                 Visibility::Player(player) => {
+                    std::mem::drop(state);
                     self.server
                         .write()
                         .await
-                        .apply(&Input::Use(player.clone(), action));
-                    state.send(Response::Ok).await?;
+                        .apply(&Input::Use(player.clone(), action))
+                        .await?;
                 }
                 _ => {
                     state
@@ -252,8 +274,8 @@ impl Conn {
 }
 
 impl ConnState {
-    async fn send(self: &mut Self, response: Response) -> Result<(), io::Error> {
-        let msg = ron::ser::to_string(&response).unwrap();
+    async fn send<T: serde::ser::Serialize>(self: &mut Self, message: T) -> Result<(), io::Error> {
+        let msg = ron::ser::to_string(&message).unwrap();
         debug!("{}: < {}", self.peer, msg);
         self.writer.write((msg + "\n").as_bytes()).await?;
 
@@ -292,13 +314,11 @@ fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Er
 /// Atomicity is achieved by writing to a temporary file then renaming. Renames
 /// are atomic on most modern filesystems.
 fn save_file<T: serde::ser::Serialize>(path: &PathBuf, value: &T) {
-    // Serialize value.
-    let config = ron::ser::PrettyConfig::default();
-    let output = ron::ser::to_string_pretty(&value, config).unwrap();
+    let output = ron::ser::to_string_pretty(&value, mafia::ron_pretty_config()).unwrap();
 
-    // Write to a temporary file then move to real file for atomicity.
     let tmp_path = PathBuf::from(path.to_str().unwrap().to_string() + ".tmp");
     let mut tmp_file = File::create(tmp_path.clone()).unwrap();
     writeln!(tmp_file, "{}", output).unwrap();
+
     std::fs::rename(tmp_path, path).unwrap();
 }

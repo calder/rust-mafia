@@ -17,3 +17,7 @@ where
         self == &Default::default()
     }
 }
+
+pub fn ron_pretty_config() -> ron::ser::PrettyConfig {
+    ron::ser::PrettyConfig::default()
+}

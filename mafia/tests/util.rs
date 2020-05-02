@@ -29,7 +29,7 @@ impl TestHelper {
         path: P,
         value: &T,
     ) {
-        let config = ron::ser::PrettyConfig::default();
+        let config = mafia::ron_pretty_config();
         let serialized_value = ron::ser::to_string_pretty(&value, config).unwrap();
 
         let mut output_file = self.mint.new_goldenfile(path).unwrap();

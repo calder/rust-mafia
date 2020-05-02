@@ -41,7 +41,8 @@ impl Game {
         }
     }
 
-    pub fn apply(self: &mut Self, input: &Input) {
+    pub fn apply(self: &mut Self, input: &Input) -> &[(Visibility, Event)] {
+        let log_start = self.log.len();
         self.log
             .push((Visibility::Moderator, Event::Input(input.clone())));
 
@@ -68,6 +69,8 @@ impl Game {
                 }
             },
         }
+
+        &self.log[log_start..]
     }
 
     fn add_attr(self: &mut Self, player: &Player, attr: Attr) {
