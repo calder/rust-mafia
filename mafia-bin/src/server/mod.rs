@@ -282,6 +282,6 @@ fn save_file<T: serde::ser::Serialize>(path: &PathBuf, value: &T) {
     // Write to a temporary file then move to real file for atomicity.
     let tmp_path = PathBuf::from(path.to_str().unwrap().to_string() + ".tmp");
     let mut tmp_file = File::create(tmp_path.clone()).unwrap();
-    tmp_file.write(output.as_bytes()).unwrap();
+    writeln!(tmp_file, "{}", output).unwrap();
     std::fs::rename(tmp_path, path).unwrap();
 }

@@ -33,7 +33,7 @@ impl TestHelper {
         let serialized_value = ron::ser::to_string_pretty(&value, config).unwrap();
 
         let mut output_file = self.mint.new_goldenfile(path).unwrap();
-        write!(output_file, "{}", serialized_value).unwrap();
+        writeln!(output_file, "{}", serialized_value).unwrap();
     }
 }
 
