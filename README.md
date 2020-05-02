@@ -68,8 +68,8 @@ Examples of traditional roles implemented via attributes:
 
 #### Attributes
 
-|    | Attributes | Description |
-|----|------------|-------------|
+|    | Attribute | Description |
+|----|-----------|-------------|
 | ❌ | `Appears(Alignment)` | Shows up as `Alignment` to investigations. |
 | ✔️ | `Dead` | Player is dead. |
 | ✔️ | `Has(Ability)` | Player can use `Ability`. |
