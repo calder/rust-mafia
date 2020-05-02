@@ -73,10 +73,6 @@ impl Game {
         &self.log[log_start..]
     }
 
-    pub fn can_see_faction_messages(self: &Self, player: &Player, faction: &Faction) -> bool {
-        &self.get_faction(player) == faction
-    }
-
     fn add_attr(self: &mut Self, player: &Player, attr: Attr) {
         self.state.players.get_mut(player).unwrap().push(attr);
     }
