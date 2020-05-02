@@ -5,8 +5,8 @@ use crate::util::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Attr {
-    Has(Ability),
     Dead,
+    Has(Ability),
     Member(Faction),
     OnePhase(Box<Attr>),
     Poisoned(u64),

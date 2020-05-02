@@ -39,7 +39,7 @@ Auth("<password>")
 
 
 
-## Data model
+## Rules
 
 
 
@@ -55,8 +55,8 @@ Examples of traditional roles implemented via attributes:
 
 | Role | Attributes |
 | ---- | ---------- |
-| Mafia member | `Member("Mafia")` |
 | Town member | `Member("Town")` |
+| Mafia member | `Member("Mafia")` |
 | Cop | `Has(Investigate)` |
 | Doctor | `Has(Protect)` |
 
@@ -72,8 +72,8 @@ Examples of traditional roles implemented via attributes:
 
 | Attributes | Description |
 | ---------- | ----------- |
-| `Has(Ability)` | Player can use `Ability`. |
 | `Dead` | Player is dead. |
+| `Has(Ability)` | Player can use `Ability`. |
 | `Member(Faction)` | Player belongs to `Faction`. |
 
 #### Abilities
@@ -98,8 +98,8 @@ Factions are defined by:
 
 | Faction | Objective | Alignment | Abilities | Membership |
 |---------|-----------|-----------|-----------|------------|
-| Mafia | `AchieveMajority` | `Evil` | `[Kill]` | `Visible` |
 | Town | `Eliminate(Evil)` | `Good` | `[]` | `Hidden` |
+| Mafia | `AchieveMajority` | `Evil` | `[Kill]` | `Visible` |
 
 #### Common factions
 
