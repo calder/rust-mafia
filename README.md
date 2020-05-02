@@ -141,7 +141,7 @@ Each player has a number of **attributes**. Attributes can be:
         * [ ] Target is alive
         * [ ] Doctors can't protect themselves
         * [ ] Faction action chain of command
-* [ ] Basic server
+* [X] Basic server
     * [X] Auth
     * [X] Client input
     * [X] Persistence
