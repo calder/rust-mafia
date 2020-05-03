@@ -168,7 +168,7 @@ impl ServerState {
         let mut new_conns = Vec::new();
         for conn in &self.conns {
             let mut c = conn.write().await;
-            match c.send_updates(&self.game, &log).await {
+            match c.send_events(&self.game, &log).await {
                 Err(e) => {
                     debug!("{} [{:?}]: <ERROR: {}>", c.peer, c.auth, e);
                 }
@@ -200,6 +200,7 @@ impl Conn {
         }
     }
 
+    /// Service connection until client disconnects.
     async fn run(mut self: Self) -> Result<(), io::Error> {
         debug!(
             "{} [{:?}]: <CONNECTED>",
@@ -212,7 +213,7 @@ impl Conn {
         self.state
             .write()
             .await
-            .send_updates(&server.game, &server.game.log)
+            .send_events(&server.game, &server.game.log)
             .await?;
         server.conns.push(self.state.clone());
         std::mem::drop(server);
@@ -312,6 +313,12 @@ impl Conn {
 }
 
 impl ConnState {
+    /// Send a typed response to client.
+    ///
+    /// We make a few concessions to readability here. Some response types are
+    /// serialized without their wrapping enum type. i.e. Event(...) --> ...
+    /// This make the protocol slightly harder to parse but makes the interface
+    /// feel more natural when playing over telnet, which is cool.
     async fn send(self: &mut Self, message: Response) -> Result<(), io::Error> {
         match message {
             Response::Event(e) => self.send_raw(e).await,
@@ -319,7 +326,20 @@ impl ConnState {
         }
     }
 
-    async fn send_updates(
+    /// Send any serializeable type to client.
+    async fn send_raw<T: serde::ser::Serialize>(
+        self: &mut Self,
+        message: T,
+    ) -> Result<(), io::Error> {
+        let msg = ron::ser::to_string(&message).unwrap();
+        debug!("{} [{:?}]: < {}", self.peer, self.auth, msg);
+        self.writer.write((msg + "\n").as_bytes()).await?;
+
+        Ok(())
+    }
+
+    /// Send any events the client has permission to see.
+    async fn send_events(
         self: &mut Self,
         game: &Game,
         updates: &[(Visibility, Event)],
@@ -355,17 +375,6 @@ impl ConnState {
         if send_players {
             self.send(Response::Players(game.get_statuses())).await?;
         }
-
-        Ok(())
-    }
-
-    async fn send_raw<T: serde::ser::Serialize>(
-        self: &mut Self,
-        message: T,
-    ) -> Result<(), io::Error> {
-        let msg = ron::ser::to_string(&message).unwrap();
-        debug!("{} [{:?}]: < {}", self.peer, self.auth, msg);
-        self.writer.write((msg + "\n").as_bytes()).await?;
 
         Ok(())
     }
