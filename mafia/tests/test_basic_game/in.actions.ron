@@ -9,6 +9,10 @@
     // Test protecting the right player.
     Use("Bob", Protect("Charlie")),
 
+    // Test illegal actions.
+    Use("Bob", Protect("Bob")),
+    Use("Charlie", Protect("Bob")),
+
     // Resolve Night 0.
     EndPhase,
 

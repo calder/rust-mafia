@@ -5,12 +5,36 @@ use crate::util::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Attr {
-    Dead,
-    Has(Action),
-    Member(Faction),
-    Phases(u64, Box<Attr>),
-    Poisoned(u64),
+    /// Player is immune to normal kills.
     Bulletproof,
+
+    /// Player is dead.
+    Dead,
+
+    /// Player has an action.
+    Has(Action),
+
+    /// Player belongs to the given faction.
+    Member(
+        /// Faction player belongs to.
+        Faction,
+        /// Rank within the faction. Lower is better.
+        #[serde(default, skip_serializing_if = "IsDefault::is_default")]
+        i64,
+    ),
+
+    /// Player has an attribute that expires after a given number of phases.
+    Phases(
+        /// Number of phases this attribute lasts.
+        u64,
+        /// The temporary attribute.
+        Box<Attr>,
+    ),
+
+    /// Player is poisoned and will die after a number of phases.
+    Poisoned(u64),
+
+    /// Player received a number of elimination votes.
     ReceivedVotes(i64),
 }
 
@@ -23,10 +47,10 @@ impl Attr {
         }
     }
 
-    pub fn get_faction(self: &Self) -> Option<Faction> {
+    pub fn get_faction_and_rank(self: &Self) -> Option<(Faction, i64)> {
         match self {
-            Self::Member(f) => Some(f.clone()),
-            Self::Phases(_, a) => a.get_faction(),
+            Self::Member(f, r) => Some((f.clone(), *r)),
+            Self::Phases(_, a) => a.get_faction_and_rank(),
             _ => None,
         }
     }

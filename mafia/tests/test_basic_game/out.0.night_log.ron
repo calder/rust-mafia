@@ -4,7 +4,12 @@
     (Moderator, Input(Use("Eve", Order("Malory", Kill("Charlie"))))),
     (Moderator, Input(Use("Alice", Investigate("Bob")))),
     (Moderator, Input(Use("Bob", Protect("Charlie")))),
+    (Moderator, Input(Use("Bob", Protect("Bob")))),
+    (Moderator, Input(Use("Charlie", Protect("Bob")))),
     (Moderator, Input(EndPhase)),
+    (Moderator, Ignored("Eve", Order("Eve", Kill("Alice")))),
+    (Moderator, Ignored("Bob", Protect("Bob"))),
+    (Moderator, Ignored("Charlie", Protect("Bob"))),
     (Player("Alice"), FoundAlignment("Bob", Good)),
     (Public, PhaseEnded(Night(0))),
 ]

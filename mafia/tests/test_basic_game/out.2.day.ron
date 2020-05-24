@@ -21,11 +21,11 @@
         ],
         "Bob": [
             Member("Town"),
+            Has(Protect("$OTHER_PLAYER")),
             Dead,
         ],
         "Charlie": [
             Member("Town"),
-            Has(Protect("$OTHER_PLAYER")),
             Dead,
         ],
         "Eve": [

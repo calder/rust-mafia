@@ -115,8 +115,12 @@ impl Game {
     }
 
     fn get_faction(self: &Self, player: &Player) -> Faction {
+        self.get_faction_and_rank(player).0
+    }
+
+    fn get_faction_and_rank(self: &Self, player: &Player) -> (Faction, i64) {
         self.get_attrs(player)
-            .find_map(|a| a.get_faction())
+            .find_map(|a| a.get_faction_and_rank())
             .expect(&format!("Player does not have a faction: {:?}", player))
     }
 
@@ -163,6 +167,10 @@ impl Game {
         }
     }
 
+    fn get_leader(self: &Self, faction: &Faction) -> Player {
+        self.get_members(faction)[0].clone()
+    }
+
     fn get_living_players(self: &Self) -> Vec<Player> {
         self.state
             .players
@@ -172,9 +180,10 @@ impl Game {
             .collect()
     }
 
-    fn get_plan(self: &Self) -> Plan {
+    fn get_plan(self: &mut Self) -> Plan {
         let mut acted = Set::new();
         let mut plan = Plan::new();
+        let mut ignored = Vec::new();
         for (_visibility, event) in self.log.iter().rev() {
             match event {
                 Event::PhaseBegan(_) => {
@@ -185,14 +194,39 @@ impl Game {
                     if !acted.contains(player) && self.is_valid_action(player, action) {
                         plan.push((player.clone(), action.clone()));
                         acted.insert(player);
+                    } else {
+                        ignored.push((player.clone(), action.clone()));
                     }
                 }
                 _ => {}
             }
         }
+
+        for (player, action) in ignored.into_iter().rev() {
+            self.log
+                .push((Visibility::Moderator, Event::Ignored(player, action)));
+        }
+
         plan.reverse();
         plan.sort_by_key(|(_, a)| a.precedence());
         plan
+    }
+
+    fn get_members(self: &Self, faction: &Faction) -> Vec<Player> {
+        let mut members_with_rank: Vec<(Player, i64)> = self
+            .get_living_players()
+            .into_iter()
+            .filter_map(|p| {
+                let (f, r) = self.get_faction_and_rank(&p);
+                if f == *faction {
+                    Some((p, r))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        members_with_rank.sort_by_key(|m| m.1);
+        members_with_rank.into_iter().map(|(p, _)| p).collect()
     }
 
     fn get_rng(self: &mut Self) -> Rng {
@@ -204,6 +238,34 @@ impl Game {
         PlayerStatus::alive(self.is_alive(player))
     }
 
+    fn get_faction_actions(self: &Self, faction: &Faction) -> Vec<Action> {
+        self.state.factions[faction]
+            .actions
+            .iter()
+            // TODO: Only allow commanding of faction members.
+            .map(|a| Action::Order("$PLAYER".to_string(), Box::new(a.clone())))
+            .collect()
+    }
+
+    fn get_actions(self: &Self, player: &Player) -> Vec<Action> {
+        // Get individual actions.
+        let mut actions: Vec<Action> = self
+            .get_attrs(player)
+            .filter_map(|a| a.get_action())
+            .collect();
+
+        // Get faction actions.
+        let faction = self.get_faction(player);
+        if self.get_leader(&faction) == *player {
+            actions.append(&mut self.get_faction_actions(&faction));
+        }
+
+        // Always give players a vote.
+        actions.push(Action::Vote("$PLAYER".to_string()));
+
+        actions
+    }
+
     fn is_alive(self: &Self, player: &Player) -> bool {
         self.get_attr(player, |a| a.is_alive(), true)
     }
@@ -213,8 +275,9 @@ impl Game {
     }
 
     fn is_valid_action(self: &Self, player: &Player, action: &Action) -> bool {
-        let actions = self.get_attrs(player).filter_map(|a| a.get_action());
-        true // PLACEHOLDER
+        self.get_actions(player)
+            .iter()
+            .any(|a| a.matches(action, player))
     }
 
     fn make_dead(self: &mut Self, player: &Player) {
@@ -231,10 +294,7 @@ impl Game {
     }
 
     fn num_living_members(self: &Self, faction: &Faction) -> usize {
-        self.get_living_players()
-            .iter()
-            .filter(|p| self.get_faction(p) == *faction)
-            .count()
+        self.get_members(faction).len()
     }
 
     fn num_living_players(self: &Self) -> usize {
@@ -314,7 +374,7 @@ impl Game {
                 let result = self.get_player_alignment(target);
                 self.log.push((
                     Visibility::Player(player.clone()),
-                    Event::FoundAlignment(target.clone(), result.clone()),
+                    Event::FoundAlignment(target.clone(), result),
                 ));
             }
             Action::Order(minion, faction_action) => self.resolve_action(minion, faction_action),

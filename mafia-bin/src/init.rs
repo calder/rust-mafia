@@ -29,30 +29,30 @@ pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
     setup.players.insert(
         "Alice".to_string(),
         [
-            Attr::Member("Town".to_string()),
+            Attr::Member("Town".to_string(), 0),
             Attr::Has(Action::Investigate("$PLAYER".to_string())),
         ]
         .to_vec(),
     );
     setup.players.insert(
         "Bob".to_string(),
-        [Attr::Member("Town".to_string())].to_vec(),
+        [Attr::Member("Town".to_string(), 0)].to_vec(),
     );
     setup.players.insert(
         "Charlie".to_string(),
         [
-            Attr::Member("Town".to_string()),
+            Attr::Member("Town".to_string(), 0),
             Attr::Has(Action::Protect("$OTHER_PLAYER".to_string())),
         ]
         .to_vec(),
     );
     setup.players.insert(
         "Eve".to_string(),
-        [Attr::Member("Mafia".to_string())].to_vec(),
+        [Attr::Member("Mafia".to_string(), 1)].to_vec(),
     );
     setup.players.insert(
         "Malory".to_string(),
-        [Attr::Member("Mafia".to_string())].to_vec(),
+        [Attr::Member("Mafia".to_string(), 2)].to_vec(),
     );
     setup.seed = seed.unwrap_or_else(rand::random);
 

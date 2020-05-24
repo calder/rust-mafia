@@ -19,10 +19,10 @@
         ],
         "Bob": [
             Member("Town"),
+            Has(Protect("$OTHER_PLAYER")),
         ],
         "Charlie": [
             Member("Town"),
-            Has(Protect("$OTHER_PLAYER")),
         ],
         "Eve": [
             Member("Mafia"),
