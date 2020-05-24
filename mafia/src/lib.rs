@@ -3,7 +3,6 @@
 // Re-enable when ready to start documenting.
 // #![error(missing_docs)]
 
-mod ability;
 mod action;
 mod alignment;
 mod attr;
@@ -20,7 +19,6 @@ mod state;
 mod util;
 mod visibility;
 
-pub use crate::ability::*;
 pub use crate::action::*;
 pub use crate::alignment::*;
 pub use crate::attr::*;

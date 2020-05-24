@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use mafia::{Ability, Alignment, Attr, FactionState, Membership, Objective, Visibility};
+use mafia::{Action, Alignment, Attr, FactionState, Membership, Objective, Visibility};
 
 use crate::util::KeyMap;
 
@@ -11,7 +11,7 @@ pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
     setup.factions.insert(
         "Mafia".to_string(),
         FactionState {
-            abilities: [Ability::Kill].to_vec(),
+            actions: [Action::Kill("$PLAYER".to_string())].to_vec(),
             alignment: Alignment::Evil,
             membership: Membership::Visible,
             objective: Objective::AchieveMajority,
@@ -20,7 +20,7 @@ pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
     setup.factions.insert(
         "Town".to_string(),
         FactionState {
-            abilities: [].to_vec(),
+            actions: [].to_vec(),
             alignment: Alignment::Good,
             membership: Membership::Hidden,
             objective: Objective::Eliminate(Alignment::Evil),
@@ -30,7 +30,7 @@ pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
         "Alice".to_string(),
         [
             Attr::Member("Town".to_string()),
-            Attr::Has(Ability::Investigate),
+            Attr::Has(Action::Investigate("$PLAYER".to_string())),
         ]
         .to_vec(),
     );
@@ -42,7 +42,7 @@ pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
         "Charlie".to_string(),
         [
             Attr::Member("Town".to_string()),
-            Attr::Has(Ability::Protect),
+            Attr::Has(Action::Protect("$OTHER_PLAYER".to_string())),
         ]
         .to_vec(),
     );

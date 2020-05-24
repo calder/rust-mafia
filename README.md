@@ -47,43 +47,50 @@ Each player has a number of **attributes**. Attributes can be:
 * **Stacked:** A Godfather is `[Member("Mafia"), Bulletproof, Appears(Good)]`.
 * **Composed:** Stone is `Uses(1, Bulletproof)`. Doctors apply `Phases(1, Bulletproof)`.
 
-#### Core roles
+### Core roles
 
 |    | Role | Attributes |
 |----|------|------------|
 | ✔️ | Town member | `Member("Town")` |
 | ✔️ | Mafia member | `Member("Mafia")` |
-| ✔️ | Cop | `Has(Investigate)` |
-| ✔️ | Doctor | `Has(Protect)` |
+| ✔️ | Cop | `Has(Investigate("$PLAYER"))` |
+| ✔️ | Doctor | `Has(Protect("$OTHER_PLAYER"))` |
 
-#### Common roles
+### Common roles
 
 |    | Role | Attributes |
 |----|------|------------|
 | ❌ | Cult member | `Member("Cult")` |
-| ❌ | Roleblocker | `Has(Roleblock)` |
+| ❌ | Roleblocker | `Has(Roleblock("$PLAYER"))` |
 | ❌ | Stone | `Uses(1, Bulletproof)` |
 
-#### Attributes
+### Attributes
 
 |    | Attribute | Description |
 |----|-----------|-------------|
 | ❌ | `Appears(Alignment)` | Shows up as `Alignment` to investigations. |
 | ✔️ | `Dead` | Player is dead. |
-| ✔️ | `Has(Ability)` | Player can use `Ability`. |
+| ✔️ | `Has(Action)` | Player can use `Action`. |
 | ✔️ | `Member(Faction)` | Player belongs to `Faction`. |
 | ✔️ | `Phases(1, Attribute)` | Attribute expires after one phase. |
 | ❌ | `Uses(1, Attribute)` | Attribute expires after one use. |
 
-#### Abilities
+### Actions
 
-|    | Ability | Description |
-|----|---------|-------------|
-| ✔️ | `Investigate` | Investigate a player's alignment. |
-| ✔️ | `Kill` | Kill a player. |
-| ✔️ | `Protect` | Protect a player from kills. |
-| ❌ | `Recruit` | Recruit a player into your faction. |
-| ❌ | `Roleblock` | Block a player from using abilities. |
+|    | Action | Description |
+|----|--------|-------------|
+| ✔️ | `Investigate(Player)` | Investigate a player's alignment. |
+| ✔️ | `Kill(Player)` | Kill a player. |
+| ✔️ | `Protect(Player)` | Protect a player from kills. |
+| ❌ | `Recruit(Player)` | Recruit a player into your faction. |
+| ❌ | `Roleblock(Player)` | Block a player from using abilities. |
+
+### Placeholders
+
+|    | Action | Description |
+|----|--------|-------------|
+| ❌ | `$PLAYER` | Any player. |
+| ❌ | `$OTHER_PLAYER` | Any player besides the player using the action. |
 
 
 
@@ -100,7 +107,7 @@ Each player has a number of **attributes**. Attributes can be:
 |    | Faction | Objective | Alignment | Abilities | Membership |
 |----|---------|-----------|-----------|-----------|------------|
 | ✔️ | Town | `Eliminate(Evil)` | `Good` | `[]` | `Hidden` |
-| ✔️ | Mafia | `AchieveMajority` | `Evil` | `[Kill]` | `Visible` |
+| ✔️ | Mafia | `AchieveMajority` | `Evil` | `[Kill("$PLAYER")]` | `Visible` |
 
 #### Common factions
 

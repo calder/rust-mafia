@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use crate::ability::*;
+use crate::action::*;
 use crate::util::*;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Attr {
     Dead,
-    Has(Ability),
+    Has(Action),
     Member(Faction),
     Phases(u64, Box<Attr>),
     Poisoned(u64),
@@ -15,6 +15,14 @@ pub enum Attr {
 }
 
 impl Attr {
+    pub fn get_action(self: &Self) -> Option<Action> {
+        match self {
+            Self::Has(a) => Some(a.clone()),
+            Self::Phases(_, a) => a.get_action(),
+            _ => None,
+        }
+    }
+
     pub fn get_faction(self: &Self) -> Option<Faction> {
         match self {
             Self::Member(f) => Some(f.clone()),
@@ -31,10 +39,10 @@ impl Attr {
         }
     }
 
-    pub fn is_protected(self: &Self) -> Option<bool> {
+    pub fn is_bulletproof(self: &Self) -> Option<bool> {
         match self {
             Self::Bulletproof => Some(true),
-            Self::Phases(_, a) => a.is_protected(),
+            Self::Phases(_, a) => a.is_bulletproof(),
             _ => None,
         }
     }

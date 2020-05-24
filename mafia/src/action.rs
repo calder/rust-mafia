@@ -24,13 +24,13 @@ pub enum Action {
 }
 
 impl Action {
-    pub fn order(self: &Self) -> usize {
+    pub fn precedence(self: &Self) -> usize {
         match self {
             Self::Immediate(_) => 0,
             Self::Investigate(_) => 1,
             Self::Protect(_) => 2,
             Self::Kill(_) => 1000,
-            Self::Order(_, a) => a.order(),
+            Self::Order(_, a) => a.precedence(),
             Self::Vote(_) => 1000,
         }
     }

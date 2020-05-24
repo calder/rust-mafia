@@ -1,7 +1,7 @@
 (
     factions: {
         "Mafia": (
-            abilities: [Kill],
+            actions: [Kill("$PLAYER")],
             alignment: Evil,
             membership: Visible,
             objective: AchieveMajority,
@@ -15,14 +15,14 @@
     players: {
         "Alice": [
             Member("Town"),
-            Has(Investigate),
+            Has(Investigate("$PLAYER")),
         ],
         "Bob": [
             Member("Town"),
         ],
         "Charlie": [
             Member("Town"),
-            Has(Protect),
+            Has(Protect("$OTHER_PLAYER")),
         ],
         "Eve": [
             Member("Mafia"),

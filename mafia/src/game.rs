@@ -104,6 +104,7 @@ impl Game {
         self.get_attrs(player).filter_map(f).sum()
     }
 
+    /// Return a given player's attributes, most recent first.
     fn get_attrs(self: &Self, player: &Player) -> std::iter::Rev<std::slice::Iter<Attr>> {
         self.state
             .players
@@ -181,8 +182,7 @@ impl Game {
                 }
                 Event::Input(Input::Use(_, Action::Immediate(_))) => {}
                 Event::Input(Input::Use(player, action)) => {
-                    if !acted.contains(player) {
-                        // TODO: Check action validity.
+                    if !acted.contains(player) && self.is_valid_action(player, action) {
                         plan.push((player.clone(), action.clone()));
                         acted.insert(player);
                     }
@@ -191,7 +191,7 @@ impl Game {
             }
         }
         plan.reverse();
-        plan.sort_by_key(|(_, a)| a.order());
+        plan.sort_by_key(|(_, a)| a.precedence());
         plan
     }
 
@@ -208,8 +208,13 @@ impl Game {
         self.get_attr(player, |a| a.is_alive(), true)
     }
 
-    fn is_protected(self: &Self, player: &Player) -> bool {
-        self.get_attr(player, |a| a.is_protected(), false)
+    fn is_bulletproof(self: &Self, player: &Player) -> bool {
+        self.get_attr(player, |a| a.is_bulletproof(), false)
+    }
+
+    fn is_valid_action(self: &Self, player: &Player, action: &Action) -> bool {
+        let actions = self.get_attrs(player).filter_map(|a| a.get_action());
+        true // PLACEHOLDER
     }
 
     fn make_dead(self: &mut Self, player: &Player) {
@@ -241,9 +246,8 @@ impl Game {
     }
 
     fn resolve(self: &mut Self) {
-        let plan = self.get_plan();
-
         // Resolve actions.
+        let plan = self.get_plan();
         for (player, action) in &plan {
             self.resolve_action(player, action);
         }
@@ -253,7 +257,7 @@ impl Game {
             let queue = self.get_living_players();
             let mut rng = self.get_rng();
 
-            // Count votes once so limited use attributes are used exactly once.
+            // Count votes.
             let mut queue: Vec<(i64, &Player)> =
                 queue.iter().map(|p| (self.num_votes_for(p), p)).collect();
 
@@ -302,7 +306,7 @@ impl Game {
         match action {
             Action::Immediate(_) => {}
             Action::Kill(target) => {
-                if self.is_alive(target) && !self.is_protected(target) {
+                if self.is_alive(target) && !self.is_bulletproof(target) {
                     self.make_dead(target);
                 }
             }
