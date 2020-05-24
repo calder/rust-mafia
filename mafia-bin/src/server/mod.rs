@@ -229,13 +229,13 @@ impl Conn {
                         msg
                     );
 
-                    let action: ron::error::Result<Action> = ron::de::from_str(&msg);
+                    let action: ron::de::Result<Action> = ron::de::from_str(&msg);
                     if let Ok(action) = action {
                         self.apply(action).await?;
                         continue;
                     };
 
-                    let request: ron::error::Result<Request> = ron::de::from_str(&msg);
+                    let request: ron::de::Result<Request> = ron::de::from_str(&msg);
                     if let Ok(request) = request {
                         self.handle(request).await?;
                         continue;
@@ -431,7 +431,7 @@ fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Er
 /// Atomicity is achieved by writing to a temporary file then renaming. Renames
 /// are atomic on most modern filesystems.
 fn save_file<T: serde::ser::Serialize>(path: &PathBuf, value: &T) {
-    let output = ron::ser::to_string_pretty(&value, ron::ser::PrettyConfig::new()).unwrap();
+    let output = ron::ser::to_string_pretty(&value, ron::ser::PrettyConfig::default()).unwrap();
 
     let tmp_path = PathBuf::from(path.to_str().unwrap().to_string() + ".tmp");
     let mut tmp_file = File::create(tmp_path.clone()).unwrap();

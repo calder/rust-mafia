@@ -17,7 +17,7 @@ env_logger = "0.7"
 log = "0.4"
 mafia = { path = "../mafia" }
 rand = "0.7"
-ron = "0.6"
+ron = "0.5"
 serde = "1.0"
 serde_yaml = "0.8"
 structopt = "0.3"

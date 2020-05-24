@@ -2,8 +2,8 @@
     factions: {
         "Mafia": (
             actions: [
-
-                Kill("$PLAYER"),            ],
+                Kill("$PLAYER"),
+            ],
             alignment: Evil,
             membership: Visible,
             objective: AchieveMajority,
@@ -16,22 +16,22 @@
     },
     players: {
         "Alice": [
-
             Member("Town"),
-            Has(Investigate("$PLAYER")),        ],
+            Has(Investigate("$PLAYER")),
+        ],
         "Bob": [
-
-            Member("Town"),        ],
-        "Charlie": [
-
             Member("Town"),
-            Has(Protect("$OTHER_PLAYER")),        ],
+        ],
+        "Charlie": [
+            Member("Town"),
+            Has(Protect("$OTHER_PLAYER")),
+        ],
         "Eve": [
-
-            Member("Mafia", 1),        ],
+            Member("Mafia", 1),
+        ],
         "Malory": [
-
-            Member("Mafia", 2),        ],
+            Member("Mafia", 2),
+        ],
     },
     seed: 1234567890,
 )
