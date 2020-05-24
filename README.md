@@ -149,8 +149,12 @@ Each player has a number of **attributes**. Attributes can be:
     * [X] Log updates
     * [X] Log visibility
 
+Pre-intro:
+* [X] Allow "..." as a shortcut for "Use(...)"
+* [ ] Time travel
+* [ ] Documentation
+
 Punted:
-* [ ] Allow "..." as a shortcut for "Use(...)"
 * [ ] Remove trailing commas and add spaces in server responses
 * [ ] Vote count updates
 * [ ] Smoother auth flow

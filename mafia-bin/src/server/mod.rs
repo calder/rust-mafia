@@ -228,18 +228,34 @@ impl Conn {
                         self.state.read().await.auth,
                         msg
                     );
-                    let request: Request = match ron::de::from_str(&msg) {
-                        Err(e) => {
-                            self.state
-                                .write()
-                                .await
-                                .send(Response::Error(e.to_string()))
-                                .await?;
-                            continue;
-                        }
-                        Ok(r) => r,
+
+                    let action: ron::error::Result<Action> = ron::de::from_str(&msg);
+                    if let Ok(action) = action {
+                        self.apply(action).await?;
+                        continue;
                     };
-                    self.handle(request).await?;
+
+                    let request: ron::error::Result<Request> = ron::de::from_str(&msg);
+                    if let Ok(request) = request {
+                        self.handle(request).await?;
+                        continue;
+                    };
+
+                    if let Err(err) = action {
+                        self.state
+                            .write()
+                            .await
+                            .send(Response::Error(err.to_string()))
+                            .await?;
+                    }
+
+                    if let Err(err) = request {
+                        self.state
+                            .write()
+                            .await
+                            .send(Response::Error(err.to_string()))
+                            .await?;
+                    }
                 }
                 Ok(None) => {
                     debug!("{} [{:?}]: <EOF>", self.peer, self.state.read().await.auth);
@@ -280,7 +296,7 @@ impl Conn {
                         .await?;
                 }
             },
-            Request::EndPhase => match &self.state.read().await.auth {
+            Request::EndPhase => match state.auth {
                 Visibility::Moderator => {
                     std::mem::drop(state);
                     self.server.write().await.apply(&Input::EndPhase).await?;
@@ -291,22 +307,33 @@ impl Conn {
                         .await?;
                 }
             },
-            Request::Use(action) => match &self.state.read().await.auth {
-                Visibility::Player(player) => {
-                    std::mem::drop(state);
-                    self.server
-                        .write()
-                        .await
-                        .apply(&Input::Use(player.clone(), action))
-                        .await?;
-                }
-                _ => {
-                    state
-                        .send(Response::Error("Permission denied".to_string()))
-                        .await?;
-                }
-            },
+            Request::Use(action) => {
+                std::mem::drop(state);
+                self.apply(action).await?;
+            }
         };
+
+        Ok(())
+    }
+
+    async fn apply(self: &mut Self, action: Action) -> Result<(), io::Error> {
+        let auth = self.state.read().await.auth.clone();
+        match auth {
+            Visibility::Player(player) => {
+                self.server
+                    .write()
+                    .await
+                    .apply(&Input::Use(player.clone(), action))
+                    .await?;
+            }
+            _ => {
+                self.state
+                    .write()
+                    .await
+                    .send(Response::Error("Permission denied".to_string()))
+                    .await?;
+            }
+        }
 
         Ok(())
     }
@@ -389,19 +416,11 @@ fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Er
         )
     })?;
 
-    let result = ron::de::from_reader(file).map_err(|e| match e {
-        ron::de::Error::IoError(_) => io::Error::new(
+    let result = ron::de::from_reader(file).map_err(|e| {
+        io::Error::new(
             io::ErrorKind::Other,
             format!("Error reading {}: {}", &path.display(), e),
-        ),
-        ron::de::Error::Message(_) => io::Error::new(
-            io::ErrorKind::Other,
-            format!("Error reading {}: {}", &path.display(), e),
-        ),
-        ron::de::Error::Parser(_, _) => io::Error::new(
-            io::ErrorKind::InvalidInput,
-            format!("Error at {}:{}:", &path.display(), e),
-        ),
+        )
     })?;
 
     Ok(result)
@@ -412,7 +431,7 @@ fn load_file<T: serde::de::DeserializeOwned>(path: &PathBuf) -> Result<T, io::Er
 /// Atomicity is achieved by writing to a temporary file then renaming. Renames
 /// are atomic on most modern filesystems.
 fn save_file<T: serde::ser::Serialize>(path: &PathBuf, value: &T) {
-    let output = ron::ser::to_string_pretty(&value, mafia::ron_pretty_config()).unwrap();
+    let output = ron::ser::to_string_pretty(&value, ron::ser::PrettyConfig::new()).unwrap();
 
     let tmp_path = PathBuf::from(path.to_str().unwrap().to_string() + ".tmp");
     let mut tmp_file = File::create(tmp_path.clone()).unwrap();
