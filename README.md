@@ -47,24 +47,7 @@ Each player has a number of **attributes**. Attributes can be:
 * **Stacked:** A Godfather is `[Member("Mafia"), Bulletproof, Appears(Good)]`.
 * **Composed:** Stone is `Uses(1, Bulletproof)`. Doctors apply `Phases(1, Bulletproof)`.
 
-### Core roles
-
-|    | Role | Attributes |
-|----|------|------------|
-| ✔️ | Town member | `Member("Town")` |
-| ✔️ | Mafia member | `Member("Mafia")` |
-| ✔️ | Cop | `Has(Investigate("$PLAYER"))` |
-| ✔️ | Doctor | `Has(Protect("$OTHER_PLAYER"))` |
-
-### Common roles
-
-|    | Role | Attributes |
-|----|------|------------|
-| ❌ | Cult member | `Member("Cult")` |
-| ❌ | Roleblocker | `Has(Roleblock("$PLAYER"))` |
-| ❌ | Stone | `Uses(1, Bulletproof)` |
-
-### Attributes
+#### Attributes
 
 |    | Attribute | Description |
 |----|-----------|-------------|
@@ -72,10 +55,10 @@ Each player has a number of **attributes**. Attributes can be:
 | ✔️ | `Dead` | Player is dead. |
 | ✔️ | `Has(Action)` | Player can use `Action`. |
 | ✔️ | `Member(Faction)` | Player belongs to `Faction`. |
-| ✔️ | `Phases(1, Attribute)` | Attribute expires after one phase. |
-| ❌ | `Uses(1, Attribute)` | Attribute expires after one use. |
+| ✔️ | `Phases(N, Attribute)` | Attribute expires after `N` phases. |
+| ❌ | `Uses(N, Attribute)` | Attribute expires after `N` uses. |
 
-### Actions
+#### Actions
 
 |    | Action | Description |
 |----|--------|-------------|
@@ -85,12 +68,30 @@ Each player has a number of **attributes**. Attributes can be:
 | ❌ | `Recruit(Player)` | Recruit a player into your faction. |
 | ❌ | `Roleblock(Player)` | Block a player from using abilities. |
 
-### Placeholders
+#### Placeholders
 
 |    | Action | Description |
 |----|--------|-------------|
 | ❌ | `$PLAYER` | Any player. |
 | ❌ | `$OTHER_PLAYER` | Any player besides the player using the action. |
+
+#### Core roles
+
+|    | Role | Attributes |
+|----|------|------------|
+| ✔️ | Town member | `Member("Town")` |
+| ✔️ | Mafia member | `Member("Mafia")` |
+| ✔️ | Cop | `Has(Investigate("$PLAYER"))` |
+| ✔️ | Doctor | `Has(Protect("$OTHER_PLAYER"))` |
+
+#### Common roles
+
+|    | Role | Attributes |
+|----|------|------------|
+| ❌ | Busdriver | `Has(Busdrive("$PLAYER", "$PLAYER"))` |
+| ❌ | Cult member | `Member("Cult")` |
+| ❌ | Roleblocker | `Has(Roleblock("$PLAYER"))` |
+| ❌ | Stone | `Uses(1, Bulletproof)` |
 
 
 
