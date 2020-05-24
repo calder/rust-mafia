@@ -145,10 +145,10 @@ Each player has a number of **attributes**. Attributes can be:
     * [X] Action amending
     * [X] Log visibility
     * [ ] Action validity checking
-        * [ ] Player has action
-        * [ ] Target is alive
-        * [ ] Doctors can't protect themselves
-        * [ ] Faction action chain of command
+        * [X] Player has action
+        * [X] Doctors can't protect themselves
+        * [X] Faction action chain of command
+        * [ ] Faction leader can only order faction members.
 * [X] Basic server
     * [X] Auth
     * [X] Client input

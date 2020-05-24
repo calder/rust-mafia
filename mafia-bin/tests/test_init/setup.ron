@@ -28,10 +28,10 @@
             Has(Protect("$OTHER_PLAYER")),        ],
         "Eve": [
 
-            Member("Mafia"),        ],
+            Member("Mafia", 1),        ],
         "Malory": [
 
-            Member("Mafia"),        ],
+            Member("Mafia", 2),        ],
     },
     seed: 1234567890,
 )
