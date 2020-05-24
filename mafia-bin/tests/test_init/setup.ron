@@ -2,8 +2,8 @@
     factions: {
         "Mafia": (
             abilities: [
-                Kill,
-            ],
+
+                Kill,            ],
             alignment: Evil,
             membership: Visible,
             objective: AchieveMajority,
@@ -16,22 +16,22 @@
     },
     players: {
         "Alice": [
+
             Member("Town"),
-            Has(Investigate),
-        ],
+            Has(Investigate),        ],
         "Bob": [
-            Member("Town"),
-        ],
+
+            Member("Town"),        ],
         "Charlie": [
+
             Member("Town"),
-            Has(Protect),
-        ],
+            Has(Protect),        ],
         "Eve": [
-            Member("Mafia"),
-        ],
+
+            Member("Mafia"),        ],
         "Malory": [
-            Member("Mafia"),
-        ],
+
+            Member("Mafia"),        ],
     },
     seed: 1234567890,
 )

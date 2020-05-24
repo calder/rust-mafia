@@ -253,7 +253,7 @@ impl Game {
             let queue = self.get_living_players();
             let mut rng = self.get_rng();
 
-            // Count votes up front so we use OneShots exactly once.
+            // Count votes once so limited use attributes are used exactly once.
             let mut queue: Vec<(i64, &Player)> =
                 queue.iter().map(|p| (self.num_votes_for(p), p)).collect();
 
@@ -315,10 +315,10 @@ impl Game {
             }
             Action::Order(minion, faction_action) => self.resolve_action(minion, faction_action),
             Action::Protect(target) => {
-                self.add_attr(target, Attr::OnePhase(Box::new(Attr::Bulletproof)));
+                self.add_attr(target, Attr::Phases(1, Box::new(Attr::Bulletproof)));
             }
             Action::Vote(target) => {
-                self.add_attr(target, Attr::OnePhase(Box::new(Attr::ReceivedVotes(1))));
+                self.add_attr(target, Attr::Phases(1, Box::new(Attr::ReceivedVotes(1))));
             }
         }
     }

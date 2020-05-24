@@ -45,7 +45,7 @@ Auth("<password>")
 
 Each player has a number of **attributes**. Attributes can be:
 * **Stacked:** A Godfather is `[Member("Mafia"), Bulletproof, Appears(Good)]`.
-* **Composed:** Stone is `OneShot(Bulletproof)`. Doctors apply `OnePhase(Bulletproof)`.
+* **Composed:** Stone is `Uses(1, Bulletproof)`. Doctors apply `Phases(1, Bulletproof)`.
 
 #### Core roles
 
@@ -62,7 +62,7 @@ Each player has a number of **attributes**. Attributes can be:
 |----|------|------------|
 | ❌ | Cult member | `Member("Cult")` |
 | ❌ | Roleblocker | `Has(Roleblock)` |
-| ❌ | Stone | `OneShot(Bulletproof)` |
+| ❌ | Stone | `Uses(1, Bulletproof)` |
 
 #### Attributes
 
@@ -72,8 +72,8 @@ Each player has a number of **attributes**. Attributes can be:
 | ✔️ | `Dead` | Player is dead. |
 | ✔️ | `Has(Ability)` | Player can use `Ability`. |
 | ✔️ | `Member(Faction)` | Player belongs to `Faction`. |
-| ✔️ | `OnePhase(Attribute)` | Attribute expires after one phase. |
-| ❌ | `OneShot(Attribute)` | Attribute expires after one use. |
+| ✔️ | `Phases(1, Attribute)` | Attribute expires after one phase. |
+| ❌ | `Uses(1, Attribute)` | Attribute expires after one use. |
 
 #### Abilities
 
