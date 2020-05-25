@@ -39,10 +39,10 @@ pub enum Attr {
 }
 
 impl Attr {
-    pub fn get_action(self: &Self) -> Option<Action> {
+    pub fn get_action_mut(self: &mut Self) -> Option<&mut Action> {
         match self {
-            Self::Has(a) => Some(a.clone()),
-            Self::Phases(_, a) => a.get_action(),
+            Self::Has(a) => Some(a),
+            Self::Phases(_, a) => a.get_action_mut(),
             _ => None,
         }
     }
@@ -73,6 +73,7 @@ impl Attr {
 
     pub fn next_phase(self: &Self) -> Option<Self> {
         match self {
+            Self::Has(action) => Some(Self::Has(action.next_phase())),
             Self::Phases(1, _) => None,
             Self::Phases(n, a) => Some(Self::Phases(n - 1, a.clone())),
             _ => Some(self.clone()),

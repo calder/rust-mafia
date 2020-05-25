@@ -14,12 +14,15 @@
     players: {
         "Alice": [
             Member("Mafia"),
+            Has(Day(Vote("$PLAYER"))),
         ],
         "Bob": [
             Member("Mafia"),
+            Has(Day(Vote("$PLAYER"))),
         ],
         "Charlie": [
             Member("Town"),
+            Has(Day(Vote("$PLAYER"))),
         ],
     },
     seed: 0,

@@ -11,6 +11,11 @@
     (Moderator, Input(Use("Malory", Vote("Charlie")))),
     (Public, VotedFor("Malory", "Charlie")),
     (Moderator, Input(EndPhase)),
+    (Moderator, Accepted("Alice", Vote("Eve"))),
+    (Moderator, Accepted("Bob", Vote("Charlie"))),
+    (Moderator, Accepted("Charlie", Vote("Eve"))),
+    (Moderator, Accepted("Eve", Vote("Charlie"))),
+    (Moderator, Accepted("Malory", Vote("Charlie"))),
     (Public, Died("Charlie")),
     (Public, PhaseEnded(Day(1))),
 ]

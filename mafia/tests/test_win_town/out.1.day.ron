@@ -14,9 +14,11 @@
     players: {
         "Alice": [
             Member("Town"),
+            Has(Day(Vote("$PLAYER"))),
         ],
         "Charlie": [
             Member("Survivors"),
+            Has(Day(Vote("$PLAYER"))),
         ],
     },
     seed: 0,

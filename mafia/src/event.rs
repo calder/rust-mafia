@@ -9,14 +9,14 @@ use crate::util::*;
 /// Event that occurred during a game.
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Event {
+    /// Action was accepted and resolved.
+    Accepted(Player, Action),
+
     /// Player died.
     Died(Player),
 
     /// Investigation yielded alignment.
     FoundAlignment(Player, Alignment),
-
-    /// Action was ignored because it was invalid or amended.
-    Ignored(Player, Action),
 
     /// Game received input.
     Input(Input),
@@ -26,6 +26,9 @@ pub enum Event {
 
     /// Phase ended.
     PhaseEnded(Phase),
+
+    /// Action was rejected because it was invalid or amended.
+    Rejected(Player, Action),
 
     /// Player used action.
     Used(Player, Action),

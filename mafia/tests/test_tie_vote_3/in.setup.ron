@@ -7,9 +7,18 @@
         ),
     },
     players: {
-        "Alice": [Member("Town")],
-        "Bob": [Member("Town")],
-        "Charlie": [Member("Town")],
+        "Alice": [
+            Member("Town"),
+            Has(Day(Vote("$PLAYER"))),
+        ],
+        "Bob": [
+            Member("Town"),
+            Has(Day(Vote("$PLAYER"))),
+        ],
+        "Charlie": [
+            Member("Town"),
+            Has(Day(Vote("$PLAYER"))),
+        ],
     },
     seed: 9,
 )

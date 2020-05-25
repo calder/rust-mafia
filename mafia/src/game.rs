@@ -54,9 +54,6 @@ impl Game {
                 Action::Immediate(action) => {
                     self.resolve_action(player, action);
                 }
-                Action::Investigate(_) => {}
-                Action::Kill(_) => {}
-                Action::Protect(_) => {}
                 Action::Order(minion, faction_action) => match &**faction_action {
                     Action::Immediate(a) => {
                         self.resolve_action(minion, &*a);
@@ -69,6 +66,7 @@ impl Game {
                         Event::VotedFor(player.clone(), target.clone()),
                     ));
                 }
+                _ => {}
             },
         }
 
@@ -180,38 +178,6 @@ impl Game {
             .collect()
     }
 
-    fn get_plan(self: &mut Self) -> Plan {
-        let mut acted = Set::new();
-        let mut plan = Plan::new();
-        let mut ignored = Vec::new();
-        for (_visibility, event) in self.log.iter().rev() {
-            match event {
-                Event::PhaseBegan(_) => {
-                    break;
-                }
-                Event::Input(Input::Use(_, Action::Immediate(_))) => {}
-                Event::Input(Input::Use(player, action)) => {
-                    if !acted.contains(player) && self.is_valid_action(player, action) {
-                        plan.push((player.clone(), action.clone()));
-                        acted.insert(player);
-                    } else {
-                        ignored.push((player.clone(), action.clone()));
-                    }
-                }
-                _ => {}
-            }
-        }
-
-        for (player, action) in ignored.into_iter().rev() {
-            self.log
-                .push((Visibility::Moderator, Event::Ignored(player, action)));
-        }
-
-        plan.reverse();
-        plan.sort_by_key(|(_, a)| a.precedence());
-        plan
-    }
-
     fn get_members(self: &Self, faction: &Faction) -> Vec<Player> {
         let mut members_with_rank: Vec<(Player, i64)> = self
             .get_living_players()
@@ -229,6 +195,24 @@ impl Game {
         members_with_rank.into_iter().map(|(p, _)| p).collect()
     }
 
+    /// Return inputs from the current phase.
+    fn get_phase_inputs(self: &Self) -> Vec<Input> {
+        let mut inputs = Vec::new();
+        for event in self.log.iter().rev() {
+            match event {
+                (_, Event::PhaseBegan(_)) => {
+                    break;
+                }
+                (_, Event::Input(input)) => {
+                    inputs.push(input.clone());
+                }
+                _ => {}
+            }
+        }
+        inputs.reverse();
+        inputs
+    }
+
     fn get_rng(self: &mut Self) -> Rng {
         self.state.seed += 1;
         Rng::seed_from_u64(self.state.seed)
@@ -238,46 +222,12 @@ impl Game {
         PlayerStatus::alive(self.is_alive(player))
     }
 
-    fn get_faction_actions(self: &Self, faction: &Faction) -> Vec<Action> {
-        self.state.factions[faction]
-            .actions
-            .iter()
-            // TODO: Only allow commanding of faction members.
-            .map(|a| Action::Order("$PLAYER".to_string(), Box::new(a.clone())))
-            .collect()
-    }
-
-    fn get_actions(self: &Self, player: &Player) -> Vec<Action> {
-        // Get individual actions.
-        let mut actions: Vec<Action> = self
-            .get_attrs(player)
-            .filter_map(|a| a.get_action())
-            .collect();
-
-        // Get faction actions.
-        let faction = self.get_faction(player);
-        if self.get_leader(&faction) == *player {
-            actions.append(&mut self.get_faction_actions(&faction));
-        }
-
-        // Always give players a vote.
-        actions.push(Action::Vote("$PLAYER".to_string()));
-
-        actions
-    }
-
     fn is_alive(self: &Self, player: &Player) -> bool {
         self.get_attr(player, |a| a.is_alive(), true)
     }
 
     fn is_bulletproof(self: &Self, player: &Player) -> bool {
         self.get_attr(player, |a| a.is_bulletproof(), false)
-    }
-
-    fn is_valid_action(self: &Self, player: &Player, action: &Action) -> bool {
-        self.get_actions(player)
-            .iter()
-            .any(|a| a.matches(action, player))
     }
 
     fn make_dead(self: &mut Self, player: &Player) {
@@ -305,9 +255,10 @@ impl Game {
         self.get_attr_sum(player, |a| a.num_votes())
     }
 
+    /// Resolve the current phase.
     fn resolve(self: &mut Self) {
         // Resolve actions.
-        let plan = self.get_plan();
+        let plan = self.resolve_build_plan();
         for (player, action) in &plan {
             self.resolve_action(player, action);
         }
@@ -338,13 +289,18 @@ impl Game {
             .state
             .players
             .iter()
-            .map(|(player, modifiers)| {
+            .map(|(player, attrs)| {
                 (
                     player.clone(),
-                    modifiers.iter().filter_map(|m| m.next_phase()).collect(),
+                    attrs.iter().filter_map(|m| m.next_phase()).collect(),
                 )
             })
             .collect();
+        for (_, state) in &mut self.state.factions {
+            for action in &mut state.actions {
+                *action = action.next_phase();
+            }
+        }
 
         // Evaluate win conditions.
         for (faction, _) in &self.state.factions {
@@ -362,9 +318,9 @@ impl Game {
             .push((Visibility::Public, Event::PhaseBegan(self.phase.clone())));
     }
 
+    /// Resolve the effects of a single action.
     fn resolve_action(self: &mut Self, player: &Player, action: &Action) {
         match action {
-            Action::Immediate(_) => {}
             Action::Kill(target) => {
                 if self.is_alive(target) && !self.is_bulletproof(target) {
                     self.make_dead(target);
@@ -384,6 +340,84 @@ impl Game {
             Action::Vote(target) => {
                 self.add_attr(target, Attr::Phases(1, Box::new(Attr::ReceivedVotes(1))));
             }
+            _ => {}
         }
+    }
+
+    /// Build a plan of the actions to resolve and the order to resolve them in.
+    fn resolve_build_plan(self: &mut Self) -> Plan {
+        // Get valid actions.
+        let mut plan = Plan::new();
+        let mut log = Log::new();
+        for input in self.get_phase_inputs().iter().rev() {
+            match input {
+                Input::Use(player, action) => {
+                    if let Some(a) = self.resolve_get_action(player, action) {
+                        plan.push((player.clone(), action.clone()));
+                        a.tap();
+                        log.push((
+                            Visibility::Moderator,
+                            Event::Accepted(player.clone(), action.clone()),
+                        ));
+                    } else {
+                        log.push((
+                            Visibility::Moderator,
+                            Event::Rejected(player.clone(), action.clone()),
+                        ));
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        // Sort actions by precedence, breaking ties by submission order.
+        plan.reverse();
+        plan.sort_by_key(|(_, a)| a.precedence());
+
+        // Log accepted and rejected actions.
+        log.reverse();
+        self.log.append(&mut log);
+
+        plan
+    }
+
+    /// Try to find an ability matching the given action.
+    fn resolve_get_action(
+        self: &mut Self,
+        player: &Player,
+        action: &Action,
+    ) -> Option<&mut Action> {
+        // Check faction actions.
+        let mut led_factions = Set::new();
+        for (faction, _state) in &self.state.factions {
+            if self.get_leader(&faction) == *player {
+                led_factions.insert(faction.clone());
+            }
+        }
+        for (faction, state) in &mut self.state.factions {
+            if led_factions.contains(faction) {
+                for a in &mut state.actions {
+                    if a.matches(&self.phase, player, action) {
+                        return Some(a);
+                    }
+                }
+            }
+        }
+
+        // Check individual actions.
+        for attr in self
+            .state
+            .players
+            .get_mut(player)
+            .expect(&format!("No such player: {:?}", player))
+        {
+            if let Some(a) = attr.get_action_mut() {
+                if a.matches(&self.phase, player, action) {
+                    return Some(a);
+                }
+            }
+        }
+
+        None
     }
 }
