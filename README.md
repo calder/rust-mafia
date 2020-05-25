@@ -165,7 +165,7 @@ Pre-intro:
 Punted:
 * [ ] Remove trailing commas and add spaces in server responses
 * [ ] Vote count updates
-* [ ] Smoother auth flow
+* [ ] Better setup & auth ergonomics
 
 
 

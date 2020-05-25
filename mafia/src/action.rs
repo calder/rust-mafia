@@ -32,11 +32,6 @@ pub enum Action {
 }
 
 impl Action {
-    /// Use an action.
-    pub fn tap(self: &mut Self) {
-        *self = Action::Tapped(Box::new(self.clone()));
-    }
-
     /// Return whether another action matches this one, respecting placeholders.
     pub fn matches(self: &Self, phase: &Phase, actor: &str, other: &Action) -> bool {
         match phase {
@@ -79,6 +74,11 @@ impl Action {
             Self::Order(_, a) => a.precedence(),
             Self::Vote(_) => 1000,
         }
+    }
+
+    /// Use an action.
+    pub fn tap(self: &Self) -> Self {
+        Action::Tapped(Box::new(self.clone()))
     }
 }
 

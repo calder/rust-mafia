@@ -354,7 +354,7 @@ impl Game {
                 Input::Use(player, action) => {
                     if let Some(a) = self.resolve_get_action(player, action) {
                         plan.push((player.clone(), action.clone()));
-                        a.tap();
+                        *a = a.tap();
                         log.push((
                             Visibility::Moderator,
                             Event::Accepted(player.clone(), action.clone()),
@@ -381,7 +381,7 @@ impl Game {
         plan
     }
 
-    /// Try to find an ability matching the given action.
+    /// Return the first placeholder action matching the given action, if any.
     fn resolve_get_action(
         self: &mut Self,
         player: &Player,
