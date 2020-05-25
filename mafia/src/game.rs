@@ -285,17 +285,9 @@ impl Game {
         }
 
         // Expire effects.
-        self.state.players = self
-            .state
-            .players
-            .iter()
-            .map(|(player, attrs)| {
-                (
-                    player.clone(),
-                    attrs.iter().filter_map(|m| m.next_phase()).collect(),
-                )
-            })
-            .collect();
+        for (_, attrs) in &mut self.state.players {
+            *attrs = attrs.iter().filter_map(|m| m.next_phase()).collect();
+        }
         for (_, state) in &mut self.state.factions {
             for action in &mut state.actions {
                 *action = action.next_phase();
