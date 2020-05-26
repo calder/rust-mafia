@@ -262,7 +262,7 @@ impl Game {
         self.get_attr_or(player, |a| a.is_bulletproof(), false)
     }
 
-    fn make_dead(self: &mut Self, player: &Player) {
+    fn kill(self: &mut Self, player: &Player) {
         self.state.players.get_mut(player).unwrap().push(Attr::Dead);
         self.log
             .push((Visibility::Public, Event::Died(player.clone())));
@@ -311,7 +311,7 @@ impl Game {
             // Kill the first player if they received positive votes.
             if let Some((votes, player)) = queue.first() {
                 if *votes > 0 {
-                    self.make_dead(player);
+                    self.kill(player);
                 }
             }
         }
@@ -345,7 +345,7 @@ impl Game {
         match action {
             Action::Kill(target) => {
                 if self.is_alive(target) && !self.is_bulletproof(target) {
-                    self.make_dead(target);
+                    self.kill(target);
                 }
             }
             Action::Investigate(target) => {
