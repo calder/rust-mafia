@@ -47,17 +47,6 @@ Each player has a number of **attributes**. Attributes can be:
 * **Stacked:** A Godfather is `[Member("Mafia"), Bulletproof, Appears(Good)]`.
 * **Composed:** Stone is `Uses(1, Bulletproof)`. Doctors apply `Phases(1, Bulletproof)`.
 
-#### Attributes
-
-|    | Attribute | Description |
-|----|-----------|-------------|
-| ❌ | `Appears(Alignment)` | Shows up as `Alignment` to investigations. |
-| ✔️ | `Dead` | Player is dead. |
-| ✔️ | `Has(Action)` | Player can use `Action`. |
-| ✔️ | `Member(Faction)` | Player belongs to `Faction`. |
-| ✔️ | `Phases(N, Attribute)` | Attribute expires after `N` phases. |
-| ❌ | `Uses(N, Attribute)` | Attribute expires after `N` uses. |
-
 #### Actions
 
 |    | Action | Description |
@@ -68,12 +57,26 @@ Each player has a number of **attributes**. Attributes can be:
 | ❌ | `Recruit(Player)` | Recruit a player into your faction. |
 | ❌ | `Roleblock(Player)` | Block a player from using abilities. |
 
+#### Attributes
+
+|    | Attribute | Description |
+|----|-----------|-------------|
+| ❌ | `Appears(Alignment)` | Shows up as `Alignment` to investigations. |
+| ✔️ | `Dead` | Player is dead. |
+| ✔️ | `Has(Action)` | Player can use `Action`. |
+| ✔️ | `Member(Faction)` | Player belongs to `Faction`. |
+| ✔️ | `Phases(N, Attribute)` | Attribute expires after `N` phases. |
+| ❌ | `Poisoned(N)` | Player will die in `N` phases. |
+| ✔️ | `Tapped(Attribute)` | Attribute cannot be used until the next phase. May be chained. |
+| ❌ | `Uses(N, Attribute)` | Attribute expires after `N` uses. |
+
 #### Placeholders
 
 |    | Action | Description |
 |----|--------|-------------|
-| ❌ | `$PLAYER` | Any player. |
-| ❌ | `$OTHER_PLAYER` | Any player besides the player using the action. |
+| ✔️ | `$PLAYER` | Any player. |
+| ✔️ | `$OTHER_PLAYER` | Any player besides the player using the action. |
+| ✔️ | `$MEMBER` | Faction actions only: Any member of the faction. |
 
 #### Core roles
 
@@ -144,7 +147,7 @@ Each player has a number of **attributes**. Attributes can be:
     * [X] Day
     * [X] Action amending
     * [X] Log visibility
-    * [ ] Action validity checking
+    * [X] Action validity checking
         * [X] Player has action
         * [X] Doctors can't protect themselves
         * [X] Faction action chain of command
