@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use mafia::{Action, Alignment, Attr, FactionState, Membership, Objective, Visibility};
+use mafia::{Action, Alignment, Attr, Membership, Objective, Visibility};
 
 use crate::util::KeyMap;
 
@@ -10,21 +10,25 @@ pub fn init(path: std::path::PathBuf, seed: Option<u64>) {
     let mut setup = mafia::State::new();
     setup.factions.insert(
         "Mafia".to_string(),
-        FactionState {
-            actions: [Action::Kill("$PLAYER".to_string())].to_vec(),
-            alignment: Alignment::Evil,
-            membership: Membership::Visible,
-            objective: Objective::AchieveMajority,
-        },
+        [
+            Attr::Has(Action::Order(
+                "$MEMBER".to_string(),
+                Box::new(Action::Kill("$PLAYER".to_string())),
+            )),
+            Attr::Alignment(Alignment::Evil),
+            Attr::Membership(Membership::Visible),
+            Attr::Objective(Objective::AchieveMajority),
+        ]
+        .to_vec(),
     );
     setup.factions.insert(
         "Town".to_string(),
-        FactionState {
-            actions: [].to_vec(),
-            alignment: Alignment::Good,
-            membership: Membership::Hidden,
-            objective: Objective::Eliminate(Alignment::Evil),
-        },
+        [
+            Attr::Alignment(Alignment::Good),
+            Attr::Membership(Membership::Hidden),
+            Attr::Objective(Objective::Eliminate(Alignment::Evil)),
+        ]
+        .to_vec(),
     );
     setup.players.insert(
         "Alice".to_string(),

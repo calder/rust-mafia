@@ -3,8 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::attr::*;
 use crate::util::*;
 
-pub type Players = Map<Player, PlayerState>;
-pub type PlayerState = Vec<Attr>;
+pub type Players = Map<Player, Vec<Attr>>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum PlayerStatus {

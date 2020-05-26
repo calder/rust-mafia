@@ -1,10 +1,10 @@
 (
     factions: {
-        "Town": (
-            alignment: Good,
-            membership: Hidden,
-            objective: Eliminate(Evil),
-        ),
+        "Town": [
+            Alignment(Good),
+            Membership(Hidden),
+            Objective(Eliminate(Evil)),
+        ],
     },
     players: {
         "Alice": [

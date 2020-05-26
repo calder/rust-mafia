@@ -9,9 +9,6 @@ pub enum Action {
     /// An action which is used during the day instead of the night.
     Day(std::boxed::Box<Action>),
 
-    /// An action which can't be used until the next phase.
-    Tapped(std::boxed::Box<Action>),
-
     /// Immediately resolve an action.
     Immediate(std::boxed::Box<Action>),
 
@@ -33,14 +30,14 @@ pub enum Action {
 
 impl Action {
     /// Return whether another action matches this one, respecting placeholders.
-    pub fn matches(self: &Self, phase: &Phase, actor: &str, other: &Action) -> bool {
+    pub fn matches(self: &Self, phase: &Phase, actor: &str, action: &Action) -> bool {
         match phase {
-            Phase::Day(n) => match (self, other) {
+            Phase::Day(n) => match (self, action) {
                 (Self::Day(a1), a2) => a1.matches(&Phase::Night(*n), actor, a2),
                 _ => false,
             },
 
-            Phase::Night(_) => match (self, other) {
+            Phase::Night(_) => match (self, action) {
                 (Self::Immediate(a1), Self::Immediate(a2)) => a1.matches(phase, actor, a2),
                 (Self::Investigate(pp), Self::Investigate(p)) => placeholder_matches(pp, actor, p),
                 (Self::Protect(pp), Self::Protect(p)) => placeholder_matches(pp, actor, p),
@@ -54,19 +51,10 @@ impl Action {
         }
     }
 
-    /// Return action advanced by a phase.
-    pub fn next_phase(self: &Self) -> Self {
-        match self {
-            Self::Tapped(a) => (**a).clone(),
-            a => a.clone(),
-        }
-    }
-
     /// Return resolution priority. Lower numbers are resolved first.
     pub fn precedence(self: &Self) -> usize {
         match self {
             Self::Day(a) => a.precedence(),
-            Self::Tapped(a) => a.precedence(),
             Self::Immediate(_) => 0,
             Self::Investigate(_) => 1,
             Self::Protect(_) => 2,
@@ -74,11 +62,6 @@ impl Action {
             Self::Order(_, a) => a.precedence(),
             Self::Vote(_) => 1000,
         }
-    }
-
-    /// Use an action.
-    pub fn tap(self: &Self) -> Self {
-        Action::Tapped(Box::new(self.clone()))
     }
 }
 

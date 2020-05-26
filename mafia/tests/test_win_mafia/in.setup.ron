@@ -1,15 +1,15 @@
 (
     factions: {
-        "Mafia": (
-            alignment: Evil,
-            membership: Visible,
-            objective: AchieveMajority,
-        ),
-        "Town": (
-            alignment: Good,
-            membership: Hidden,
-            objective: Eliminate(Evil),
-        ),
+        "Mafia": [
+            Alignment(Evil),
+            Membership(Visible),
+            Objective(AchieveMajority),
+        ],
+        "Town": [
+            Alignment(Good),
+            Membership(Hidden),
+            Objective(Eliminate(Evil)),
+        ],
     },
     players: {
         "Alice": [

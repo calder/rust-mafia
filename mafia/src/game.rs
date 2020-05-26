@@ -85,13 +85,17 @@ impl Game {
         self.state.players.get_mut(player).unwrap().push(attr);
     }
 
-    fn get_attr<T, F: FnMut(&Attr) -> Option<T>>(
+    fn get_attr<T, F: FnMut(&Attr) -> Option<T>>(self: &Self, player: &Player, f: F) -> Option<T> {
+        self.get_attrs(player).find_map(f)
+    }
+
+    fn get_attr_or<T, F: FnMut(&Attr) -> Option<T>>(
         self: &Self,
         player: &Player,
         f: F,
         default: T,
     ) -> T {
-        self.get_attrs(player).find_map(f).unwrap_or(default)
+        self.get_attr(player, f).unwrap_or(default)
     }
 
     fn get_attr_sum<T: std::iter::Sum, F: FnMut(&Attr) -> Option<T>>(
@@ -122,18 +126,46 @@ impl Game {
             .expect(&format!("Player does not have a faction: {:?}", player))
     }
 
+    fn get_faction_attr<T, F: FnMut(&Attr) -> Option<T>>(
+        self: &Self,
+        faction: &Faction,
+        f: F,
+    ) -> Option<T> {
+        self.get_faction_attrs(faction).find_map(f)
+    }
+
+    /// Return a given player's attributes, most recent first.
+    fn get_faction_attrs(self: &Self, faction: &Faction) -> std::iter::Rev<std::slice::Iter<Attr>> {
+        self.state
+            .factions
+            .get(faction)
+            .expect(&format!("No such faction: {:?}", faction))
+            .iter()
+            .rev()
+    }
+
     fn get_player_alignment(self: &Self, player: &Player) -> Alignment {
         self.get_faction_alignment(&self.get_faction(player))
     }
 
     fn get_faction_alignment(self: &Self, faction: &Faction) -> Alignment {
-        self.state.factions[faction].alignment.clone()
+        self.get_faction_attr(faction, |a| a.get_alignment())
+            .expect(&format!(
+                "Faction does not have an alignment: {:?}",
+                faction
+            ))
     }
 
-    fn get_fate(self: &Self, faction: &Faction) -> Fate {
-        let state = &self.state.factions[faction];
+    fn get_faction_objective(self: &Self, faction: &Faction) -> Objective {
+        self.get_faction_attr(faction, |a| a.get_objective())
+            .expect(&format!(
+                "Faction does not have an objective: {:?}",
+                faction
+            ))
+    }
 
-        match &state.objective {
+    fn get_faction_fate(self: &Self, faction: &Faction) -> Fate {
+        match &self.get_faction_objective(faction) {
             Objective::Eliminate(alignment) => {
                 if self.num_living_alignment(alignment) == 0 {
                     Fate::Won
@@ -223,11 +255,11 @@ impl Game {
     }
 
     fn is_alive(self: &Self, player: &Player) -> bool {
-        self.get_attr(player, |a| a.is_alive(), true)
+        self.get_attr_or(player, |a| a.is_alive(), true)
     }
 
     fn is_bulletproof(self: &Self, player: &Player) -> bool {
-        self.get_attr(player, |a| a.is_bulletproof(), false)
+        self.get_attr_or(player, |a| a.is_bulletproof(), false)
     }
 
     fn make_dead(self: &mut Self, player: &Player) {
@@ -288,15 +320,13 @@ impl Game {
         for (_, attrs) in &mut self.state.players {
             *attrs = attrs.iter().filter_map(|m| m.next_phase()).collect();
         }
-        for (_, state) in &mut self.state.factions {
-            for action in &mut state.actions {
-                *action = action.next_phase();
-            }
+        for (_, attrs) in &mut self.state.factions {
+            *attrs = attrs.iter().filter_map(|m| m.next_phase()).collect();
         }
 
         // Evaluate win conditions.
         for (faction, _) in &self.state.factions {
-            if self.get_fate(faction) == Fate::Won {
+            if self.get_faction_fate(faction) == Fate::Won {
                 self.log
                     .push((Visibility::Public, Event::Won(faction.clone())));
             }
@@ -374,11 +404,7 @@ impl Game {
     }
 
     /// Return the first placeholder action matching the given action, if any.
-    fn resolve_get_action(
-        self: &mut Self,
-        player: &Player,
-        action: &Action,
-    ) -> Option<&mut Action> {
+    fn resolve_get_action(self: &mut Self, player: &Player, action: &Action) -> Option<&mut Attr> {
         // Check faction actions.
         let mut led_factions = Set::new();
         for (faction, _state) in &self.state.factions {
@@ -386,11 +412,11 @@ impl Game {
                 led_factions.insert(faction.clone());
             }
         }
-        for (faction, state) in &mut self.state.factions {
+        for (faction, attrs) in &mut self.state.factions {
             if led_factions.contains(faction) {
-                for a in &mut state.actions {
-                    if a.matches(&self.phase, player, action) {
-                        return Some(a);
+                for attr in attrs {
+                    if attr.allows_action(&self.phase, player, action) {
+                        return Some(attr);
                     }
                 }
             }
@@ -403,9 +429,9 @@ impl Game {
             .get_mut(player)
             .expect(&format!("No such player: {:?}", player))
         {
-            if let Some(a) = attr.get_action_mut() {
+            if let Some(a) = attr.get_action() {
                 if a.matches(&self.phase, player, action) {
-                    return Some(a);
+                    return Some(attr);
                 }
             }
         }
