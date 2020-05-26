@@ -1,3 +1,5 @@
+use std::iter::FromIterator;
+
 use rand::seq::SliceRandom;
 use rand_core::SeedableRng;
 use serde::{Deserialize, Serialize};
@@ -406,18 +408,21 @@ impl Game {
     /// Return the first placeholder action matching the given action, if any.
     fn resolve_get_action(self: &mut Self, player: &Player, action: &Action) -> Option<&mut Attr> {
         // Check faction actions.
-        let mut led_factions = Set::new();
-        for (faction, _state) in &self.state.factions {
+        let mut factions = Map::new();
+        for (faction, _) in &self.state.factions {
             if self.get_leader(&faction) == *player {
-                led_factions.insert(faction.clone());
+                factions.insert(
+                    faction.clone(),
+                    Set::from_iter(self.get_members(faction).into_iter()),
+                );
             }
         }
         for (faction, attrs) in &mut self.state.factions {
-            if led_factions.contains(faction) {
-                for attr in attrs {
-                    if attr.allows_action(&self.phase, player, action) {
-                        return Some(attr);
-                    }
+            for attr in attrs.iter_mut() {
+                if factions.contains_key(faction)
+                    && attr.allows_action(&self.phase, player, &factions[faction], action)
+                {
+                    return Some(attr);
                 }
             }
         }
@@ -430,7 +435,7 @@ impl Game {
             .expect(&format!("No such player: {:?}", player))
         {
             if let Some(a) = attr.get_action() {
-                if a.matches(&self.phase, player, action) {
+                if a.matches(&self.phase, player, &Set::new(), action) {
                     return Some(attr);
                 }
             }

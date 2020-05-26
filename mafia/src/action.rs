@@ -30,22 +30,39 @@ pub enum Action {
 
 impl Action {
     /// Return whether another action matches this one, respecting placeholders.
-    pub fn matches(self: &Self, phase: &Phase, actor: &str, action: &Action) -> bool {
+    pub fn matches(
+        self: &Self,
+        phase: &Phase,
+        actor: &str,
+        faction_members: &Set<Player>,
+        action: &Action,
+    ) -> bool {
         match phase {
             Phase::Day(n) => match (self, action) {
-                (Self::Day(a1), a2) => a1.matches(&Phase::Night(*n), actor, a2),
+                (Self::Day(a1), a2) => a1.matches(&Phase::Night(*n), actor, faction_members, a2),
                 _ => false,
             },
 
             Phase::Night(_) => match (self, action) {
-                (Self::Immediate(a1), Self::Immediate(a2)) => a1.matches(phase, actor, a2),
-                (Self::Investigate(pp), Self::Investigate(p)) => placeholder_matches(pp, actor, p),
-                (Self::Protect(pp), Self::Protect(p)) => placeholder_matches(pp, actor, p),
-                (Self::Kill(pp), Self::Kill(p)) => placeholder_matches(pp, actor, p),
-                (Self::Order(pp, pa), Self::Order(p, a)) => {
-                    placeholder_matches(pp, actor, p) && pa.matches(phase, p, a)
+                (Self::Immediate(a1), Self::Immediate(a2)) => {
+                    a1.matches(phase, actor, faction_members, a2)
                 }
-                (Self::Vote(pp), Self::Vote(p)) => placeholder_matches(pp, actor, p),
+                (Self::Investigate(pp), Self::Investigate(p)) => {
+                    placeholder_matches(pp, actor, faction_members, p)
+                }
+                (Self::Protect(pp), Self::Protect(p)) => {
+                    placeholder_matches(pp, actor, faction_members, p)
+                }
+                (Self::Kill(pp), Self::Kill(p)) => {
+                    placeholder_matches(pp, actor, faction_members, p)
+                }
+                (Self::Order(pp, pa), Self::Order(p, a)) => {
+                    placeholder_matches(pp, actor, faction_members, p)
+                        && pa.matches(phase, p, faction_members, a)
+                }
+                (Self::Vote(pp), Self::Vote(p)) => {
+                    placeholder_matches(pp, actor, faction_members, p)
+                }
                 _ => false,
             },
         }
@@ -66,9 +83,14 @@ impl Action {
 }
 
 /// Return whether a target player matches a placeholder.
-pub fn placeholder_matches(placeholder: &str, actor: &str, target: &str) -> bool {
+pub fn placeholder_matches(
+    placeholder: &str,
+    actor: &str,
+    faction_members: &Set<Player>,
+    target: &str,
+) -> bool {
     match placeholder {
-        "$MEMBER" => true, // TODO: Fix.
+        "$MEMBER" => faction_members.contains(target),
         "$OTHER_PLAYER" => target != actor,
         "$PLAYER" => true,
         _ => target == placeholder,

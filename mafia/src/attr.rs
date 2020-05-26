@@ -56,10 +56,16 @@ pub enum Attr {
 
 impl Attr {
     /// Whether this attribute allows the given action to be taken.
-    pub fn allows_action(self: &Self, phase: &Phase, actor: &str, action: &Action) -> bool {
+    pub fn allows_action(
+        self: &Self,
+        phase: &Phase,
+        actor: &str,
+        faction_members: &Set<Player>,
+        action: &Action,
+    ) -> bool {
         match self {
-            Self::Has(a) => a.matches(phase, actor, action),
-            Self::Phases(_, a) => a.allows_action(phase, actor, action),
+            Self::Has(a) => a.matches(phase, actor, faction_members, action),
+            Self::Phases(_, a) => a.allows_action(phase, actor, faction_members, action),
             _ => false,
         }
     }

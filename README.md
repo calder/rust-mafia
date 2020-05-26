@@ -131,7 +131,7 @@ Each player has a number of **attributes**. Attributes can be:
 
 ## TODO
 
-* [ ] Basic gameplay
+* [X] Basic gameplay
     * [X] Test infrastructure
     * [X] Advance phases
     * [X] Objectives
@@ -148,7 +148,7 @@ Each player has a number of **attributes**. Attributes can be:
         * [X] Player has action
         * [X] Doctors can't protect themselves
         * [X] Faction action chain of command
-        * [ ] Faction leader can only order faction members.
+        * [X] Faction leader can only order faction members.
 * [X] Basic server
     * [X] Auth
     * [X] Client input
@@ -159,8 +159,9 @@ Each player has a number of **attributes**. Attributes can be:
 
 Pre-intro:
 * [X] Allow "..." as a shortcut for "Use(...)"
-* [ ] Time travel
+* [ ] Input sanity checking and crash handling
 * [ ] Documentation
+* [ ] Time travel
 
 Punted:
 * [ ] Remove trailing commas and add spaces in server responses

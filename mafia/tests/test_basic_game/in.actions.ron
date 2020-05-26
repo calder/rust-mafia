@@ -3,6 +3,9 @@
     Use("Eve", Order("Eve", Kill("Alice"))),
     Use("Eve", Order("Malory", Kill("Charlie"))),
 
+    // Test ordering someone who's not in the faction.
+    Use("Eve", Order("Alice", Kill("Charlie"))),
+
     // Test good investigation.
     Use("Alice", Investigate("Bob")),
 
